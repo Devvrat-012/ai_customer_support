@@ -2,72 +2,104 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { setUser, clearUser, setLoading } from '@/lib/store/authSlice';
+import { useAppDispatch } from '@/lib/store/hooks';
+import { clearUser, setLoading, setUser } from '@/lib/store/authSlice';
 import { addAlert } from '@/lib/store/alertSlice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ThemeSelector } from '@/components/ui/theme-selector';
 import { Loader2, LogOut, Bot } from 'lucide-react';
+import { persistor } from '@/lib/store';
+import { useAuth } from '@/hooks/useAuth';
+import { CompanyDataUpload } from '@/components/dashboard/CompanyDataUpload';
+import { CompanyDataViewer } from '@/components/dashboard/CompanyDataViewer';
+import { AIChatDialog } from '@/components/dashboard/AIChatDialog';
 
 export default function DashboardPage() {
-  const { user, isLoading } = useAppSelector((state) => state.auth);
+  const { user, isLoading } = useAuth();
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [companyDataExists, setCompanyDataExists] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      dispatch(setLoading(true));
-      try {
-        const response = await fetch('/api/auth/me');
-        const result = await response.json();
-
-        if (result.success) {
-          dispatch(setUser(result.data));
-        } else {
-          dispatch(clearUser());
-          router.push('/auth/login');
-        }
-      } catch (error) {
-        dispatch(clearUser());
-        router.push('/auth/login');
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
-
-    // Only check auth if mounted and we don't have a user
-    if (mounted && !user && !isLoading) {
-      checkAuth();
+    // Check if user has company data and update state
+    if (user?.companyInfo) {
+      setCompanyDataExists(true);
+    } else {
+      setCompanyDataExists(false);
     }
-  }, [dispatch, user, isLoading, router, mounted]);
+  }, [user]);
 
-  const handleLogout = async () => {
+  const handleDataUpdated = async () => {
+    // Refresh user data to update company info status
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      dispatch(clearUser());
-      dispatch(addAlert({
-        type: 'success',
-        title: 'Logged out',
-        message: 'You have been successfully logged out',
-      }));
-      router.push('/auth/login');
+      const response = await fetch('/api/auth/me');
+      const result = await response.json();
+
+      if (result.success) {
+        dispatch(setUser(result.data));
+        // Update local state based on new user data
+        setCompanyDataExists(!!result.data.companyInfo);
+      }
     } catch (error) {
-      dispatch(addAlert({
-        type: 'error',
-        title: 'Logout failed',
-        message: 'An error occurred while logging out',
-      }));
+      console.error('Failed to refresh user data:', error);
+      // Fallback to page reload if API call fails
+      window.location.reload();
     }
   };
 
-  // Show loading during hydration
-  if (!mounted || isLoading) {
+  const handleLogout = async () => {
+    if (isLoggingOut) return; // Prevent multiple clicks
+    
+    setIsLoggingOut(true);
+    dispatch(setLoading(true));
+    
+    try {
+      const response = await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include' // Ensure cookies are sent
+      });
+      
+      // Clear user state and purge persisted store
+      dispatch(clearUser());
+      await persistor.purge(); // Clear persisted state
+      
+      if (response.ok) {
+        dispatch(addAlert({
+          type: 'success',
+          title: 'Logged out',
+          message: 'You have been successfully logged out',
+        }));
+      }
+      
+      // Small delay to ensure state is cleared
+      setTimeout(() => {
+        router.replace('/auth/login');
+      }, 100);
+      
+    } catch (error) {
+      // Even if logout API fails, clear user state and redirect
+      dispatch(clearUser());
+      await persistor.purge();
+      dispatch(addAlert({
+        type: 'error',
+        title: 'Logout failed',
+        message: 'An error occurred while logging out, but you have been signed out locally',
+      }));
+      setTimeout(() => {
+        router.replace('/auth/login');
+      }, 100);
+    } finally {
+      setIsLoggingOut(false);
+      dispatch(setLoading(false));
+    }
+  };
+
+  // Show loading during hydration or logout
+  if (!mounted || isLoading || isLoggingOut) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-foreground" />
@@ -93,9 +125,18 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center space-x-4">
               <ThemeSelector />
-              <Button onClick={handleLogout} variant="outline" size="sm">
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
+              <Button 
+                onClick={handleLogout} 
+                variant="outline" 
+                size="sm"
+                disabled={isLoggingOut}
+              >
+                {isLoggingOut ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <LogOut className="h-4 w-4 mr-2" />
+                )}
+                {isLoggingOut ? 'Logging out...' : 'Logout'}
               </Button>
             </div>
           </div>
@@ -127,12 +168,18 @@ export default function DashboardPage() {
                 <CardDescription>Upload your company data for AI training</CardDescription>
               </CardHeader>
               <CardContent>
-                {user.companyInfo ? (
-                  <p className="text-green-600 dark:text-green-400">✓ Company information uploaded</p>
+                {companyDataExists ? (
+                  <div className="space-y-2">
+                    <p className="text-green-600 dark:text-green-400">✓ Company information uploaded</p>
+                    <div className="flex gap-2">
+                      <CompanyDataViewer onDataUpdated={handleDataUpdated} />
+                      <CompanyDataUpload hasExistingData={true} onDataUpdated={handleDataUpdated} />
+                    </div>
+                  </div>
                 ) : (
                   <div>
                     <p className="text-amber-600 dark:text-amber-400 mb-2">No company information uploaded yet</p>
-                    <Button size="sm">Upload Company Data</Button>
+                    <CompanyDataUpload hasExistingData={false} onDataUpdated={handleDataUpdated} />
                   </div>
                 )}
               </CardContent>
@@ -145,7 +192,10 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <Button className="w-full" size="sm">Try AI Assistant</Button>
+                  <AIChatDialog 
+                    companyName={user.companyName || undefined}
+                    userName={user.firstName || undefined}
+                  />
                   <Button variant="outline" className="w-full" size="sm">View Documentation</Button>
                 </div>
               </CardContent>

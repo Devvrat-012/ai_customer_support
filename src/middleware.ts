@@ -24,13 +24,16 @@ export async function middleware(request: NextRequest) {
   let isAuthenticated = false;
   if (token) {
     try {
-  await verifyToken(token);
+      await verifyToken(token);
       isAuthenticated = true;
     } catch (error) {
-      // Token is invalid, remove it
-      const response = NextResponse.redirect(new URL('/auth/login', request.url));
-      response.cookies.delete(process.env.COOKIE_NAME || 'auth-token');
-      return response;
+      // Token is invalid, remove it and redirect only if on protected route
+      if (isProtectedRoute) {
+        const response = NextResponse.redirect(new URL('/auth/login', request.url));
+        response.cookies.delete(process.env.COOKIE_NAME || 'auth-token');
+        return response;
+      }
+      // If not on protected route, just continue and let the page handle it
     }
   }
 

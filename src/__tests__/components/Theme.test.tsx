@@ -58,8 +58,8 @@ describe('Theme Components', () => {
       fireEvent.click(button);
       
       // Should show theme options
-      expect(screen.getByText('System')).toBeInTheDocument();
-      expect(screen.getByText('Dark')).toBeInTheDocument();
+      expect(screen.getByText('system')).toBeInTheDocument();
+      expect(screen.getByText('dark')).toBeInTheDocument();
     });
   });
 });

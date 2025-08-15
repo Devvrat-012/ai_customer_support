@@ -13,7 +13,6 @@ import {
   Clock, 
   Users, 
   BarChart3, 
-  MessageSquare,
   ArrowRight,
   CheckCircle,
   Star
@@ -262,8 +261,8 @@ function LandingPage() {
                 </CardHeader>
                 <CardContent className="text-center">
                   <blockquote className="text-lg italic text-muted-foreground mb-4">
-                    "This AI customer support tool has transformed our business. We've seen a 95% reduction in response times 
-                    and our customer satisfaction scores have never been higher."
+                    &ldquo;This AI customer support tool has transformed our business. We&rsquo;ve seen a 95% reduction in response times 
+                    and our customer satisfaction scores have never been higher.&rdquo;
                   </blockquote>
                   <div className="font-semibold">Sarah Johnson</div>
                   <div className="text-sm text-muted-foreground">Customer Success Manager</div>

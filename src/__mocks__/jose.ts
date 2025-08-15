@@ -1,7 +1,7 @@
 export class SignJWT {
-  private payload: any;
+  private payload: Record<string, unknown>;
   private exp: string | undefined;
-  constructor(payload: any) { this.payload = payload; }
+  constructor(payload: Record<string, unknown>) { this.payload = payload; }
   setProtectedHeader() { return this; }
   setExpirationTime(exp: string) { this.exp = exp; return this; }
   async sign(_secret: Uint8Array): Promise<string> {
