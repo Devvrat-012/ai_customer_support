@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -18,6 +19,7 @@ model User {
   lastName         String    @map("last_name")
   companyName      String?   @map("company_name")
   companyInfo      String?   @map("company_info") // This will store the uploaded text file content
+  widgetKey        String?   @unique @map("widget_key") // Unique key for widget authentication
   isEmailVerified  Boolean   @default(false) @map("is_email_verified")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")

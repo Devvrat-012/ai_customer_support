@@ -75,7 +75,7 @@ const extractTextContent = (html: string, url: string): string => {
   });
   
   // Clean up the text
-  let cleanText = extractedText
+  const cleanText = extractedText
     .replace(/\s+/g, ' ') // Replace multiple whitespace with single space
     .replace(/\n\s*\n/g, '\n') // Remove empty lines
     .replace(/[\r\n\t]+/g, ' ') // Replace tabs and newlines with spaces

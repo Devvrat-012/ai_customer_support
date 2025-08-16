@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { CompanyDataViewer } from '@/components/dashboard/CompanyDataViewer';
 import { AIChatDialog } from '@/components/dashboard/AIChatDialog';
 import { WebsiteExtractor } from '@/components/dashboard/WebsiteExtractor';
+import { WidgetManager } from '@/components/dashboard/WidgetManager';
 import { gradients, featureColors, animations, spacing, typography, shadows } from '@/lib/design-system';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -224,7 +225,7 @@ export default function DashboardPage() {
                         Company information uploaded
                       </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2">
                       <CompanyDataViewer onDataUpdated={handleDataUpdated} />
                       <WebsiteExtractor hasExistingData={true} onDataUpdated={handleDataUpdated} />
                     </div>
@@ -299,6 +300,11 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </div>
+
+        {/* Widget Manager Section */}
+        <div className="mt-8">
+          <WidgetManager />
+        </div>
       </main>
       
       <Footer />
