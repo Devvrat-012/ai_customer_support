@@ -24,6 +24,7 @@ model User {
   
   // Relations
   sessions         Session[]
+  aiReplies        AiReply[]
 
   @@map("users")
 }
@@ -39,4 +40,19 @@ model Session {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
+}
+
+model AiReply {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  question    String   @db.Text
+  response    String   @db.Text
+  model       String   @default("gpt-3.5-turbo")
+  tokensUsed  Int?     @map("tokens_used")
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_replies")
 }

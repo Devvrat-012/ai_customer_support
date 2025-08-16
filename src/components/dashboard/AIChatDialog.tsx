@@ -4,20 +4,24 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Bot, Send, User, Loader2, MessageCircle, Trash2 } from 'lucide-react';
+import { Bot, Send, User, Loader2, MessageCircle, Trash2, Copy, Edit, RefreshCw } from 'lucide-react';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { addAlert } from '@/lib/store/alertSlice';
+import { Textarea } from '@/components/ui/textarea';
 
 interface Message {
   id: string;
   content: string;
   role: 'user' | 'assistant';
   timestamp: string;
+  isEditing?: boolean;
+  editedContent?: string;
 }
 
 interface AIChatDialogProps {
   companyName?: string;
   userName?: string;
+  onReplyCountChange?: (count: number) => void;
 }
 
 // Chat history utilities
@@ -66,12 +70,13 @@ const clearChatHistory = () => {
   }
 };
 
-export function AIChatDialog({ companyName = 'our company', userName = 'there' }: AIChatDialogProps) {
+export function AIChatDialog({ companyName = 'our company', userName = 'there', onReplyCountChange }: AIChatDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [replyCount, setReplyCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
@@ -122,6 +127,13 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
     }
   }, [isOpen]);
 
+  // Notify parent of reply count changes
+  useEffect(() => {
+    if (onReplyCountChange) {
+      onReplyCountChange(replyCount);
+    }
+  }, [replyCount, onReplyCountChange]);
+
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -157,6 +169,7 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
           timestamp: result.data.timestamp
         };
         setMessages(prev => [...prev, aiMessage]);
+        setReplyCount(prev => prev + 1); // Increment reply count
       } else {
         throw new Error(result.message || 'Failed to get AI response');
       }
@@ -198,6 +211,117 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
         timestamp: new Date().toISOString()
       };
       setMessages(prev => [...prev, errorChatMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Copy message content to clipboard
+  const copyMessage = async (content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      dispatch(addAlert({
+        type: 'success',
+        title: 'Copied!',
+        message: 'Message copied to clipboard'
+      }));
+    } catch (error) {
+      dispatch(addAlert({
+        type: 'error',
+        title: 'Copy Failed',
+        message: 'Failed to copy message to clipboard'
+      }));
+    }
+  };
+
+  // Start editing a message
+  const startEdit = (messageId: string) => {
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId 
+        ? { ...msg, isEditing: true, editedContent: msg.content }
+        : { ...msg, isEditing: false }
+    ));
+  };
+
+  // Save edited message
+  const saveEdit = (messageId: string) => {
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId 
+        ? { ...msg, content: msg.editedContent || msg.content, isEditing: false, editedContent: undefined }
+        : msg
+    ));
+    dispatch(addAlert({
+      type: 'success',
+      title: 'Message Updated',
+      message: 'Message has been updated successfully'
+    }));
+  };
+
+  // Cancel editing
+  const cancelEdit = (messageId: string) => {
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId 
+        ? { ...msg, isEditing: false, editedContent: undefined }
+        : msg
+    ));
+  };
+
+  // Update edited content
+  const updateEditedContent = (messageId: string, content: string) => {
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId 
+        ? { ...msg, editedContent: content }
+        : msg
+    ));
+  };
+
+  // Regenerate AI response for the same question
+  const regenerateResponse = async (messageId: string) => {
+    // Find the message and the previous user message
+    const messageIndex = messages.findIndex(msg => msg.id === messageId);
+    if (messageIndex === -1) return;
+
+    const userMessageIndex = messageIndex - 1;
+    if (userMessageIndex < 0 || messages[userMessageIndex].role !== 'user') return;
+
+    const userMessage = messages[userMessageIndex];
+    
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/ai-chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: userMessage.content }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Update the existing AI message with new response
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId 
+            ? { ...msg, content: result.data.message, timestamp: result.data.timestamp }
+            : msg
+        ));
+        setReplyCount(prev => prev + 1);
+        
+        dispatch(addAlert({
+          type: 'success',
+          title: 'Response Regenerated',
+          message: 'AI has generated a new response'
+        }));
+      } else {
+        throw new Error(result.message || 'Failed to regenerate response');
+      }
+    } catch (error) {
+      dispatch(addAlert({
+        type: 'error',
+        title: 'Regeneration Failed',
+        message: error instanceof Error ? error.message : 'Failed to regenerate response'
+      }));
     } finally {
       setIsLoading(false);
     }
@@ -293,10 +417,64 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
                     : 'bg-white dark:bg-gray-700 border text-gray-900 dark:text-gray-100'
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap text-white">{message.content}</p>
-                <p className="text-xs opacity-70 mt-1 text-white">
-                  {new Date(message.timestamp).toLocaleTimeString()}
-                </p>
+                {message.isEditing ? (
+                  <div className="space-y-2">
+                    <Textarea
+                      value={message.editedContent || message.content}
+                      onChange={(e) => updateEditedContent(message.id, e.target.value)}
+                      className="text-sm min-h-[60px] resize-none"
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => saveEdit(message.id)}>
+                        Save
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => cancelEdit(message.id)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-sm whitespace-pre-wrap text-white">{message.content}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-xs opacity-70 text-white">
+                        {new Date(message.timestamp).toLocaleTimeString()}
+                      </p>
+                      {message.role === 'assistant' && (
+                        <div className="flex gap-1 opacity-60 hover:opacity-100 transition-opacity">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 w-6 p-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                            onClick={() => copyMessage(message.content)}
+                            title="Copy message"
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 w-6 p-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                            onClick={() => startEdit(message.id)}
+                            title="Edit message"
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 w-6 p-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                            onClick={() => regenerateResponse(message.id)}
+                            disabled={isLoading}
+                            title="Regenerate response"
+                          >
+                            <RefreshCw className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
               
               {message.role === 'user' && (

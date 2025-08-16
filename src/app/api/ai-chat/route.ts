@@ -120,6 +120,17 @@ Current user: ${userName}`;
     const response = await result.response;
     const aiResponse = response.text();
 
+    // TODO: When database is connected, save AI reply generation record
+    // await prisma.aiReply.create({
+    //   data: {
+    //     userId: currentUser.id,
+    //     question: message,
+    //     response: aiResponse,
+    //     model: 'gemini-1.5-flash',
+    //     tokensUsed: null, // Gemini doesn't provide token count easily
+    //   }
+    // });
+
     return createSuccessResponse({
       message: aiResponse,
       timestamp: new Date().toISOString()

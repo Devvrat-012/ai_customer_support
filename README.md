@@ -18,6 +18,27 @@ A modern SaaS platform that provides AI-powered customer support solutions for b
   - Form validation with Zod
   - Beautiful landing page with hero section, features, and testimonials
   - Consistent header design across all pages
+  - **Colorful Dashboard Design** with gradient backgrounds and animations
+  
+- **Company Data Management**
+  - **Manual File Upload**: Upload text files containing company information
+  - **Automatic Website Extraction**: Extract content from any website URL automatically
+  - Intelligent content parsing that filters out navigation, ads, and irrelevant content
+  - Extracts page titles, meta descriptions, headings, and main content
+  - Dual-option interface with tabbed selection between manual and automatic methods
+  
+- **Advanced AI Chat Features**
+  - **Copy & Edit AI Responses**: Users can copy AI replies to clipboard or edit them inline
+  - **Regenerate Responses**: Option to generate new AI responses for the same question
+  - **Reply Count Tracking**: Automatic tracking of AI response generations for billing purposes
+  - Interactive chat interface with enhanced user controls
+  - Real-time reply counter displayed on dashboard
+  
+- **Enhanced Dashboard**
+  - **Colorful Design System**: Gradient backgrounds, animated blobs, and vibrant cards
+  - **Four-Section Layout**: Profile, Company Data, Quick Start, and AI Usage tracking
+  - **Real-time Usage Analytics**: Track AI reply generations with visual counters
+  - **Responsive Grid System**: Optimized for desktop and mobile viewing
   
 - **State Management**
   - Redux Toolkit for global state
@@ -28,6 +49,13 @@ A modern SaaS platform that provides AI-powered customer support solutions for b
   - PostgreSQL with Prisma ORM
   - Type-safe database operations
   - User and session management
+  - **AI Reply Tracking**: Database schema for tracking AI usage and billing
+  
+- **Web Scraping & Content Processing**
+  - **Cheerio-based HTML parsing** for intelligent content extraction
+  - **Content cleaning algorithms** that remove unwanted elements
+  - **URL validation and timeout handling** for robust website processing
+  - **Structured content extraction** with metadata preservation
   
 - **Testing**
   - Jest setup with React Testing Library
@@ -42,26 +70,55 @@ A modern SaaS platform that provides AI-powered customer support solutions for b
   - Fast loading with Next.js 15 optimizations
 
 ### 🚧 Planned Features
-- Company information file upload during signup
-- AI assistant for customer queries using company data
+- Email verification
 - Integration endpoints for websites/apps
 - Admin dashboard
-- Analytics and reporting
+- Enhanced analytics and reporting
 - API rate limiting
+- Multi-language support
 - Email verification
 
 ## Tech Stack
 
-- **Framework**: Next.js 15+ (App Router)
+- **Framework**: Next.js 15+ (App Router) with Turbopack
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS
+- **Styling**: Tailwind CSS with custom design system
 - **Database**: PostgreSQL with Prisma ORM
-- **State Management**: Redux Toolkit
+- **State Management**: Redux Toolkit with persistence
 - **Authentication**: JWT + HTTP-only cookies + bcryptjs
 - **UI Components**: Radix UI + shadcn/ui components
+- **Web Scraping**: Cheerio for HTML parsing and content extraction
 - **Testing**: Jest + React Testing Library
 - **Validation**: Zod
 - **Theming**: next-themes with dark/light mode support
+- **Icons**: Lucide React for consistent iconography
+
+## Recent Updates (August 2025)
+
+### 🚀 Major Feature Additions
+
+#### 1. **Website Content Extraction**
+- **Automatic Content Scraping**: Enter any website URL and automatically extract relevant content
+- **Intelligent Parsing**: Uses Cheerio to parse HTML and extract main content while filtering out navigation, ads, and irrelevant sections
+- **Content Optimization**: Extracts page titles, meta descriptions, headings, and main content in a structured format
+- **Dual Input Options**: Choose between manual file upload or automatic website extraction
+
+#### 2. **Enhanced AI Chat Experience**
+- **Interactive Response Management**: Copy, edit, and regenerate AI responses
+- **Inline Editing**: Edit AI responses directly in the chat interface with save/cancel options
+- **Response Regeneration**: Generate alternative responses for the same question
+- **Usage Tracking**: Automatic tracking of AI response generations for billing and analytics
+
+#### 3. **Colorful Dashboard Redesign**
+- **Visual Enhancement**: Gradient backgrounds, animated elements, and vibrant color schemes
+- **Improved UX**: Four-card layout with distinct color coding for different sections
+- **Real-time Analytics**: Live tracking of AI usage with visual counters
+- **Responsive Design**: Optimized for all screen sizes with smooth animations
+
+#### 4. **Advanced Content Management**
+- **Flexible Data Input**: Support for both manual file uploads and automatic website content extraction
+- **Content Validation**: URL validation, content length checks, and error handling
+- **Structured Storage**: Organized content storage with metadata preservation
 
 ## Project Structure
 
@@ -69,19 +126,25 @@ A modern SaaS platform that provides AI-powered customer support solutions for b
 src/
 ├── app/                    # Next.js app router
 │   ├── api/               # API routes
-│   │   └── auth/          # Authentication endpoints
+│   │   ├── auth/          # Authentication endpoints
+│   │   └── website-extract/ # Website content extraction API
 │   ├── auth/              # Authentication pages
-│   ├── dashboard/         # Dashboard pages
+│   ├── dashboard/         # Enhanced dashboard with colorful design
 │   └── layout.tsx         # Root layout
 ├── components/            # React components
 │   ├── auth/              # Authentication forms
+│   ├── dashboard/         # Dashboard components
+│   │   ├── AIChatDialog.tsx      # Enhanced chat with copy/edit/regenerate
+│   │   ├── WebsiteExtractor.tsx  # Website content extraction
+│   │   └── CompanyDataUpload.tsx # Manual file upload
 │   ├── common/            # Shared components
 │   ├── providers/         # Context providers
-│   └── ui/                # Base UI components
+│   └── ui/                # Base UI components (Radix UI + shadcn)
 ├── lib/                   # Utilities and configurations
 │   ├── auth/              # Authentication utilities
-│   ├── prisma/            # Prisma database client
+│   ├── prisma/            # Prisma database client with enhanced schema
 │   ├── store/             # Redux store and slices
+│   ├── design-system.ts   # Centralized design system with gradients and animations
 │   ├── seo.ts             # SEO utilities
 │   └── utils/             # Helper functions
 ├── hooks/                 # Custom React hooks
@@ -187,6 +250,63 @@ npm run test:coverage
 - `POST /api/auth/login` - User login
 - `POST /api/auth/logout` - User logout
 - `GET /api/auth/me` - Get current user
+
+### Company Data Management
+- `POST /api/website-extract` - Extract content from website URL
+- `POST /api/company-data/upload` - Upload company data file (if implemented)
+
+## Feature Usage
+
+### 🌐 Website Content Extraction
+1. **Navigate to Dashboard**: Login and go to the dashboard
+2. **Access Company Data Card**: Find the "Company Information" card
+3. **Click "Add Company Data"**: Opens the data input modal
+4. **Choose "Extract from Website"**: Select the website extraction tab
+5. **Enter Website URL**: Input any public website URL (e.g., https://example.com)
+6. **Click "Extract"**: The system will automatically:
+   - Fetch the website content
+   - Parse and clean the HTML
+   - Extract main content, titles, and headings
+   - Store the processed content in the database
+7. **Success Confirmation**: See a success message with content length details
+
+### 💬 Enhanced AI Chat Features
+1. **Open Chat**: Click "Chat with AI Assistant" in the Quick Start card
+2. **Ask Questions**: Type your customer service related questions
+3. **Interact with Responses**: Each AI response includes:
+   - **Copy Button**: Copy the response to clipboard
+   - **Edit Button**: Modify the response inline with save/cancel options
+   - **Regenerate Button**: Generate a new response for the same question
+4. **Track Usage**: See live reply count updates in the AI Usage card
+
+### 📊 Dashboard Analytics
+- **Profile Information**: View your account details and company info
+- **Company Data Status**: See whether company data is uploaded and manage it
+- **AI Usage Tracking**: Monitor reply generation count for billing purposes
+- **Quick Actions**: Access all main features from centralized dashboard
+
+### Request/Response Examples
+
+#### Website Extraction
+```bash
+POST /api/website-extract
+Content-Type: application/json
+Cookie: auth-token=<jwt-token>
+
+{
+  "websiteUrl": "https://example.com"
+}
+
+# Response
+{
+  "success": true,
+  "data": {
+    "websiteUrl": "https://example.com",
+    "contentLength": 2548,
+    "extractedAt": "2025-08-16T10:30:00Z"
+  }
+}
+```
 
 ### Request/Response Examples
 

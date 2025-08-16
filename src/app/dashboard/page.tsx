@@ -11,9 +11,9 @@ import { ThemeSelector } from '@/components/ui/theme-selector';
 import { Loader2, LogOut, Bot } from 'lucide-react';
 import { persistor } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
-import { CompanyDataUpload } from '@/components/dashboard/CompanyDataUpload';
 import { CompanyDataViewer } from '@/components/dashboard/CompanyDataViewer';
 import { AIChatDialog } from '@/components/dashboard/AIChatDialog';
+import { WebsiteExtractor } from '@/components/dashboard/WebsiteExtractor';
 import { gradients, featureColors, animations, spacing, typography, shadows } from '@/lib/design-system';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [companyDataExists, setCompanyDataExists] = useState(false);
+  const [totalReplies, setTotalReplies] = useState(0);
 
   useEffect(() => {
     setMounted(true);
@@ -52,6 +53,10 @@ export default function DashboardPage() {
       // Fallback to page reload if API call fails
       window.location.reload();
     }
+  };
+
+  const handleReplyCountChange = (count: number) => {
+    setTotalReplies(count);
   };
 
   const handleLogout = async () => {
@@ -165,7 +170,7 @@ export default function DashboardPage() {
       </nav>
 
       <main className={`${spacing.container} ${spacing.section} relative z-10`}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className={`border-0 ${shadows.card} transition-all duration-300 transform hover:-translate-y-1 ${featureColors.ai.card} backdrop-blur-sm`}>
               <CardHeader>
                 <div className="flex items-center space-x-3">
@@ -221,7 +226,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex gap-2">
                       <CompanyDataViewer onDataUpdated={handleDataUpdated} />
-                      <CompanyDataUpload hasExistingData={true} onDataUpdated={handleDataUpdated} />
+                      <WebsiteExtractor hasExistingData={true} onDataUpdated={handleDataUpdated} />
                     </div>
                   </div>
                 ) : (
@@ -232,7 +237,7 @@ export default function DashboardPage() {
                         No company information uploaded yet
                       </p>
                     </div>
-                    <CompanyDataUpload hasExistingData={false} onDataUpdated={handleDataUpdated} />
+                    <WebsiteExtractor hasExistingData={false} onDataUpdated={handleDataUpdated} />
                   </div>
                 )}
               </CardContent>
@@ -255,10 +260,41 @@ export default function DashboardPage() {
                   <AIChatDialog 
                     companyName={user.companyName || undefined}
                     userName={user.firstName || undefined}
+                    onReplyCountChange={handleReplyCountChange}
                   />
                   <Button variant="outline" className="w-full border-2 border-orange-300 text-orange-700 dark:text-orange-300 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-all duration-300" size="sm">
                     View Documentation
                   </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className={`border-0 ${shadows.card} transition-all duration-300 transform hover:-translate-y-1 ${featureColors.analytics.card} backdrop-blur-sm`}>
+              <CardHeader>
+                <div className="flex items-center space-x-3">
+                  <div className={`${spacing.iconContainer} ${featureColors.analytics.icon} rounded-lg flex items-center justify-center ${shadows.card}`}>
+                    <Bot className={`${spacing.iconSize} text-white`} />
+                  </div>
+                  <div>
+                    <CardTitle className="text-gray-800 dark:text-gray-100">AI Usage</CardTitle>
+                    <CardDescription className="text-gray-600 dark:text-gray-300">Track your AI assistant usage</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-4 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Total Replies Generated</p>
+                        <p className="text-2xl font-bold text-red-700 dark:text-red-300">{totalReplies}</p>
+                      </div>
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    This count helps track usage for billing purposes
+                  </div>
                 </div>
               </CardContent>
             </Card>
