@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
 
   // Redirect unauthenticated users away from protected pages
   if (isProtectedRoute && !isAuthenticated) {
-    return NextResponse.redirect(new URL('/auth/login', request.url));
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   return NextResponse.next();

@@ -56,7 +56,7 @@ export function ThemeSelector() {
         variant="outline"
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
-        className="gap-2 min-w-[100px]"
+        className="gap-2 min-w-[100px] text-gray-100"
       >
         {getIcon(theme || "system")}
         <span>{getCurrentThemeLabel()}</span>
@@ -72,7 +72,7 @@ export function ThemeSelector() {
           />
           
           {/* Dropdown */}
-          <div className="absolute right-0 mt-2 w-48 bg-popover border border-border rounded-md shadow-lg z-20">
+          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-20">
             <div className="py-1">
               {["light", "dark", "system"].map((themeName) => (
                 <button
@@ -81,8 +81,8 @@ export function ThemeSelector() {
                     setTheme(themeName);
                     setIsOpen(false);
                   }}
-                  className={`w-full px-4 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground flex items-center gap-3 ${
-                    theme === themeName ? "bg-accent text-accent-foreground" : ""
+                  className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-3 text-gray-900 dark:text-gray-100 ${
+                    theme === themeName ? "bg-gray-100 dark:bg-gray-800 text-gray-200 dark:text-gray-100" : ""
                   }`}
                 >
                   {getIcon(themeName)}

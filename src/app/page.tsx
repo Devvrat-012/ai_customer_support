@@ -20,6 +20,10 @@ import {
 import Link from 'next/link';
 import Script from 'next/script';
 import { structuredData } from '@/lib/seo';
+import { gradients, featureColors, benefitColors, animations, spacing, typography, shadows } from '@/lib/design-system';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+import { AppLayout } from '@/components/layout/AppLayout';
 
 export default function Home() {
   const { user } = useAppSelector((state) => state.auth);
@@ -60,7 +64,7 @@ export default function Home() {
 
 function LandingPage() {
   return (
-    <>
+    <AppLayout variant="default">
       {/* Structured Data for SEO */}
       <Script
         id="homepage-structured-data"
@@ -69,44 +73,31 @@ function LandingPage() {
           __html: JSON.stringify([structuredData.homepage, structuredData.organization])
         }}
       />
-      
-      <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Bot className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">AI Customer Support</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <ThemeSelector />
-              <Button asChild>
-                <Link href="/auth/login">Sign In</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 sm:py-32">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className={`relative overflow-hidden ${spacing.section} sm:py-32 ${gradients.surface}`}>
+        {/* Background decoration */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 animate-pulse"></div>
+        <div className={`absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 ${animations.blob}`}></div>
+        <div className={`absolute top-0 right-4 w-72 h-72 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 ${animations.blob} ${animations.delayShort}`}></div>
+        <div className={`absolute -bottom-8 left-20 w-72 h-72 bg-gradient-to-r from-pink-400 to-red-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 ${animations.blob} ${animations.delayLong}`}></div>
+        
+        <div className={`${spacing.container} relative`}>
           <div className="mx-auto max-w-4xl text-center">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text">
+            <h1 className={`${typography.heading1} ${gradients.hero}`}>
               Transform Your Customer Support with AI
             </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
+            <p className={`mt-6 ${typography.body} text-gray-600 dark:text-gray-300 max-w-2xl mx-auto`}>
               Deliver instant, intelligent, and personalized customer support responses with our advanced AI assistant. 
               Reduce response times and increase customer satisfaction effortlessly.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4 flex-wrap">
-              <Button size="lg" asChild className="h-12 px-8">
+              <Button size="lg" asChild className={`h-12 px-8 ${gradients.primary} ${gradients.primaryHover} text-white ${shadows.button} transition-all duration-300 transform hover:scale-105`}>
                 <Link href="/auth/login">
                   Get Started <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="h-12 px-8">
+              <Button size="lg" variant="outline" asChild className="h-12 px-8 border-2 border-purple-300 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-all duration-300">
                 <Link href="#features">Learn More</Link>
               </Button>
             </div>
@@ -115,85 +106,85 @@ function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-muted/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="features" className={`${spacing.section} ${gradients.features}`}>
+        <div className={spacing.container}>
           <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <h2 className={`${typography.heading2} ${gradients.text}`}>
               Everything you need for exceptional customer support
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
               Our AI-powered platform provides all the tools you need to deliver outstanding customer experiences.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className={`border-0 ${shadows.card} transition-all duration-300 transform hover:-translate-y-2 ${featureColors.instant.card}`}>
               <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Zap className="h-6 w-6 text-primary" />
+                <div className={`${spacing.iconContainer} ${featureColors.instant.icon} rounded-lg flex items-center justify-center mb-4 shadow-lg`}>
+                  <Zap className={`${spacing.iconSize} text-white`} />
                 </div>
-                <CardTitle>Instant Responses</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-gray-800 dark:text-gray-100">Instant Responses</CardTitle>
+                <CardDescription className="text-gray-600 dark:text-gray-300">
                   Generate intelligent replies in seconds, ensuring your customers never wait for answers.
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className={`border-0 ${shadows.card} transition-all duration-300 transform hover:-translate-y-2 ${featureColors.ai.card}`}>
               <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Bot className="h-6 w-6 text-primary" />
+                <div className={`${spacing.iconContainer} ${featureColors.ai.icon} rounded-lg flex items-center justify-center mb-4 shadow-lg`}>
+                  <Bot className={`${spacing.iconSize} text-white`} />
                 </div>
-                <CardTitle>AI-Powered Intelligence</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-gray-800 dark:text-gray-100">AI-Powered Intelligence</CardTitle>
+                <CardDescription className="text-gray-600 dark:text-gray-300">
                   Advanced AI understands context and provides personalized, accurate responses every time.
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className={`border-0 ${shadows.card} transition-all duration-300 transform hover:-translate-y-2 ${featureColors.secure.card}`}>
               <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Shield className="h-6 w-6 text-primary" />
+                <div className={`${spacing.iconContainer} ${featureColors.secure.icon} rounded-lg flex items-center justify-center mb-4 shadow-lg`}>
+                  <Shield className={`${spacing.iconSize} text-white`} />
                 </div>
-                <CardTitle>Secure & Reliable</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-gray-800 dark:text-gray-100">Secure & Reliable</CardTitle>
+                <CardDescription className="text-gray-600 dark:text-gray-300">
                   Enterprise-grade security ensures your customer data is always protected and compliant.
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className={`border-0 ${shadows.card} transition-all duration-300 transform hover:-translate-y-2 ${featureColors.available.card}`}>
               <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Clock className="h-6 w-6 text-primary" />
+                <div className={`${spacing.iconContainer} ${featureColors.available.icon} rounded-lg flex items-center justify-center mb-4 shadow-lg`}>
+                  <Clock className={`${spacing.iconSize} text-white`} />
                 </div>
-                <CardTitle>24/7 Availability</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-gray-800 dark:text-gray-100">24/7 Availability</CardTitle>
+                <CardDescription className="text-gray-600 dark:text-gray-300">
                   Never miss a customer inquiry with round-the-clock AI assistance that works when you sleep.
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className={`border-0 ${shadows.card} transition-all duration-300 transform hover:-translate-y-2 ${featureColors.analytics.card}`}>
               <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <BarChart3 className="h-6 w-6 text-primary" />
+                <div className={`${spacing.iconContainer} ${featureColors.analytics.icon} rounded-lg flex items-center justify-center mb-4 shadow-lg`}>
+                  <BarChart3 className={`${spacing.iconSize} text-white`} />
                 </div>
-                <CardTitle>Analytics & Insights</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-gray-800 dark:text-gray-100">Analytics & Insights</CardTitle>
+                <CardDescription className="text-gray-600 dark:text-gray-300">
                   Track performance metrics and gain valuable insights to continuously improve your support quality.
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className={`border-0 ${shadows.card} transition-all duration-300 transform hover:-translate-y-2 ${featureColors.collaboration.card}`}>
               <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Users className="h-6 w-6 text-primary" />
+                <div className={`${spacing.iconContainer} ${featureColors.collaboration.icon} rounded-lg flex items-center justify-center mb-4 shadow-lg`}>
+                  <Users className={`${spacing.iconSize} text-white`} />
                 </div>
-                <CardTitle>Team Collaboration</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-gray-800 dark:text-gray-100">Team Collaboration</CardTitle>
+                <CardDescription className="text-gray-600 dark:text-gray-300">
                   Seamlessly collaborate with your team and manage customer interactions across all channels.
                 </CardDescription>
               </CardHeader>
@@ -203,46 +194,54 @@ function LandingPage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className={`${spacing.section} ${gradients.benefits}`}>
+        <div className={spacing.container}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-6">
+              <h2 className={`${typography.heading2} mb-6 bg-gradient-to-r from-gray-900 to-blue-700 dark:from-white dark:to-blue-300 bg-clip-text text-transparent`}>
                 Why choose our AI Customer Support?
               </h2>
               <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="h-6 w-6 text-green-500 mt-0.5 flex-shrink-0" />
+                <div className="flex items-start space-x-3 p-4 rounded-lg bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-shadow">
+                  <div className="p-1 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full">
+                    <CheckCircle className="h-4 w-4 text-white" />
+                  </div>
                   <div>
-                    <h3 className="font-semibold">Reduce Response Time by 90%</h3>
-                    <p className="text-muted-foreground">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Reduce Response Time by 90%</h3>
+                    <p className="text-gray-600 dark:text-gray-300">
                       Instantly generate contextual replies that address customer concerns effectively.
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="h-6 w-6 text-green-500 mt-0.5 flex-shrink-0" />
+                <div className="flex items-start space-x-3 p-4 rounded-lg bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-shadow">
+                  <div className="p-1 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full">
+                    <CheckCircle className="h-4 w-4 text-white" />
+                  </div>
                   <div>
-                    <h3 className="font-semibold">Increase Customer Satisfaction</h3>
-                    <p className="text-muted-foreground">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Increase Customer Satisfaction</h3>
+                    <p className="text-gray-600 dark:text-gray-300">
                       Consistent, helpful responses that keep your customers happy and engaged.
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="h-6 w-6 text-green-500 mt-0.5 flex-shrink-0" />
+                <div className="flex items-start space-x-3 p-4 rounded-lg bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-shadow">
+                  <div className="p-1 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full">
+                    <CheckCircle className="h-4 w-4 text-white" />
+                  </div>
                   <div>
-                    <h3 className="font-semibold">Scale Your Support Team</h3>
-                    <p className="text-muted-foreground">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Scale Your Support Team</h3>
+                    <p className="text-gray-600 dark:text-gray-300">
                       Handle more inquiries without hiring additional staff or compromising quality.
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="h-6 w-6 text-green-500 mt-0.5 flex-shrink-0" />
+                <div className="flex items-start space-x-3 p-4 rounded-lg bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-shadow">
+                  <div className="p-1 bg-gradient-to-r from-orange-400 to-red-500 rounded-full">
+                    <CheckCircle className="h-4 w-4 text-white" />
+                  </div>
                   <div>
-                    <h3 className="font-semibold">Easy Integration</h3>
-                    <p className="text-muted-foreground">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Easy Integration</h3>
+                    <p className="text-gray-600 dark:text-gray-300">
                       Get started in minutes with our simple setup and intuitive interface.
                     </p>
                   </div>
@@ -250,22 +249,22 @@ function LandingPage() {
               </div>
             </div>
             <div className="lg:pl-8">
-              <Card className="border-0 shadow-2xl">
+              <Card className="border-0 shadow-2xl bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-gray-900">
                 <CardHeader className="text-center pb-2">
                   <div className="flex justify-center mb-4">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <CardTitle className="text-xl">What our customers say</CardTitle>
+                  <CardTitle className="text-xl text-gray-900 dark:text-gray-100">What our customers say</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <blockquote className="text-lg italic text-muted-foreground mb-4">
+                  <blockquote className="text-lg italic text-gray-600 dark:text-gray-300 mb-4">
                     &ldquo;This AI customer support tool has transformed our business. We&rsquo;ve seen a 95% reduction in response times 
                     and our customer satisfaction scores have never been higher.&rdquo;
                   </blockquote>
-                  <div className="font-semibold">Sarah Johnson</div>
-                  <div className="text-sm text-muted-foreground">Customer Success Manager</div>
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">Sarah Johnson</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Customer Success Manager</div>
                 </CardContent>
               </Card>
             </div>
@@ -274,59 +273,27 @@ function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20"></div>
+        <div className="absolute top-0 left-0 w-full h-full opacity-20">
+          <div className="w-full h-full bg-white/10 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:30px_30px]"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-6">
             Ready to revolutionize your customer support?
           </h2>
           <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
             Join thousands of businesses already using our AI-powered customer support assistant.
           </p>
-          <Button size="lg" variant="secondary" asChild className="h-12 px-8">
+          <Button size="lg" variant="secondary" asChild className="h-12 px-8 bg-white text-gray-900 hover:bg-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
             <Link href="/auth/login">
               Start Your Free Trial <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="border-t bg-background py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center space-x-2 mb-4">
-                <Bot className="h-8 w-8 text-primary" />
-                <span className="text-xl font-bold">AI Customer Support</span>
-              </div>
-              <p className="text-muted-foreground max-w-md">
-                Empower your customer support team with intelligent AI assistance that delivers 
-                exceptional customer experiences around the clock.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Product</h3>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><Link href="#features" className="hover:text-foreground transition-colors">Features</Link></li>
-                <li><Link href="/auth/login" className="hover:text-foreground transition-colors">Pricing</Link></li>
-                <li><Link href="/auth/login" className="hover:text-foreground transition-colors">Documentation</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Company</h3>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><Link href="/auth/login" className="hover:text-foreground transition-colors">About</Link></li>
-                <li><Link href="/auth/login" className="hover:text-foreground transition-colors">Contact</Link></li>
-                <li><Link href="/auth/login" className="hover:text-foreground transition-colors">Privacy</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2025 AI Customer Support. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-      </div>
-    </>
+    </AppLayout>
   );
 }

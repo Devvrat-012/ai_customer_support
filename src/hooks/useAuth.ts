@@ -24,12 +24,12 @@ export function useAuth() {
           dispatch(setUser(result.data));
         } else {
           dispatch(clearUser());
-          router.push('/auth/login');
+          router.push('/');
         }
       } catch (error) {
         console.error('Auth check failed:', error);
         dispatch(clearUser());
-        router.push('/auth/login');
+        router.push('/');
       } finally {
         dispatch(setLoading(false));
       }
