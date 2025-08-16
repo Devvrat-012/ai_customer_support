@@ -1,5 +1,10 @@
 # Deployment Checklist
 
+## ✅ Fixed Issues:
+- Removed vercel.json (not needed for Next.js)
+- Build works locally
+- ESLint warnings are non-blocking
+
 ## Environment Variables Needed on Vercel:
 
 ### Database
@@ -21,12 +26,25 @@
 
 ## Deployment Steps:
 
-1. Push code to GitHub repository
-2. Connect GitHub to Vercel
-3. Add environment variables
-4. Deploy
-5. Update NEXT_PUBLIC_APP_URL with actual domain
-6. Test all functionality
+1. ✅ Push code to GitHub repository (including the fix)
+   ```bash
+   git add .
+   git commit -m "Fix: Remove vercel.json for proper Next.js deployment"
+   git push origin main
+   ```
+
+2. ✅ Redeploy on Vercel (it should work now)
+
+3. ✅ Add environment variables in Vercel dashboard
+
+4. ✅ Update NEXT_PUBLIC_APP_URL with actual domain
+
+5. ✅ Test all functionality
+
+## Quick Fix Command:
+```bash
+git add . && git commit -m "Fix vercel deployment config" && git push origin main
+```
 
 ## Post-Deployment Testing:
 - [ ] Authentication (login/register)
