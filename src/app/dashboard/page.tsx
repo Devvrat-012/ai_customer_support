@@ -3,28 +3,22 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch } from '@/lib/store/hooks';
-import { clearUser, setLoading, setUser } from '@/lib/store/authSlice';
-import { addAlert } from '@/lib/store/alertSlice';
+import { setUser } from '@/lib/store/authSlice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ThemeSelector } from '@/components/ui/theme-selector';
-import { Loader2, LogOut, Bot } from 'lucide-react';
-import { persistor } from '@/lib/store';
+import { Bot, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { CompanyDataViewer } from '@/components/dashboard/CompanyDataViewer';
 import { AIChatDialog } from '@/components/dashboard/AIChatDialog';
 import { WebsiteExtractor } from '@/components/dashboard/WebsiteExtractor';
 import { WidgetManager } from '@/components/dashboard/WidgetManager';
 import { gradients, featureColors, animations, spacing, typography, shadows } from '@/lib/design-system';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth();
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [companyDataExists, setCompanyDataExists] = useState(false);
   const [totalReplies, setTotalReplies] = useState(0);
 
@@ -60,55 +54,8 @@ export default function DashboardPage() {
     setTotalReplies(count);
   };
 
-  const handleLogout = async () => {
-    if (isLoggingOut) return; // Prevent multiple clicks
-    
-    setIsLoggingOut(true);
-    dispatch(setLoading(true));
-    
-    try {
-      const response = await fetch('/api/auth/logout', { 
-        method: 'POST',
-        credentials: 'include' // Ensure cookies are sent
-      });
-      
-      // Clear user state and purge persisted store
-      dispatch(clearUser());
-      await persistor.purge(); // Clear persisted state
-      
-      if (response.ok) {
-        dispatch(addAlert({
-          type: 'success',
-          title: 'Logged out',
-          message: 'You have been successfully logged out',
-        }));
-      }
-      
-      // Small delay to ensure state is cleared
-      setTimeout(() => {
-        router.replace('/');
-      }, 100);
-      
-    } catch (error) {
-      // Even if logout API fails, clear user state and redirect
-      dispatch(clearUser());
-      await persistor.purge();
-      dispatch(addAlert({
-        type: 'error',
-        title: 'Logout failed',
-        message: 'An error occurred while logging out, but you have been signed out locally',
-      }));
-      setTimeout(() => {
-        router.replace('/');
-      }, 100);
-    } finally {
-      setIsLoggingOut(false);
-      dispatch(setLoading(false));
-    }
-  };
-
-  // Show loading during hydration or logout
-  if (!mounted || isLoading || isLoggingOut) {
+  // Show loading during hydration
+  if (!mounted || isLoading) {
     return (
       <div className={`min-h-screen ${gradients.surface} flex items-center justify-center relative overflow-hidden`}>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-pink-600/5"></div>
@@ -119,7 +66,7 @@ export default function DashboardPage() {
             <Loader2 className="h-8 w-8 animate-spin text-white" />
           </div>
           <p className={`${typography.body} ${gradients.text}`}>
-            {isLoggingOut ? 'Logging out...' : 'Loading your dashboard...'}
+            Loading your dashboard...
           </p>
         </div>
       </div>
@@ -131,46 +78,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className={`min-h-screen ${gradients.surface} relative overflow-hidden`}>
+    <div className={`${gradients.surface} relative overflow-hidden`}>
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-pink-600/5"></div>
       <div className={`absolute top-20 right-10 w-96 h-96 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 ${animations.blob}`}></div>
       <div className={`absolute bottom-20 left-10 w-96 h-96 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 ${animations.blob} ${animations.delayShort}`}></div>
       
-      <nav className={`border-b bg-white/95 dark:bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 sticky top-0 z-50 border-gray-200 dark:border-gray-700`}>
-        <div className={spacing.container}>
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className={`p-2 ${gradients.primary} rounded-xl ${shadows.card}`}>
-                <Bot className="h-6 w-6 text-white" />
-              </div>
-              <div className="flex flex-col">
-                <span className={`text-lg font-bold ${gradients.text}`}>AI Customer Support</span>
-                <span className="text-xs text-muted-foreground">Welcome back, {user.firstName}!</span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <ThemeSelector />
-              <Button 
-                onClick={handleLogout} 
-                variant="outline" 
-                size="sm"
-                disabled={isLoggingOut}
-                className="border-2 border-purple-300 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-all duration-300"
-              >
-                {isLoggingOut ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <LogOut className="h-4 w-4 mr-2" />
-                )}
-                {isLoggingOut ? 'Logging out...' : 'Logout'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <main className={`${spacing.container} ${spacing.section} relative z-10`}>
+      <div className={`${spacing.container} ${spacing.section} relative z-10`}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className={`border-0 ${shadows.card} transition-all duration-300 transform hover:-translate-y-1 ${featureColors.ai.card} backdrop-blur-sm`}>
               <CardHeader>
@@ -305,9 +219,7 @@ export default function DashboardPage() {
         <div className="mt-8">
           <WidgetManager />
         </div>
-      </main>
-      
-      <Footer />
+      </div>
     </div>
   );
 }

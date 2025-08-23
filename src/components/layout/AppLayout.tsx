@@ -6,7 +6,7 @@ import { Footer } from './Footer';
 
 interface AppLayoutProps {
   children: ReactNode;
-  variant?: 'default' | 'auth';
+  variant?: 'default' | 'auth' | 'dashboard';
   showHeader?: boolean;
   showFooter?: boolean;
   showSignIn?: boolean;

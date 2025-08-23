@@ -21,9 +21,6 @@ import Link from 'next/link';
 import Script from 'next/script';
 import { structuredData } from '@/lib/seo';
 import { gradients, featureColors, benefitColors, animations, spacing, typography, shadows } from '@/lib/design-system';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
-import { AppLayout } from '@/components/layout/AppLayout';
 
 export default function Home() {
   const { user } = useAppSelector((state) => state.auth);
@@ -64,7 +61,7 @@ export default function Home() {
 
 function LandingPage() {
   return (
-    <AppLayout variant="default">
+    <>
       {/* Structured Data for SEO */}
       <Script
         id="homepage-structured-data"
@@ -294,6 +291,6 @@ function LandingPage() {
           </Button>
         </div>
       </section>
-    </AppLayout>
+    </>
   );
 }
