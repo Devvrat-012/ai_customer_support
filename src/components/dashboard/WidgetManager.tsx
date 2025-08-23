@@ -38,26 +38,6 @@ export function WidgetManager() {
     }
   };
 
-  const fetchWidgetKey = async () => {
-    try {
-      const response = await fetch('/api/widget/key');
-      const result = await response.json();
-      
-      console.log('Fetch widget key response:', result); // Debug log
-      
-      if (result.success) {
-        const key = result.data?.widgetKey || '';
-        console.log('Setting widget key:', key); // Debug log
-        setWidgetKey(key);
-      } else {
-        setError(result.error || 'Failed to fetch widget key');
-      }
-    } catch (err) {
-      setError('Failed to fetch widget key');
-      console.error('Fetch error:', err);
-    }
-  };
-
   const generateNewKey = async () => {
     // Check company data first
     const hasData = await checkCompanyData();
@@ -233,7 +213,7 @@ export function WidgetManager() {
           
           {/* Debug info */}
           <div className="text-xs text-gray-500">
-            Debug: widgetKey = "{widgetKey || 'empty'}", length = {widgetKey?.length || 0}
+            Debug: widgetKey = &quot;{widgetKey || 'empty'}&quot;, length = {widgetKey?.length || 0}
           </div>
         </div>
 
@@ -263,7 +243,7 @@ export function WidgetManager() {
               </Button>
             </div>
             <p className="text-xs text-gray-600 dark:text-gray-400">
-              Copy and paste this code into your website's HTML before the closing &lt;/body&gt; tag
+              Copy and paste this code into your website&apos;s HTML before the closing &lt;/body&gt; tag
             </p>
           </div>
         )}

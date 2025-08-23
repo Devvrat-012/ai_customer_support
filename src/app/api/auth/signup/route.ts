@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Return user data without password
-    const { password: _, ...userWithoutPassword } = newUser;
+    const { password: _password, ...userWithoutPassword } = newUser;
 
     return createSuccessResponse(
       userWithoutPassword,

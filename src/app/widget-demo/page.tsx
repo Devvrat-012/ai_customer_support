@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,7 +12,7 @@ export default function WidgetDemoPage() {
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
 
-  const generateWidgetKey = async () => {
+  const generateWidgetKey = useCallback(async () => {
     setGenerating(true);
     try {
       // Check if we have a key from URL params
@@ -41,12 +41,12 @@ export default function WidgetDemoPage() {
       } else {
         alert('Failed to generate widget key. Please make sure you are logged in.');
       }
-    } catch (error) {
+    } catch {
       alert('Error generating widget key. Please try again.');
     } finally {
       setGenerating(false);
     }
-  };
+  }, []);
 
   const updateDemoHtml = (key: string) => {
     const html = `<!DOCTYPE html>
@@ -143,7 +143,7 @@ export default function WidgetDemoPage() {
   useEffect(() => {
     // Auto-generate widget key on page load for demo purposes
     generateWidgetKey();
-  }, []);
+  }, [generateWidgetKey]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-6">

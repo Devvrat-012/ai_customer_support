@@ -66,7 +66,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           message: result.error,
         }));
       }
-    } catch (error) {
+    } catch {
       dispatch(addAlert({
         type: 'error',
         title: 'Login Failed',

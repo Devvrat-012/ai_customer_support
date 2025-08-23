@@ -26,7 +26,7 @@ export async function middleware(request: NextRequest) {
     try {
       await verifyToken(token);
       isAuthenticated = true;
-    } catch (error) {
+    } catch {
       // Token is invalid, remove it and redirect only if on protected route
       if (isProtectedRoute) {
         const response = NextResponse.redirect(new URL('/auth/login', request.url));

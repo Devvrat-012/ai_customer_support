@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { setUser } from '@/lib/store/authSlice';
 import { Button } from '@/components/ui/button';
@@ -17,7 +16,6 @@ import { gradients, featureColors, animations, spacing, typography, shadows } fr
 export default function DashboardPage() {
   const { user, isLoading } = useAuth();
   const dispatch = useAppDispatch();
-  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [companyDataExists, setCompanyDataExists] = useState(false);
   const [totalReplies, setTotalReplies] = useState(0);

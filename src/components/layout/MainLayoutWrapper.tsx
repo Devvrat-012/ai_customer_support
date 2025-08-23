@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAppSelector } from '@/lib/store/hooks';
 import { Header } from './Header';
@@ -13,6 +13,11 @@ interface MainLayoutWrapperProps {
 export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
   const pathname = usePathname();
   const { user } = useAppSelector((state) => state.auth);
+  const [isHydrated, setIsHydrated] = useState(false);
+  
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
   
   // Define routes that should not have Header/Footer
   const noLayoutRoutes: string[] = [
@@ -39,17 +44,21 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
     return <>{children}</>;
   }
   
-  // Determine header variant
+  // Determine header variant - only after hydration to prevent mismatch
   let headerVariant: 'default' | 'auth' | 'dashboard' = 'default';
   if (isAuthRoute) {
     headerVariant = 'auth';
-  } else if (isDashboardRoute || user) {
+  } else if (isHydrated && (isDashboardRoute || user)) {
     headerVariant = 'dashboard';
   }
   
   return (
     <div className="min-h-screen flex flex-col">
-      <Header showSignIn={!isAuthRoute && !user} variant={headerVariant} />
+      <Header 
+        showSignIn={!isAuthRoute && !(isHydrated && user)} 
+        variant={headerVariant}
+        isHydrated={isHydrated}
+      />
       <main className="flex-1">
         {children}
       </main>

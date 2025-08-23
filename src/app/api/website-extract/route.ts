@@ -6,7 +6,6 @@ import { createSuccessResponse, handleApiError } from '@/lib/utils/api';
 import { AuthenticationError, ValidationError } from '@/lib/utils/errors';
 
 // Rate limiting and security
-const MAX_PAGES_PER_WEBSITE = 10;
 const MAX_CONTENT_LENGTH = 100000; // 100KB max content
 const TIMEOUT_MS = 30000; // 30 seconds timeout
 
@@ -21,7 +20,7 @@ const isValidUrl = (url: string): boolean => {
 };
 
 // Helper function to clean and extract text content
-const extractTextContent = (html: string, url: string): string => {
+const extractTextContent = (html: string): string => {
   const $ = cheerio.load(html);
   
   // Remove unwanted elements
@@ -30,7 +29,6 @@ const extractTextContent = (html: string, url: string): string => {
   // Extract metadata
   const title = $('title').text().trim();
   const metaDescription = $('meta[name="description"]').attr('content') || '';
-  const h1 = $('h1').first().text().trim();
   
   // Focus on main content areas with priority
   const contentSelectors = [
@@ -146,7 +144,7 @@ const extractWebsiteData = async (baseUrl: string): Promise<string> => {
   try {
     const html = await fetchWithTimeout(baseUrl);
         // Extract text content
-    const textContent = extractTextContent(html, baseUrl);
+    const textContent = extractTextContent(html);
     
     if (textContent.length < 100) {
       throw new ValidationError('Insufficient content found on the website');

@@ -15,7 +15,7 @@ import { useAppDispatch } from '@/lib/store/hooks';
 import { setUser } from '@/lib/store/authSlice';
 import { addAlert } from '@/lib/store/alertSlice';
 import { signupSchema, type SignupData } from '@/lib/db/schema';
-import { gradients, shadows, spacing, typography } from '@/lib/design-system';
+import { gradients, shadows, typography } from '@/lib/design-system';
 import { Bot } from 'lucide-react';
 
 interface SignupFormProps {
@@ -66,7 +66,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
           message: result.error,
         }));
       }
-    } catch (error) {
+    } catch {
       dispatch(addAlert({
         type: 'error',
         title: 'Signup Failed',

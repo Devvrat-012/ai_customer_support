@@ -169,8 +169,14 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Type for user data
+interface UserData {
+  companyInfo?: string | null;
+  companyName?: string | null;
+}
+
 // Generate AI response using Gemini
-async function generateAIResponse(message: string, user: any): Promise<string> {
+async function generateAIResponse(message: string, user: UserData): Promise<string> {
   try {
     // Prepare the context for AI
     const companyContext = user.companyInfo 

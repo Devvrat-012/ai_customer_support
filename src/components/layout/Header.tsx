@@ -14,9 +14,10 @@ import { useState } from 'react';
 interface HeaderProps {
   showSignIn?: boolean;
   variant?: 'default' | 'auth' | 'dashboard';
+  isHydrated?: boolean;
 }
 
-export function Header({ showSignIn = true, variant = 'default' }: HeaderProps) {
+export function Header({ showSignIn = true, variant = 'default', isHydrated = true }: HeaderProps) {
   const { user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -51,7 +52,7 @@ export function Header({ showSignIn = true, variant = 'default' }: HeaderProps) 
       } else {
         throw new Error('Logout failed');
       }
-    } catch (error) {
+    } catch {
       dispatch(addAlert({
         type: 'error',
         title: 'Error',
@@ -79,7 +80,7 @@ export function Header({ showSignIn = true, variant = 'default' }: HeaderProps) 
               <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
                 AI Customer Support
               </span>
-              {isDashboardPage && user && (
+              {isDashboardPage && isHydrated && user && (
                 <span className="text-xs text-muted-foreground">Welcome back, {user.firstName}!</span>
               )}
             </div>
@@ -91,7 +92,7 @@ export function Header({ showSignIn = true, variant = 'default' }: HeaderProps) 
                 <Link href="/auth/login">Sign In</Link>
               </Button>
             )}
-            {isDashboardPage && user && (
+            {isDashboardPage && isHydrated && user && (
               <Button 
                 onClick={handleLogout} 
                 variant="outline" 

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/lib/store/hooks';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ThemeSelector } from '@/components/ui/theme-selector';
 import { 
   Bot, 
   Zap, 
@@ -20,7 +19,7 @@ import {
 import Link from 'next/link';
 import Script from 'next/script';
 import { structuredData } from '@/lib/seo';
-import { gradients, featureColors, benefitColors, animations, spacing, typography, shadows } from '@/lib/design-system';
+import { gradients, featureColors, animations, spacing, typography, shadows } from '@/lib/design-system';
 
 export default function Home() {
   const { user } = useAppSelector((state) => state.auth);

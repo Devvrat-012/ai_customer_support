@@ -225,7 +225,7 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there', 
         title: 'Copied!',
         message: 'Message copied to clipboard'
       }));
-    } catch (error) {
+    } catch {
       dispatch(addAlert({
         type: 'error',
         title: 'Copy Failed',
