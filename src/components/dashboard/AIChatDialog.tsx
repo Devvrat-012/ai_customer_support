@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Bot, Send, User, Loader2, MessageCircle, Trash2, Copy, Edit, RefreshCw } from 'lucide-react';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { addAlert } from '@/lib/store/alertSlice';
+import { incrementAiRepliesCount } from '@/lib/store/profileSlice';
 import { Textarea } from '@/components/ui/textarea';
 
 interface Message {
@@ -21,7 +22,6 @@ interface Message {
 interface AIChatDialogProps {
   companyName?: string;
   userName?: string;
-  onReplyCountChange?: (count: number) => void;
 }
 
 // Chat history utilities
@@ -70,13 +70,12 @@ const clearChatHistory = () => {
   }
 };
 
-export function AIChatDialog({ companyName = 'our company', userName = 'there', onReplyCountChange }: AIChatDialogProps) {
+export function AIChatDialog({ companyName = 'our company', userName = 'there' }: AIChatDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
-  const [replyCount, setReplyCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
@@ -127,13 +126,6 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there', 
     }
   }, [isOpen]);
 
-  // Notify parent of reply count changes
-  useEffect(() => {
-    if (onReplyCountChange) {
-      onReplyCountChange(replyCount);
-    }
-  }, [replyCount, onReplyCountChange]);
-
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -169,7 +161,9 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there', 
           timestamp: result.data.timestamp
         };
         setMessages(prev => [...prev, aiMessage]);
-        setReplyCount(prev => prev + 1); // Increment reply count
+        
+        // Increment AI replies count in Redux
+        dispatch(incrementAiRepliesCount());
       } else {
         throw new Error(result.message || 'Failed to get AI response');
       }
@@ -306,7 +300,9 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there', 
             ? { ...msg, content: result.data.message, timestamp: result.data.timestamp }
             : msg
         ));
-        setReplyCount(prev => prev + 1);
+        
+        // Increment AI replies count in Redux
+        dispatch(incrementAiRepliesCount());
         
         dispatch(addAlert({
           type: 'success',

@@ -16,6 +16,7 @@ import {
   selectProfileError, 
   selectHasCompanyData, 
   selectWidgetKey,
+  selectHasWidgetKey,
   selectShouldFetchProfile,
   clearError
 } from '@/lib/store/profileSlice';
@@ -32,6 +33,7 @@ export function WidgetManager() {
   const profileError = useAppSelector(selectProfileError);
   const hasCompanyData = useAppSelector(selectHasCompanyData);
   const widgetKey = useAppSelector(selectWidgetKey);
+  const hasWidgetKey = useAppSelector(selectHasWidgetKey);
   const shouldFetchProfile = useAppSelector(selectShouldFetchProfile);
 
   // Load profile data when component mounts or user changes
@@ -188,13 +190,18 @@ export function WidgetManager() {
                 </p>
                 <Button
                   onClick={generateNewKey}
-                  disabled={loading || profileLoading}
+                  disabled={loading || profileLoading || hasWidgetKey}
                   className="w-full sm:w-auto"
                 >
                   {loading ? (
                     <>
                       <RefreshCw className="h-4 w-4 animate-spin mr-2" />
                       Generating...
+                    </>
+                  ) : hasWidgetKey ? (
+                    <>
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Widget Key Already Generated
                     </>
                   ) : (
                     <>

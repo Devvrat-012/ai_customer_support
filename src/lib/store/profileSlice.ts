@@ -10,6 +10,9 @@ export interface ProfileData {
   widgetKey?: string;
   createdAt: string;
   updatedAt: string;
+  _count: {
+    aiReplies: number;
+  };
 }
 
 interface ProfileState {
@@ -131,6 +134,31 @@ export const deleteCompanyData = createAsyncThunk(
   }
 );
 
+// Async thunk to increment AI replies count
+export const incrementAiRepliesCount = createAsyncThunk(
+  'profile/incrementAiRepliesCount',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await fetch('/api/user/profile/increment-replies', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        return rejectWithValue(result.error || 'Failed to increment AI replies count');
+      }
+      
+      return result.data.count;
+    } catch {
+      return rejectWithValue('Network error while incrementing AI replies count');
+    }
+  }
+);
+
 const profileSlice = createSlice({
   name: 'profile',
   initialState,
@@ -211,6 +239,12 @@ const profileSlice = createSlice({
       })
       .addCase(deleteCompanyData.rejected, (state, action) => {
         state.error = action.payload as string;
+      })
+      // Increment AI replies count
+      .addCase(incrementAiRepliesCount.fulfilled, (state, action) => {
+        if (state.data) {
+          state.data._count.aiReplies = action.payload;
+        }
       });
   },
 });
@@ -225,6 +259,10 @@ export const selectProfileLoading = (state: { profile: ProfileState }) => state.
 export const selectHasCompanyData = (state: { profile: ProfileState }) => 
   !!(state.profile.data?.companyInfo?.trim().length);
 export const selectWidgetKey = (state: { profile: ProfileState }) => state.profile.data?.widgetKey;
+export const selectHasWidgetKey = (state: { profile: ProfileState }) => 
+  !!(state.profile.data?.widgetKey?.trim().length);
+export const selectAiRepliesCount = (state: { profile: ProfileState }) => 
+  state.profile.data?._count?.aiReplies || 0;
 
 // Helper to determine if profile should be fetched
 export const selectShouldFetchProfile = (state: { profile: ProfileState }) => {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { fetchProfile, selectHasCompanyData, selectShouldFetchProfile } from '@/lib/store/profileSlice';
+import { fetchProfile, selectHasCompanyData, selectShouldFetchProfile, selectAiRepliesCount } from '@/lib/store/profileSlice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bot, Loader2 } from 'lucide-react';
@@ -17,11 +17,11 @@ export default function DashboardPage() {
   const { user, isLoading } = useAuth();
   const dispatch = useAppDispatch();
   const [mounted, setMounted] = useState(false);
-  const [totalReplies, setTotalReplies] = useState(0);
   
-  // Use Redux for company data state
+  // Use Redux for all state management
   const hasCompanyData = useAppSelector(selectHasCompanyData);
   const shouldFetchProfile = useAppSelector(selectShouldFetchProfile);
+  const aiRepliesCount = useAppSelector(selectAiRepliesCount);
 
   useEffect(() => {
     setMounted(true);
@@ -39,10 +39,6 @@ export default function DashboardPage() {
     if (user) {
       dispatch(fetchProfile());
     }
-  };
-
-  const handleReplyCountChange = (count: number) => {
-    setTotalReplies(count);
   };
 
   // Show loading during hydration
@@ -166,7 +162,6 @@ export default function DashboardPage() {
                   <AIChatDialog 
                     companyName={user.companyName || undefined}
                     userName={user.firstName || undefined}
-                    onReplyCountChange={handleReplyCountChange}
                   />
                   <Button variant="outline" className="w-full border-2 border-orange-300 text-orange-700 dark:text-orange-300 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-all duration-300" size="sm">
                     View Documentation
@@ -193,7 +188,7 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">Total Replies Generated</p>
-                        <p className="text-2xl font-bold text-red-700 dark:text-red-300">{totalReplies}</p>
+                        <p className="text-2xl font-bold text-red-700 dark:text-red-300">{aiRepliesCount}</p>
                       </div>
                       <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                     </div>

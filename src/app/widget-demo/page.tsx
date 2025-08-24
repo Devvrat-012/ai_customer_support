@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Textarea } from '@/components/ui/textarea';
 import { Code, ExternalLink, Copy, CheckCircle } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { generateWidgetKey as generateWidgetKeyAction, selectWidgetKey } from '@/lib/store/profileSlice';
+import { generateWidgetKey as generateWidgetKeyAction, selectWidgetKey, selectHasWidgetKey } from '@/lib/store/profileSlice';
 
 export default function WidgetDemoPage() {
   const [demoHtml, setDemoHtml] = useState('');
@@ -14,6 +14,7 @@ export default function WidgetDemoPage() {
   const [generating, setGenerating] = useState(false);
   const dispatch = useAppDispatch();
   const reduxWidgetKey = useAppSelector(selectWidgetKey);
+  const hasWidgetKey = useAppSelector(selectHasWidgetKey);
   const [localWidgetKey, setLocalWidgetKey] = useState('');
 
   // Use Redux widget key if available, otherwise use local state
@@ -175,8 +176,8 @@ export default function WidgetDemoPage() {
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600"
                     placeholder="Generate a widget key first"
                   />
-                  <Button onClick={generateWidgetKey} disabled={generating}>
-                    {generating ? 'Generating...' : 'Generate'}
+                  <Button onClick={generateWidgetKey} disabled={generating || hasWidgetKey}>
+                    {generating ? 'Generating...' : hasWidgetKey ? 'Key Generated' : 'Generate'}
                   </Button>
                 </div>
               </div>
