@@ -77,7 +77,11 @@ export function WebsiteExtractor({ hasExistingData, onDataUpdated }: WebsiteExtr
       const result = await response.json();
 
       if (result.success) {
-        setMessage(`Successfully extracted content from ${websiteUrl}`);
+        const successMessage = result.data?.isAppended ? 
+          `Content appended to existing data (${Math.round((result.data?.contentLength || 0) / 1000)}KB added)` : 
+          `Successfully extracted content from ${websiteUrl} (${Math.round((result.data?.contentLength || 0) / 1000)}KB)`;
+          
+        setMessage(successMessage);
         setMessageType('success');
         setIsOpen(false);
         setWebsiteUrl('');
@@ -130,9 +134,15 @@ export function WebsiteExtractor({ hasExistingData, onDataUpdated }: WebsiteExtr
           
           if (result.success) {
             results.push({ url, success: true });
+            
+            // Show different message based on whether content was appended
+            const successMessage = result.data?.isAppended ? 
+              `Appended to existing content (${Math.round((result.data?.contentLength || 0) / 1000)}KB)` : 
+              `Extracted successfully (${Math.round((result.data?.contentLength || 0) / 1000)}KB)`;
+              
             setExtractionProgress(prev => 
               prev.map(item => 
-                item.url === url ? { ...item, status: 'success', message: 'Extracted successfully' } : item
+                item.url === url ? { ...item, status: 'success', message: successMessage } : item
               )
             );
           } else {
@@ -294,6 +304,16 @@ export function WebsiteExtractor({ hasExistingData, onDataUpdated }: WebsiteExtr
                       Extract content from multiple pages for comprehensive AI training. Include your homepage, about page, pricing, FAQ, etc.
                     </p>
                   </div>
+                </div>
+              </div>
+              
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-start gap-2">
+                  <Plus className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5" />
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    <strong>Smart Content Appending:</strong> New extractions will be added to your existing company data, 
+                    not replace it. This allows you to build comprehensive training data from multiple sources.
+                  </p>
                 </div>
               </div>
               

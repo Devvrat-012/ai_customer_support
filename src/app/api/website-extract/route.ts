@@ -205,19 +205,42 @@ ${extractedContent}
 
 === END WEBSITE CONTENT ===`;
 
-    // Update user's company info
+    // Get current user's company info to append to existing content
+    const userWithCompanyInfo = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { companyInfo: true }
+    });
+
+    let updatedCompanyInfo = formattedContent;
+
+    // If there's existing content, append the new content with a separator
+    if (userWithCompanyInfo?.companyInfo && userWithCompanyInfo.companyInfo.trim()) {
+      updatedCompanyInfo = `${userWithCompanyInfo.companyInfo}
+
+${'='.repeat(80)}
+ADDITIONAL WEBSITE EXTRACTION
+${'='.repeat(80)}
+
+${formattedContent}`;
+    }
+
+    // Update user's company info with combined content
     await prisma.user.update({
       where: { id: userId },
       data: {
-        companyInfo: formattedContent
+        companyInfo: updatedCompanyInfo
       }
     });
 
     return createSuccessResponse({
-      message: 'Website data extracted and saved successfully',
+      message: userWithCompanyInfo?.companyInfo ? 
+        'Website data extracted and appended to existing company information' : 
+        'Website data extracted and saved successfully',
       contentLength: extractedContent.length,
+      totalContentLength: updatedCompanyInfo.length,
       websiteUrl,
-      extractedAt: new Date().toISOString()
+      extractedAt: new Date().toISOString(),
+      isAppended: !!userWithCompanyInfo?.companyInfo
     });
 
   } catch (error) {
