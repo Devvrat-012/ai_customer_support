@@ -5,12 +5,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Code, ExternalLink, Copy, CheckCircle } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { generateWidgetKey as generateWidgetKeyAction, selectWidgetKey } from '@/lib/store/profileSlice';
 
 export default function WidgetDemoPage() {
-  const [widgetKey, setWidgetKey] = useState('');
   const [demoHtml, setDemoHtml] = useState('');
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const dispatch = useAppDispatch();
+  const reduxWidgetKey = useAppSelector(selectWidgetKey);
+  const [localWidgetKey, setLocalWidgetKey] = useState('');
+
+  // Use Redux widget key if available, otherwise use local state
+  const widgetKey = reduxWidgetKey || localWidgetKey;
 
   const generateWidgetKey = useCallback(async () => {
     setGenerating(true);
@@ -20,33 +27,21 @@ export default function WidgetDemoPage() {
       const keyFromUrl = urlParams.get('key');
       
       if (keyFromUrl) {
-        setWidgetKey(keyFromUrl);
+        setLocalWidgetKey(keyFromUrl);
         updateDemoHtml(keyFromUrl);
         setGenerating(false);
         return;
       }
 
-      // Generate a new key (requires authentication)
-      const response = await fetch('/api/widget/key', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      const result = await response.json();
-      if (result.success) {
-        setWidgetKey(result.widgetKey);
-        updateDemoHtml(result.widgetKey);
-      } else {
-        alert('Failed to generate widget key. Please make sure you are logged in.');
-      }
+      // Generate a new key using Redux action
+      const result = await dispatch(generateWidgetKeyAction()).unwrap();
+      updateDemoHtml(result);
     } catch {
       alert('Error generating widget key. Please try again.');
     } finally {
       setGenerating(false);
     }
-  }, []);
+  }, [dispatch]);
 
   const updateDemoHtml = (key: string) => {
     const html = `<!DOCTYPE html>

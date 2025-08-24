@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Upload, FileText, Save, X } from 'lucide-react';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { addAlert } from '@/lib/store/alertSlice';
+import { updateProfile } from '@/lib/store/profileSlice';
 
 interface CompanyDataUploadProps {
   hasExistingData: boolean;
@@ -68,34 +69,24 @@ export function CompanyDataUpload({ hasExistingData, onDataUpdated }: CompanyDat
 
     setIsUploading(true);
     try {
-      const response = await fetch('/api/company-data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ companyData: fileContent }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        dispatch(addAlert({
-          type: 'success',
-          title: 'Upload successful',
-          message: result.message
-        }));
-        setIsDialogOpen(false);
-        setFileContent('');
-        setFileName('');
-        onDataUpdated();
-      } else {
-        throw new Error(result.message || 'Upload failed');
-      }
+      // Use Redux action instead of direct API call
+      await dispatch(updateProfile({ companyInfo: fileContent })).unwrap();
+      
+      dispatch(addAlert({
+        type: 'success',
+        title: 'Upload successful',
+        message: 'Company data uploaded successfully'
+      }));
+      
+      setIsDialogOpen(false);
+      setFileContent('');
+      setFileName('');
+      onDataUpdated();
     } catch (error) {
       dispatch(addAlert({
         type: 'error',
         title: 'Upload failed',
-        message: error instanceof Error ? error.message : 'An error occurred during upload'
+        message: error as string || 'An error occurred during upload'
       }));
     } finally {
       setIsUploading(false);

@@ -6,8 +6,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Eye, Edit, Trash2, Save, X, FileText, AlertTriangle } from 'lucide-react';
-import { useAppDispatch } from '@/lib/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { addAlert } from '@/lib/store/alertSlice';
+import { 
+  selectProfile, 
+  selectProfileLoading, 
+  updateProfile, 
+  fetchProfile,
+  deleteCompanyData
+} from '@/lib/store/profileSlice';
 
 interface CompanyDataViewerProps {
   onDataUpdated: () => void;
@@ -17,33 +24,19 @@ export function CompanyDataViewer({ onDataUpdated }: CompanyDataViewerProps) {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [companyData, setCompanyData] = useState('');
   const [editedData, setEditedData] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const dispatch = useAppDispatch();
+  
+  // Use Redux for profile data
+  const profile = useAppSelector(selectProfile);
+  const profileLoading = useAppSelector(selectProfileLoading);
+  const companyData = profile?.companyInfo || '';
 
-  const fetchCompanyData = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/company-data');
-      const result = await response.json();
-
-      if (result.success) {
-        setCompanyData(result.data.companyInfo || '');
-      } else {
-        throw new Error(result.message || 'Failed to fetch company data');
-      }
-    } catch (error) {
-      dispatch(addAlert({
-        type: 'error',
-        title: 'Failed to load data',
-        message: error instanceof Error ? error.message : 'An error occurred while loading company data'
-      }));
-    } finally {
-      setIsLoading(false);
-    }
+  const fetchCompanyData = () => {
+    // Use Redux action instead of direct API call
+    dispatch(fetchProfile());
   };
 
   const handleEdit = () => {
@@ -64,33 +57,22 @@ export function CompanyDataViewer({ onDataUpdated }: CompanyDataViewerProps) {
 
     setIsUpdating(true);
     try {
-      const response = await fetch('/api/company-data', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ companyData: editedData }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        dispatch(addAlert({
-          type: 'success',
-          title: 'Update successful',
-          message: result.message
-        }));
-        setCompanyData(editedData);
-        setIsEditDialogOpen(false);
-        onDataUpdated();
-      } else {
-        throw new Error(result.message || 'Update failed');
-      }
+      // Use Redux action instead of direct API call
+      await dispatch(updateProfile({ companyInfo: editedData })).unwrap();
+      
+      dispatch(addAlert({
+        type: 'success',
+        title: 'Update successful',
+        message: 'Company data updated successfully'
+      }));
+      
+      setIsEditDialogOpen(false);
+      onDataUpdated();
     } catch (error) {
       dispatch(addAlert({
         type: 'error',
         title: 'Update failed',
-        message: error instanceof Error ? error.message : 'An error occurred during update'
+        message: error as string || 'An error occurred during update'
       }));
     } finally {
       setIsUpdating(false);
@@ -100,29 +82,23 @@ export function CompanyDataViewer({ onDataUpdated }: CompanyDataViewerProps) {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      const response = await fetch('/api/company-data', {
-        method: 'DELETE',
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        dispatch(addAlert({
-          type: 'success',
-          title: 'Delete successful',
-          message: result.message
-        }));
-        setIsDeleteDialogOpen(false);
-        setIsViewDialogOpen(false);
-        onDataUpdated();
-      } else {
-        throw new Error(result.message || 'Delete failed');
-      }
+      // Use Redux action instead of direct API call
+      await dispatch(deleteCompanyData()).unwrap();
+      
+      dispatch(addAlert({
+        type: 'success',
+        title: 'Delete successful',
+        message: 'Company data and widget key deleted successfully'
+      }));
+      
+      setIsDeleteDialogOpen(false);
+      setIsViewDialogOpen(false);
+      onDataUpdated();
     } catch (error) {
       dispatch(addAlert({
         type: 'error',
         title: 'Delete failed',
-        message: error instanceof Error ? error.message : 'An error occurred during deletion'
+        message: error as string || 'An error occurred during deletion'
       }));
     } finally {
       setIsDeleting(false);
@@ -156,7 +132,7 @@ export function CompanyDataViewer({ onDataUpdated }: CompanyDataViewerProps) {
             </DialogDescription>
           </DialogHeader>
           
-          {isLoading ? (
+          {profileLoading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
@@ -182,14 +158,14 @@ export function CompanyDataViewer({ onDataUpdated }: CompanyDataViewerProps) {
               <X className="h-4 w-4 mr-2" />
               Close
             </Button>
-            <Button variant="outline" className='text-gray-100' onClick={handleEdit} disabled={isLoading}>
+            <Button variant="outline" className='text-gray-100' onClick={handleEdit} disabled={profileLoading}>
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </Button>
             <Button 
               variant="outline" 
               onClick={() => setIsDeleteDialogOpen(true)}
-              disabled={isLoading}
+              disabled={profileLoading}
               className='text-gray-100'
             >
               <Trash2 className="h-4 w-4 mr-2" />
@@ -254,6 +230,8 @@ export function CompanyDataViewer({ onDataUpdated }: CompanyDataViewerProps) {
             </DialogTitle>
             <DialogDescription>
               Are you sure you want to delete your company data? This action cannot be undone.
+              <br />
+              <strong className="text-destructive">Note: This will also delete your widget key since it depends on company data.</strong>
             </DialogDescription>
           </DialogHeader>
           

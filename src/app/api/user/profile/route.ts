@@ -79,3 +79,52 @@ export async function GET() {
     }, { status: 500 });
   }
 }
+
+export async function PUT(request: Request) {
+  try {
+    const currentUser = await getCurrentUser();
+    
+    if (!currentUser) {
+      throw new AuthenticationError('Not authenticated');
+    }
+
+    const updateData = await request.json();
+
+    // Update user profile
+    const updatedUser = await prisma.user.update({
+      where: { id: currentUser.userId },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        companyName: true,
+        companyInfo: true,
+        widgetKey: true,
+        createdAt: true,
+        updatedAt: true,
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: updatedUser,
+      message: 'Profile updated successfully'
+    });
+  } catch (error) {
+    console.error('Profile update error:', error);
+    
+    if (error instanceof AuthenticationError) {
+      return NextResponse.json({
+        success: false,
+        error: error.message
+      }, { status: 401 });
+    }
+    
+    return NextResponse.json({
+      success: false,
+      error: 'Internal server error'
+    }, { status: 500 });
+  }
+}

@@ -12,16 +12,17 @@ import {
 import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
 import authReducer from './authSlice';
 import alertReducer from './alertSlice';
+import profileReducer from './profileSlice';
 
 const createNoopStorage = () => {
   return {
-    getItem(_key: string) {
+    getItem() {
       return Promise.resolve(null);
     },
     setItem(_key: string, value: unknown) {
       return Promise.resolve(value);
     },
-    removeItem(_key: string) {
+    removeItem() {
       return Promise.resolve();
     },
   };
@@ -34,12 +35,13 @@ const storage = typeof window !== 'undefined'
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['auth'], // Only persist auth state
+  whitelist: ['auth'], // Only persist auth state, profile data will be fresh on reload
 };
 
 const rootReducer = combineReducers({
   auth: authReducer,
   alert: alertReducer,
+  profile: profileReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

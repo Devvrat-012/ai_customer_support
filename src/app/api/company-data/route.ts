@@ -108,15 +108,18 @@ export async function DELETE() {
       throw new AuthenticationError('Not authenticated');
     }
 
-    // Remove user's company info
+    // Remove user's company info and widget key (since widget key depends on company data)
     await prisma.user.update({
       where: { id: currentUser.userId },
-      data: { companyInfo: null }
+      data: { 
+        companyInfo: null,
+        widgetKey: null 
+      }
     });
 
     return createSuccessResponse(
-      { message: 'Company data deleted successfully' },
-      'Company data deleted successfully'
+      { message: 'Company data and widget key deleted successfully' },
+      'Company data and widget key deleted successfully'
     );
   } catch (error) {
     return handleApiError(error);

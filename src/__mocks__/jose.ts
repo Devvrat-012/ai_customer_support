@@ -4,7 +4,7 @@ export class SignJWT {
   constructor(payload: Record<string, unknown>) { this.payload = payload; }
   setProtectedHeader() { return this; }
   setExpirationTime(exp: string) { this.exp = exp; return this; }
-  async sign(_secret: Uint8Array): Promise<string> {
+  async sign(): Promise<string> {
     const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
     const body = Buffer.from(JSON.stringify(this.payload)).toString('base64url');
     // Derive a pseudo-signature from body length to allow tamper detection
@@ -13,7 +13,7 @@ export class SignJWT {
   }
 }
 
-export async function jwtVerify(token: string, _secret: Uint8Array) {
+export async function jwtVerify(token: string) {
   const parts = token.split('.');
   if (parts.length !== 3) throw new Error('Invalid token');
   try {

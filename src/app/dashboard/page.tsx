@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { setUser } from '@/lib/store/authSlice';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { fetchProfile, selectHasCompanyData, selectShouldFetchProfile } from '@/lib/store/profileSlice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bot, Loader2 } from 'lucide-react';
@@ -17,34 +17,27 @@ export default function DashboardPage() {
   const { user, isLoading } = useAuth();
   const dispatch = useAppDispatch();
   const [mounted, setMounted] = useState(false);
-  const [companyDataExists, setCompanyDataExists] = useState(false);
   const [totalReplies, setTotalReplies] = useState(0);
+  
+  // Use Redux for company data state
+  const hasCompanyData = useAppSelector(selectHasCompanyData);
+  const shouldFetchProfile = useAppSelector(selectShouldFetchProfile);
 
   useEffect(() => {
     setMounted(true);
-    // Check if user has company data and update state
-    if (user?.companyInfo) {
-      setCompanyDataExists(true);
-    } else {
-      setCompanyDataExists(false);
+  }, []);
+
+  // Fetch profile data when user is available and should fetch
+  useEffect(() => {
+    if (user && shouldFetchProfile) {
+      dispatch(fetchProfile());
     }
-  }, [user]);
+  }, [user, shouldFetchProfile, dispatch]);
 
   const handleDataUpdated = async () => {
-    // Refresh user data to update company info status
-    try {
-      const response = await fetch('/api/auth/me');
-      const result = await response.json();
-
-      if (result.success) {
-        dispatch(setUser(result.data));
-        // Update local state based on new user data
-        setCompanyDataExists(!!result.data.companyInfo);
-      }
-    } catch (error) {
-      console.error('Failed to refresh user data:', error);
-      // Fallback to page reload if API call fails
-      window.location.reload();
+    // Instead of making a new API call, refresh the profile data via Redux
+    if (user) {
+      dispatch(fetchProfile());
     }
   };
 
@@ -129,7 +122,7 @@ export default function DashboardPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                {companyDataExists ? (
+                {hasCompanyData ? (
                   <div className="space-y-4">
                     <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800">
                       <p className="text-green-700 dark:text-green-300 font-medium flex items-center">
