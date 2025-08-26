@@ -27,6 +27,7 @@ model User {
   // Relations
   sessions         Session[]
   aiReplies        AiReply[]
+  customers        Customer[] // Company's customers using the widget
 
   @@map("users")
 }
@@ -57,4 +58,76 @@ model AiReply {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("ai_replies")
+}
+
+model Customer {
+  id              String      @id @default(cuid())
+  customerId      String      @map("customer_id") // The ID provided by the company using the widget
+  companyUserId   String      @map("company_user_id") // Reference to the company (User) that owns this customer
+  customerName    String?     @map("customer_name")
+  customerEmail   String?     @map("customer_email")
+  customerPhone   String?     @map("customer_phone")
+  customerMeta    Json?       @map("customer_meta") // Additional customer data as JSON
+  sessionCount    Int         @default(0) @map("session_count")
+  lastSeenAt      DateTime?   @map("last_seen_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  
+  // Relations
+  companyUser     User        @relation(fields: [companyUserId], references: [id], onDelete: Cascade)
+  conversations   CustomerConversation[]
+  
+  // Ensure unique customer ID per company
+  @@unique([customerId, companyUserId])
+  @@map("customers")
+}
+
+model CustomerConversation {
+  id           String                 @id @default(cuid())
+  customerId   String                 @map("customer_id")
+  sessionId    String                 @map("session_id")
+  status       CustomerConversationStatus @default(ACTIVE)
+  createdAt    DateTime               @default(now()) @map("created_at")
+  updatedAt    DateTime               @updatedAt @map("updated_at")
+  
+  // Relations
+  customer     Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  messages     CustomerMessage[]
+  
+  // Ensure unique session per customer
+  @@unique([customerId, sessionId])
+  @@map("customer_conversations")
+}
+
+model CustomerMessage {
+  id               String               @id @default(cuid())
+  conversationId   String               @map("conversation_id")
+  sender           CustomerMessageSender
+  content          String               @db.Text
+  messageType      CustomerMessageType  @default(TEXT) @map("message_type")
+  aiModel          String?              @map("ai_model") // Only for AI messages
+  tokensUsed       Int?                 @map("tokens_used") // Only for AI messages
+  createdAt        DateTime             @default(now()) @map("created_at")
+  
+  // Relations
+  conversation     CustomerConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  @@map("customer_messages")
+}
+
+enum CustomerConversationStatus {
+  ACTIVE
+  RESOLVED
+  CLOSED
+}
+
+enum CustomerMessageSender {
+  CUSTOMER
+  AI
+}
+
+enum CustomerMessageType {
+  TEXT
+  IMAGE
+  FILE
 }

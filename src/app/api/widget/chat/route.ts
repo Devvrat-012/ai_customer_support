@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     
     // Parse request body
     const body = await request.json();
-    const { message, sessionId } = body;
+    const { message, sessionId, customerId, customerData } = body;
     
     if (!widgetKey) {
       throw new ValidationError('Widget key is required');
@@ -117,10 +117,70 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Handle customer tracking if customerId is provided
+    let customer = null;
+    let conversation = null;
+    
+    if (customerId) {
+      try {
+        // Find or create customer
+        customer = await prisma.customer.upsert({
+          where: {
+            customerId_companyUserId: {
+              customerId: customerId,
+              companyUserId: user.id,
+            },
+          },
+          update: {
+            lastSeenAt: new Date(),
+            sessionCount: {
+              increment: 1,
+            },
+            // Update customer data if provided
+            ...(customerData?.name && { customerName: customerData.name }),
+            ...(customerData?.email && { customerEmail: customerData.email }),
+            ...(customerData?.phone && { customerPhone: customerData.phone }),
+            ...(customerData && { customerMeta: customerData }),
+          },
+          create: {
+            customerId: customerId,
+            companyUserId: user.id,
+            customerName: customerData?.name || null,
+            customerEmail: customerData?.email || null,
+            customerPhone: customerData?.phone || null,
+            customerMeta: customerData || null,
+            sessionCount: 1,
+            lastSeenAt: new Date(),
+          },
+        });
+
+        // Find or create conversation for this session
+        conversation = await prisma.customerConversation.upsert({
+          where: {
+            customerId_sessionId: {
+              customerId: customer.id,
+              sessionId: sessionId || `session_${Date.now()}`,
+            },
+          },
+          update: {
+            updatedAt: new Date(),
+          },
+          create: {
+            customerId: customer.id,
+            sessionId: sessionId || `session_${Date.now()}`,
+            status: 'ACTIVE',
+          },
+        });
+      } catch (error) {
+        console.error('Customer tracking error:', error);
+        // Continue without customer tracking if there's an error
+      }
+    }
+
     // Generate AI response using Gemini
     const aiResponse = await generateAIResponse(message, user);
 
-    // Track the AI reply for billing
+    // Track the AI reply for billing (existing functionality)
     await prisma.aiReply.create({
       data: {
         userId: user.id,
@@ -130,6 +190,36 @@ export async function POST(request: NextRequest) {
         tokensUsed: Math.floor(message.length / 4) + Math.floor(aiResponse.length / 4), // Rough estimation
       }
     });
+
+    // Track customer messages if customer tracking is enabled
+    if (conversation) {
+      try {
+        // Save customer message
+        await prisma.customerMessage.create({
+          data: {
+            conversationId: conversation.id,
+            sender: 'CUSTOMER',
+            content: message,
+            messageType: 'TEXT',
+          },
+        });
+
+        // Save AI response
+        await prisma.customerMessage.create({
+          data: {
+            conversationId: conversation.id,
+            sender: 'AI',
+            content: aiResponse,
+            messageType: 'TEXT',
+            aiModel: 'gemini-1.5-flash-widget',
+            tokensUsed: Math.floor(message.length / 4) + Math.floor(aiResponse.length / 4),
+          },
+        });
+      } catch (error) {
+        console.error('Customer message tracking error:', error);
+        // Continue even if message tracking fails
+      }
+    }
 
     // Log the conversation (optional - you might want to store widget conversations)
     console.log(`Widget conversation for ${user.companyName}: Q: ${message} | A: ${aiResponse.substring(0, 100)}...`);
@@ -141,6 +231,10 @@ export async function POST(request: NextRequest) {
         sessionId: sessionId || `session_${Date.now()}`,
         timestamp: new Date().toISOString(),
         companyName: user.companyName,
+        ...(customer && { 
+          customerId: customer.customerId,
+          customerTrackingEnabled: true 
+        }),
       }
     }, {
       headers: corsHeaders

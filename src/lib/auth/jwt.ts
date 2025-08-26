@@ -16,6 +16,7 @@ const COOKIE_MAX_AGE = parseInt(process.env.COOKIE_MAX_AGE || '604800'); // 7 da
 export interface JWTPayload {
   userId: string;
   email: string;
+  id: string; // Add id for convenience (same as userId)
   // Standard claims can exist (exp, iat) but are inferred
 }
 
@@ -36,7 +37,10 @@ export async function verifyToken(token: string): Promise<JWTPayload> {
   if (typeof payload.userId !== 'string' || typeof payload.email !== 'string') {
     throw new Error('Invalid token payload');
   }
-  return payload as JWTPayload;
+  return {
+    ...payload as JWTPayload,
+    id: payload.userId, // Add id for convenience
+  };
 }
 
 export async function setAuthCookie(payload: JWTPayload) {
@@ -78,4 +82,23 @@ export async function getCurrentUser(): Promise<JWTPayload | null> {
 
 export function getTokenFromRequest(request: NextRequest): string | null {
   return request.cookies.get(COOKIE_NAME)?.value || null;
+}
+
+export async function verifyAuth(request: NextRequest): Promise<{
+  success: boolean;
+  user?: JWTPayload;
+  error?: string;
+}> {
+  try {
+    const token = getTokenFromRequest(request);
+    if (!token) {
+      return { success: false, error: 'No authentication token provided' };
+    }
+
+    const user = await verifyToken(token);
+    return { success: true, user };
+  } catch (error) {
+    console.error('Authentication error:', error);
+    return { success: false, error: 'Invalid authentication token' };
+  }
 }

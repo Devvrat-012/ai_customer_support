@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const widgetKey = searchParams.get('key');
-  const apiUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const apiUrl = process.env.NEXT_PUBLIC_APP_URL;
 
   // Widget JavaScript code
   const widgetScript = `
@@ -14,6 +14,8 @@ export async function GET(request: NextRequest) {
   const WIDGET_CONFIG = {
     apiUrl: '${apiUrl}',
     widgetKey: '${widgetKey || 'demo-key'}',
+    customerId: null, // Will be set via setCustomerId function
+    customerData: {}, // Additional customer data
     position: 'bottom-right',
     primaryColor: '#3B82F6',
     accentColor: '#1D4ED8',
@@ -414,6 +416,8 @@ export async function GET(request: NextRequest) {
           body: JSON.stringify({
             message: message,
             sessionId: this.sessionId,
+            customerId: this.config.customerId,
+            customerData: this.config.customerData,
           }),
         });
         
@@ -433,6 +437,23 @@ export async function GET(request: NextRequest) {
       }
       
       this.isLoading = false;
+    }
+
+    // Customer management methods
+    setCustomerId(customerId) {
+      this.config.customerId = customerId;
+    }
+
+    setCustomerData(customerData) {
+      this.config.customerData = { ...this.config.customerData, ...customerData };
+    }
+
+    getCustomerId() {
+      return this.config.customerId;
+    }
+
+    getCustomerData() {
+      return this.config.customerData;
     }
 
     addMessage(content, sender) {
@@ -494,6 +515,50 @@ export async function GET(request: NextRequest) {
       });
     } else {
       window.aiChatWidget = new AIChatWidget(WIDGET_CONFIG);
+    }
+  }
+
+  // Global methods for customer management
+  window.setAIChatCustomer = function(customerId, customerData = {}) {
+    if (window.aiChatWidget) {
+      window.aiChatWidget.setCustomerId(customerId);
+      window.aiChatWidget.setCustomerData(customerData);
+    } else {
+      // If widget not ready, store for later
+      window._aiChatPendingCustomer = { customerId, customerData };
+    }
+  };
+
+  window.getAIChatCustomer = function() {
+    if (window.aiChatWidget) {
+      return {
+        customerId: window.aiChatWidget.getCustomerId(),
+        customerData: window.aiChatWidget.getCustomerData()
+      };
+    }
+    return null;
+  };
+
+  // Apply pending customer data if it exists
+  function applyPendingCustomerData() {
+    if (window._aiChatPendingCustomer && window.aiChatWidget) {
+      const { customerId, customerData } = window._aiChatPendingCustomer;
+      window.aiChatWidget.setCustomerId(customerId);
+      window.aiChatWidget.setCustomerData(customerData);
+      delete window._aiChatPendingCustomer;
+    }
+  }
+
+  // Enhanced initialization with customer data support
+  function initWidget() {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        window.aiChatWidget = new AIChatWidget(WIDGET_CONFIG);
+        applyPendingCustomerData();
+      });
+    } else {
+      window.aiChatWidget = new AIChatWidget(WIDGET_CONFIG);
+      applyPendingCustomerData();
     }
   }
 

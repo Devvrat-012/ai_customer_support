@@ -86,6 +86,22 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
             </div>
           </Link>
           <div className="flex items-center space-x-4">
+            {isDashboardPage && isHydrated && user && (
+              <nav className="hidden md:flex items-center space-x-4">
+                <Link 
+                  href="/dashboard" 
+                  className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  Dashboard
+                </Link>
+                <Link 
+                  href="/customers" 
+                  className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  Customers
+                </Link>
+              </nav>
+            )}
             <ThemeSelector />
             {showSignIn && (
               <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all duration-300">

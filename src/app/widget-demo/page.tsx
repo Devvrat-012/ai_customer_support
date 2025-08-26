@@ -80,6 +80,23 @@ export default function WidgetDemoPage() {
             border-radius: 10px;
             backdrop-filter: blur(10px);
         }
+        .customer-demo {
+            background: rgba(255,255,255,0.15);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #3730a3; }
     </style>
 </head>
 <body>
@@ -101,17 +118,58 @@ export default function WidgetDemoPage() {
                 <h3>📱 Mobile Friendly</h3>
                 <p>Works perfectly on all devices</p>
             </div>
+            <div class="feature">
+                <h3>👥 Customer Tracking</h3>
+                <p>Track individual customer conversations</p>
+            </div>
+        </div>
+
+        <div class="customer-demo">
+            <h3>🔍 Customer Tracking Demo</h3>
+            <p>Test the customer tracking feature by setting different customer identities:</p>
+            <button class="btn" onclick="setCustomer('customer-001', {name: 'John Doe', email: 'john@example.com'})">
+                Set as John Doe
+            </button>
+            <button class="btn" onclick="setCustomer('customer-002', {name: 'Jane Smith', email: 'jane@example.com'})">
+                Set as Jane Smith
+            </button>
+            <button class="btn" onclick="setCustomer('customer-003', {name: 'Bob Johnson', email: 'bob@example.com'})">
+                Set as Bob Johnson
+            </button>
+            <button class="btn" onclick="clearCustomer()">
+                Clear Customer ID
+            </button>
+            <p><small>Current Customer: <span id="current-customer">None</span></small></p>
         </div>
     </div>
 
     <!-- AI Customer Support Widget -->
     <script>
-        window.AISupportConfig = {
-            widgetKey: '${key}',
-            apiUrl: '${window.location.origin}',
-            theme: 'light',
-            position: 'bottom-right'
-        };
+        // Customer management functions
+        function setCustomer(customerId, customerData) {
+            if (window.setAIChatCustomer) {
+                window.setAIChatCustomer(customerId, customerData);
+                document.getElementById('current-customer').textContent = 
+                    customerData.name + ' (' + customerId + ')';
+            } else {
+                console.log('Widget not ready yet');
+            }
+        }
+
+        function clearCustomer() {
+            if (window.setAIChatCustomer) {
+                window.setAIChatCustomer(null);
+                document.getElementById('current-customer').textContent = 'None';
+            }
+        }
+
+        // Get current customer info
+        function getCurrentCustomer() {
+            if (window.getAIChatCustomer) {
+                return window.getAIChatCustomer();
+            }
+            return null;
+        }
     </script>
     <script src="${window.location.origin}/api/widget/js?key=${key}&t=${Date.now()}"></script>
     <div id="ai-support-chat"></div>
@@ -183,17 +241,26 @@ export default function WidgetDemoPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Integration Code</label>
-                <div className="bg-gray-900 text-green-400 p-4 rounded-md text-sm font-mono">
-                  <div>{`<script>`}</div>
-                  <div className="ml-4">{`window.AISupportConfig = {`}</div>
-                  <div className="ml-8">{`widgetKey: '${widgetKey || 'YOUR_WIDGET_KEY'}',`}</div>
-                  <div className="ml-8">{`apiUrl: 'https://yourapp.com',`}</div>
-                  <div className="ml-8">{`theme: 'light'`}</div>
-                  <div className="ml-4">{`};`}</div>
+                <label className="block text-sm font-medium mb-2">Basic Integration Code</label>
+                <div className="bg-gray-900 text-green-400 p-4 rounded-md text-sm font-mono overflow-x-auto">
+                  <div>{`<!-- Basic widget integration -->`}</div>
+                  <div>{`<script src="https://yourapp.com/api/widget/js?key=${widgetKey || 'YOUR_WIDGET_KEY'}"></script>`}</div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Advanced Integration with Customer Tracking</label>
+                <div className="bg-gray-900 text-green-400 p-4 rounded-md text-sm font-mono overflow-x-auto">
+                  <div>{`<!-- Advanced integration with customer tracking -->`}</div>
+                  <div>{`<script src="https://yourapp.com/api/widget/js?key=${widgetKey || 'YOUR_WIDGET_KEY'}"></script>`}</div>
+                  <div className="mt-2">{`<script>`}</div>
+                  <div className="ml-4">{`// Set customer information when available`}</div>
+                  <div className="ml-4">{`setAIChatCustomer('customer-123', {`}</div>
+                  <div className="ml-8">{`name: 'John Doe',`}</div>
+                  <div className="ml-8">{`email: 'john@example.com',`}</div>
+                  <div className="ml-8">{`phone: '+1234567890'`}</div>
+                  <div className="ml-4">{`});`}</div>
                   <div>{`</script>`}</div>
-                  <div>{`<script src="https://yourapp.com/api/widget/js"></script>`}</div>
-                  <div>{`<div id="ai-support-chat"></div>`}</div>
                 </div>
               </div>
 

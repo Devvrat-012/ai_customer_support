@@ -13,6 +13,7 @@ import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
 import authReducer from './authSlice';
 import alertReducer from './alertSlice';
 import profileReducer from './profileSlice';
+import customersReducer from './customersSlice';
 
 const createNoopStorage = () => {
   return {
@@ -42,6 +43,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   alert: alertReducer,
   profile: profileReducer,
+  customers: customersReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

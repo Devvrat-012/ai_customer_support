@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
   await setAuthCookie({
       userId: user.id,
       email: user.email,
+      id: user.id, // Add id field for compatibility
     });
 
     // Return user data without password

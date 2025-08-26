@@ -29,7 +29,7 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
   const authRoutes = ['/auth/login', '/auth/signup'];
   
   // Define dashboard routes
-  const dashboardRoutes = ['/dashboard', '/inbox', '/knowledge-base', '/settings', '/teams'];
+  const dashboardRoutes = ['/dashboard', '/inbox', '/knowledge-base', '/settings', '/teams', '/customers'];
   
   // Check if current route should skip the global layout
   const shouldSkipLayout = noLayoutRoutes.some(route => pathname.startsWith(route));

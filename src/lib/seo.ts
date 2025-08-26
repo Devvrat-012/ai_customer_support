@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 const baseUrl = process.env.NODE_ENV === 'production' 
-  ? 'https://ai-customer-support.com' 
+  ? 'https://ai-customer-support-five-rose.vercel.app' 
   : 'http://localhost:3000';
 
 export const generatePageMetadata = (
