@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AlertProvider } from "@/components/common/AlertProvider";
 import { Toaster } from "@/components/common/Toaster";
 import { MainLayoutWrapper } from "@/components/layout/MainLayoutWrapper";
+import { DevNotice } from "@/components/common/DevNotice";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -96,6 +97,7 @@ export default function RootLayout({
               {children}
             </MainLayoutWrapper>
             <Toaster />
+            <DevNotice />
           </ReduxProvider>
         </ThemeProvider>
       </body>
