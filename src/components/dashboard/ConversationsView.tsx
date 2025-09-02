@@ -126,15 +126,15 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
 
   if (!customer) {
     return (
-      <Card className="p-8 bg-gradient-to-br from-card to-card/50 border shadow-lg">
+  <Card className="p-8 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-800 shadow-lg">
         <div className="text-center">
           <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
             <User className="h-8 w-8 text-purple-600 dark:text-purple-400" />
           </div>
-          <h3 className="text-lg font-medium text-foreground mb-2">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
             No Customer Selected
           </h3>
-          <p className="text-muted-foreground">
+          <p className="text-gray-600 dark:text-gray-400">
             Select a customer to view their conversations.
           </p>
         </div>
@@ -145,7 +145,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="p-6 bg-gradient-to-r from-card to-card/80 border shadow-md">
+  <Card className="p-6 bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-800 shadow-md">
         <div className="flex items-center gap-4 mb-4">
           {onBack && (
             <Button variant="outline" size="sm" onClick={onBack} className="hover:bg-muted/50">
@@ -153,46 +153,46 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
             </Button>
           )}
           <div className="flex-1">
-            <h2 className="text-xl font-semibold text-foreground bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
+            <h2 className="text-xl font-semibold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
               {customer.customerName || customer.customerId}&apos;s Conversations
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-gray-600 dark:text-gray-400">
               Customer ID: {customer.customerId} • {customer.sessionCount} total sessions
             </p>
           </div>
         </div>
 
         {/* Customer Info */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gradient-to-br from-muted/20 to-muted/40 border rounded-lg backdrop-blur-sm">
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800/40 dark:to-gray-800/20 border border-gray-200 dark:border-gray-800 rounded-lg backdrop-blur-sm">
           <div>
-            <div className="text-sm font-medium text-muted-foreground">Name</div>
-            <div className="text-foreground">{customer.customerName || 'Not provided'}</div>
+            <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Name</div>
+            <div className="text-gray-900 dark:text-gray-100">{customer.customerName || 'Not provided'}</div>
           </div>
           <div>
-            <div className="text-sm font-medium text-muted-foreground">Email</div>
-            <div className="text-foreground">{customer.customerEmail || 'Not provided'}</div>
+            <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Email</div>
+            <div className="text-gray-900 dark:text-gray-100">{customer.customerEmail || 'Not provided'}</div>
           </div>
           <div>
-            <div className="text-sm font-medium text-muted-foreground">Phone</div>
-            <div className="text-foreground">{customer.customerPhone || 'Not provided'}</div>
+            <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Phone</div>
+            <div className="text-gray-900 dark:text-gray-100">{customer.customerPhone || 'Not provided'}</div>
           </div>
         </div>
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Conversations List */}
-        <Card className="p-6 bg-gradient-to-br from-card to-card/50 border shadow-lg">
+  <Card className="p-6 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-800 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 p-2 rounded-lg">
                 <MessageSquare className="h-5 w-5 text-orange-600 dark:text-orange-400" />
               </div>
-              <h3 className="text-lg font-medium text-foreground">Conversations</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Conversations</h3>
             </div>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="p-2 border bg-background text-foreground rounded-md text-sm hover:border-primary transition-colors"
+              className="p-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-md text-sm hover:border-blue-500 transition-colors"
             >
               <option value="ALL">All Status</option>
               <option value="ACTIVE">Active</option>
@@ -227,7 +227,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                     {getStatusBadge(conversation.status)}
                   </div>
                   
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
                     <span className="flex items-center gap-1">
                       <span className="w-2 h-2 bg-primary/60 rounded-full"></span>
                       {conversation.messageCount || 0} messages
@@ -236,7 +236,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                   </div>
 
                   {conversation.lastMessage && (
-                    <div className="mt-3 p-3 bg-gradient-to-r from-muted/20 to-muted/30 border rounded-lg text-sm">
+                    <div className="mt-3 p-3 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800/40 dark:to-gray-800/20 border border-gray-200 dark:border-gray-800 rounded-lg text-sm">
                       <div className="flex items-center gap-2 mb-1">
                         {conversation.lastMessage.sender === 'CUSTOMER' ? (
                           <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 p-1 rounded-full">
@@ -247,11 +247,11 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                             <Bot className="h-3 w-3 text-purple-600 dark:text-purple-400" />
                           </div>
                         )}
-                        <span className="font-medium text-foreground">
+                        <span className="font-medium text-gray-900 dark:text-gray-100">
                           {conversation.lastMessage.sender === 'CUSTOMER' ? 'Customer' : 'AI'}
                         </span>
                       </div>
-                      <p className="truncate text-muted-foreground">
+                      <p className="truncate text-gray-600 dark:text-gray-400">
                         {conversation.lastMessage.content}
                       </p>
                     </div>
@@ -337,12 +337,12 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
         </Card>
 
         {/* Conversation Messages */}
-        <Card className="p-6 bg-gradient-to-br from-card to-card/50 border shadow-lg">
+  <Card className="p-6 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-800 shadow-lg">
           <div className="flex items-center gap-2 mb-4">
             <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 p-2 rounded-lg">
               <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-400" />
             </div>
-            <h3 className="text-lg font-medium text-foreground">Messages</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Messages</h3>
           </div>
           
           {selectedConversation ? (
@@ -361,8 +361,8 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                       <div
                         className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm ${
                           message.sender === 'CUSTOMER'
-                            ? 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground'
-                            : 'bg-gradient-to-r from-muted to-muted/80 text-foreground border'
+                            ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
+                            : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800/50 dark:to-gray-800/30 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-800'
                         }`}
                       >
                         <div className="flex items-center gap-2 mb-2">
@@ -378,7 +378,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                           <span className="text-xs font-medium">
                             {message.sender === 'CUSTOMER' ? 'Customer' : 'AI'}
                           </span>
-                          <span className="text-xs opacity-75">
+                          <span className="text-xs opacity-75 text-gray-600 dark:text-gray-400">
                             {formatDate(message.createdAt)}
                           </span>
                         </div>
@@ -399,10 +399,10 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
               <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                 <MessageSquare className="h-8 w-8 text-purple-600 dark:text-purple-400" />
               </div>
-              <h3 className="text-lg font-medium text-foreground mb-2">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                 Select a conversation
               </h3>
-              <p className="text-muted-foreground">
+              <p className="text-gray-600 dark:text-gray-400">
                 Choose a conversation from the list to view messages.
               </p>
             </div>

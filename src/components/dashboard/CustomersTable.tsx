@@ -106,11 +106,11 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
 
   if (loading.customers && customers.length === 0) {
     return (
-      <Card className="p-8 bg-card border">
+      <Card className="p-8 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
         <div className="flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading customers...</p>
+            <p className="text-gray-600 dark:text-gray-400">Loading customers...</p>
           </div>
         </div>
       </Card>
@@ -118,7 +118,7 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
   }
 
   return (
-    <Card className="p-6 bg-card border">
+    <Card className="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="flex-1">
@@ -154,14 +154,14 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
 
       {/* Filters */}
       {showFilters && (
-        <Card className="p-4 mb-6 bg-muted/30 border">
+  <Card className="p-4 mb-6 bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2 text-foreground">Status</label>
+              <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">Status</label>
               <select
                 value={filters.status || 'ALL'}
                 onChange={(e) => handleFilterChange({ status: e.target.value as 'ACTIVE' | 'RESOLVED' | 'CLOSED' | 'ALL' })}
-                className="w-full p-2 border rounded-md bg-background text-foreground"
+                className="w-full p-2 border rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
               >
                 <option value="ALL">All Status</option>
                 <option value="ACTIVE">Active</option>
@@ -170,11 +170,11 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2 text-foreground">Sort By</label>
+              <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">Sort By</label>
               <select
                 value={filters.sortBy || 'lastSeenAt'}
                 onChange={(e) => handleFilterChange({ sortBy: e.target.value as 'lastSeenAt' | 'createdAt' | 'sessionCount' | 'customerName' })}
-                className="w-full p-2 border rounded-md bg-background text-foreground"
+                className="w-full p-2 border rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
               >
                 <option value="lastSeenAt">Last Seen</option>
                 <option value="createdAt">Created Date</option>
@@ -183,11 +183,11 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2 text-foreground">Sort Order</label>
+              <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">Sort Order</label>
               <select
                 value={filters.sortOrder || 'desc'}
                 onChange={(e) => handleFilterChange({ sortOrder: e.target.value as 'asc' | 'desc' })}
-                className="w-full p-2 border rounded-md bg-background text-foreground"
+                className="w-full p-2 border rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
               >
                 <option value="desc">Descending</option>
                 <option value="asc">Ascending</option>
@@ -201,20 +201,20 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border">
-              <th className="text-left p-3 font-medium text-foreground">Customer</th>
-              <th className="text-left p-3 font-medium text-foreground">Contact</th>
-              <th className="text-left p-3 font-medium text-foreground">Sessions</th>
-              <th className="text-left p-3 font-medium text-foreground">Last Seen</th>
-              <th className="text-left p-3 font-medium text-foreground">Latest Status</th>
-              <th className="text-left p-3 font-medium text-foreground">Actions</th>
+            <tr className="border-b border-gray-200 dark:border-gray-800">
+              <th className="text-left p-3 font-medium text-gray-900 dark:text-gray-100">Customer</th>
+              <th className="text-left p-3 font-medium text-gray-900 dark:text-gray-100">Contact</th>
+              <th className="text-left p-3 font-medium text-gray-900 dark:text-gray-100">Sessions</th>
+              <th className="text-left p-3 font-medium text-gray-900 dark:text-gray-100">Last Seen</th>
+              <th className="text-left p-3 font-medium text-gray-900 dark:text-gray-100">Latest Status</th>
+              <th className="text-left p-3 font-medium text-gray-900 dark:text-gray-100">Actions</th>
             </tr>
           </thead>
           <tbody>
             {customers.map((customer) => (
               <tr 
                 key={customer.id} 
-                className="border-b border hover:bg-muted/50 cursor-pointer"
+                className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                 onClick={() => onCustomerClick?.(customer)}
               >
                 <td className="p-3">
@@ -223,10 +223,10 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
                       <User className="h-4 w-4 text-blue-600" />
                     </div>
                     <div>
-                      <div className="font-medium text-foreground">
+                      <div className="font-medium text-gray-900 dark:text-gray-100">
                         {customer.customerName || customer.customerId}
                       </div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         ID: {customer.customerId}
                       </div>
                     </div>
@@ -235,14 +235,14 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
                 <td className="p-3">
                   <div className="space-y-1">
                     {customer.customerEmail && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Mail className="h-3 w-3 text-muted-foreground" />
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <Mail className="h-3 w-3 text-gray-500 dark:text-gray-400" />
                         {customer.customerEmail}
                       </div>
                     )}
                     {customer.customerPhone && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Phone className="h-3 w-3 text-muted-foreground" />
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <Phone className="h-3 w-3 text-gray-500 dark:text-gray-400" />
                         {customer.customerPhone}
                       </div>
                     )}
@@ -250,21 +250,21 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
                 </td>
                 <td className="p-3">
                   <div className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium text-foreground">{customer.sessionCount}</span>
-                    <span className="text-sm text-muted-foreground">
+                    <MessageSquare className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{customer.sessionCount}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
                       ({customer.conversationCount || 0} conversations)
                     </span>
                   </div>
                 </td>
                 <td className="p-3">
                   {customer.lastSeenAt ? (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Clock className="h-3 w-3 text-muted-foreground" />
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                      <Clock className="h-3 w-3 text-gray-500 dark:text-gray-400" />
                       {formatDate(customer.lastSeenAt)}
                     </div>
                   ) : (
-                    <span className="text-muted-foreground">Never</span>
+                    <span className="text-gray-600 dark:text-gray-400">Never</span>
                   )}
                 </td>
                 <td className="p-3">
@@ -299,11 +299,11 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
 
       {customers.length === 0 && !loading.customers && (
         <div className="text-center py-8">
-          <User className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">
+          <User className="h-12 w-12 text-gray-500 dark:text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
             No customers found
           </h3>
-          <p className="text-muted-foreground">
+          <p className="text-gray-600 dark:text-gray-400">
             Customers will appear here when they start using your widget.
           </p>
         </div>
@@ -311,8 +311,8 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
 
       {/* Pagination */}
       {pagination.customers.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6 pt-4 border-t border">
-          <div className="text-sm text-muted-foreground">
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-800">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
             Showing {((pagination.customers.page - 1) * pagination.customers.limit) + 1} to{' '}
             {Math.min(pagination.customers.page * pagination.customers.limit, pagination.customers.total)} of{' '}
             {pagination.customers.total} customers

@@ -1,24 +1,2 @@
 @import "tailwindcss";
-
-/* Base styles to ensure proper light/dark mode */
-html {
-  color-scheme: light dark;
-}
-
-html.light {
-  color-scheme: light;
-}
-
-html.dark {
-  color-scheme: dark;
-}
-
-body {
-  background-color: white;
-  color: #1f2937; /* gray-800 */
-}
-
-.dark body {
-  background-color: #111827; /* gray-900 */
-  color: #f9fafb; /* gray-50 */
-}
+@custom-variant dark (&:where(.dark, .dark *));

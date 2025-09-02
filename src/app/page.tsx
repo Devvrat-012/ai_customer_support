@@ -39,7 +39,7 @@ export default function Home() {
   // Show loading state while checking auth
   if (!mounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
@@ -52,7 +52,7 @@ export default function Home() {
 
   // Loading state while redirecting authenticated users
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
     </div>
   );
@@ -71,7 +71,7 @@ function LandingPage() {
       />
 
       {/* Hero Section */}
-      <section className={`relative overflow-hidden ${spacing.section} sm:py-32 ${gradients.surface}`}>
+      <section className={`relative overflow-hidden ${spacing.section} sm:py-32 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950 dark:via-indigo-950 dark:to-purple-950`}>
         {/* Background decoration */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 animate-pulse"></div>
         <div className={`absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 ${animations.blob}`}></div>

@@ -394,7 +394,7 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
         </DialogHeader>
         
         {/* Messages Container */}
-        <div className="flex-1 overflow-y-auto space-y-4 p-4 border border-gray-200 dark:border-gray-800 rounded-lg bg-card/60 min-h-[400px] max-h-[500px]">
+  <div className="flex-1 overflow-y-auto space-y-4 p-4 border border-gray-200 dark:border-gray-800 rounded-lg bg-white/60 dark:bg-gray-900/60 min-h-[400px] max-h-[500px]">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -402,15 +402,15 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
             >
               {message.role === 'assistant' && (
                 <div className="flex-shrink-0">
-                  <Bot className="h-6 w-6 text-primary bg-card rounded-full p-1 border border-gray-200 dark:border-gray-700" />
+                  <Bot className="h-6 w-6 text-primary bg-white dark:bg-gray-900 rounded-full p-1 border border-gray-200 dark:border-gray-700" />
                 </div>
               )}
               
               <div
-                className={`max-w-[80%] p-3 rounded-lg ${
+        className={`max-w-[80%] p-3 rounded-lg ${
                   message.role === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card border border-gray-200 dark:border-gray-700 text-foreground'
+          ? 'bg-blue-600 text-white'
+          : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100'
                 }`}
               >
                 {message.isEditing ? (
@@ -431,9 +431,9 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
                   </div>
                 ) : (
                   <>
-                    <p className="text-sm whitespace-pre-wrap text-foreground">{message.content}</p>
+                    <p className="text-sm whitespace-pre-wrap text-gray-900 dark:text-gray-100">{message.content}</p>
                     <div className="flex items-center justify-between mt-2">
-                      <p className="text-xs opacity-70 text-muted-foreground">
+                      <p className="text-xs opacity-70 text-gray-500 dark:text-gray-400">
                         {new Date(message.timestamp).toLocaleTimeString()}
                       </p>
                       {message.role === 'assistant' && (
@@ -441,7 +441,7 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                            className="h-6 w-6 p-0 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
                             onClick={() => copyMessage(message.content)}
                             title="Copy message"
                           >
@@ -450,7 +450,7 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                            className="h-6 w-6 p-0 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
                             onClick={() => startEdit(message.id)}
                             title="Edit message"
                           >
@@ -459,7 +459,7 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                            className="h-6 w-6 p-0 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
                             onClick={() => regenerateResponse(message.id)}
                             disabled={isLoading}
                             title="Regenerate response"
@@ -475,7 +475,7 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
               
               {message.role === 'user' && (
                 <div className="flex-shrink-0">
-                  <User className="h-6 w-6 text-primary-foreground bg-primary rounded-full p-1" />
+                  <User className="h-6 w-6 text-white bg-blue-600 rounded-full p-1" />
                 </div>
               )}
             </div>
@@ -484,12 +484,12 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
           {isLoading && (
             <div className="flex gap-3 justify-start">
               <div className="flex-shrink-0">
-                <Bot className="h-6 w-6 text-primary bg-card rounded-full p-1 border border-gray-200 dark:border-gray-700" />
+                <Bot className="h-6 w-6 text-primary bg-white dark:bg-gray-900 rounded-full p-1 border border-gray-200 dark:border-gray-700" />
               </div>
-              <div className="bg-card border border-gray-200 dark:border-gray-700 p-3 rounded-lg">
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-3 rounded-lg">
                 <div className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                  <span className="text-sm text-muted-foreground">AI is typing...</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">AI is typing...</span>
                 </div>
               </div>
             </div>
