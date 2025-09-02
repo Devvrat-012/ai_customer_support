@@ -14,18 +14,8 @@ export function ThemeSelector() {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return (
-      <Button variant="outline" size="sm" disabled className="gap-2">
-        <Sun className="h-4 w-4" />
-        <span>Theme</span>
-        <ChevronDown className="h-3 w-3" />
-      </Button>
-    );
-  }
-
-  const getIcon = (themeName: string) => {
-    switch (themeName) {
+  const getIcon = (name: string) => {
+    switch (name) {
       case "light":
         return <Sun className="h-4 w-4" />;
       case "dark":
@@ -37,59 +27,46 @@ export function ThemeSelector() {
     }
   };
 
-  const getCurrentThemeLabel = () => {
-    switch (theme) {
-      case "light":
-        return "Light";
-      case "dark":
-        return "Dark";
-      case "system":
-        return "System";
-      default:
-        return "Theme";
-    }
-  };
+  const label = !mounted
+    ? "Theme"
+    : theme === "light"
+    ? "Light"
+    : theme === "dark"
+    ? "Dark"
+    : "System";
 
   return (
     <div className="relative">
       <Button
         variant="outline"
         size="sm"
-        onClick={() => setIsOpen(!isOpen)}
-        className="gap-2 min-w-[100px] text-gray-100"
+        onClick={() => setIsOpen((v) => !v)}
+        className="gap-2 min-w-[120px]"
       >
-        {getIcon(theme || "system")}
-        <span>{getCurrentThemeLabel()}</span>
+        {getIcon((theme as string) || "system")}
+        <span>{label}</span>
         <ChevronDown className="h-3 w-3" />
       </Button>
 
       {isOpen && (
         <>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
-          />
-          
-          {/* Dropdown */}
-          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-20">
+          <div className="fixed inset-0 z-20" onClick={() => setIsOpen(false)} />
+          <div className="absolute right-0 mt-2 w-48 rounded-md border border-gray-200 bg-white text-gray-900 shadow-lg z-20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
             <div className="py-1">
-              {["light", "dark", "system"].map((themeName) => (
+              {(["light", "dark", "system"] as const).map((name) => (
                 <button
-                  key={themeName}
+                  key={name}
                   onClick={() => {
-                    setTheme(themeName);
+                    setTheme(name);
                     setIsOpen(false);
                   }}
-                  className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-3 text-gray-900 dark:text-gray-100 ${
-                    theme === themeName ? "bg-gray-100 dark:bg-gray-800 text-gray-200 dark:text-gray-100" : ""
+                  className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 rounded-sm transition-colors hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 ${
+                    theme === name ? "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100" : ""
                   }`}
                 >
-                  {getIcon(themeName)}
-                  <span className="capitalize">{themeName}</span>
-                  {theme === themeName && (
-                    <span className="ml-auto text-xs">✓</span>
-                  )}
+                  {getIcon(name)}
+                  <span className="capitalize">{name}</span>
+                  {theme === name && <span className="ml-auto text-xs">✓</span>}
                 </button>
               ))}
             </div>

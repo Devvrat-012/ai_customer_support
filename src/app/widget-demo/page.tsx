@@ -171,7 +171,7 @@ export default function WidgetDemoPage() {
             return null;
         }
     </script>
-    <script src="${window.location.origin}/api/widget/js?key=${key}&t=${Date.now()}"></script>
+    <script src="${process.env.NEXT_PUBLIC_APP_URL}/api/widget/js?key=${key}&t=${Date.now()}"></script>
     <div id="ai-support-chat"></div>
 </body>
 </html>`;

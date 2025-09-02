@@ -144,9 +144,9 @@ export function CompanyDataViewer({ onDataUpdated }: CompanyDataViewerProps) {
                   id="company-data-view"
                   value={companyData}
                   readOnly
-                  className="min-h-[300px] max-h-[400px] resize-y bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="min-h-[300px] max-h-[400px] resize-y bg-card/70 text-foreground border border-gray-200 dark:border-gray-700"
                 />
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                <p className="text-sm text-muted-foreground mt-2">
                   Characters: {companyData.length} / 50,000
                 </p>
               </div>
@@ -154,11 +154,11 @@ export function CompanyDataViewer({ onDataUpdated }: CompanyDataViewerProps) {
           )}
           
           <DialogFooter className="gap-2">
-            <Button variant="outline" className='text-gray-100' onClick={() => setIsViewDialogOpen(false)}>
+            <Button variant="outline" className='text-foreground' onClick={() => setIsViewDialogOpen(false)}>
               <X className="h-4 w-4 mr-2" />
               Close
             </Button>
-            <Button variant="outline" className='text-gray-100' onClick={handleEdit} disabled={profileLoading}>
+            <Button variant="outline" className='text-foreground' onClick={handleEdit} disabled={profileLoading}>
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </Button>
@@ -166,7 +166,7 @@ export function CompanyDataViewer({ onDataUpdated }: CompanyDataViewerProps) {
               variant="outline" 
               onClick={() => setIsDeleteDialogOpen(true)}
               disabled={profileLoading}
-              className='text-gray-100'
+              className='text-foreground'
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
@@ -198,14 +198,14 @@ export function CompanyDataViewer({ onDataUpdated }: CompanyDataViewerProps) {
                 onChange={(e) => setEditedData(e.target.value)}
                 className="min-h-[300px] max-h-[400px] resize-y"
               />
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              <p className="text-sm text-muted-foreground mt-2">
                 Characters: {editedData.length} / 50,000
               </p>
             </div>
           </div>
           
           <DialogFooter className="gap-2">
-            <Button variant="outline" className='text-gray-100' onClick={() => setIsEditDialogOpen(false)}>
+            <Button variant="outline" className='text-foreground' onClick={() => setIsEditDialogOpen(false)}>
               <X className="h-4 w-4 mr-2" />
               Cancel
             </Button>
@@ -236,14 +236,14 @@ export function CompanyDataViewer({ onDataUpdated }: CompanyDataViewerProps) {
           </DialogHeader>
           
           <DialogFooter className="gap-2">
-            <Button variant="outline" className='text-gray-100' onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button variant="outline" className='text-foreground' onClick={() => setIsDeleteDialogOpen(false)}>
               Cancel
             </Button>
             <Button 
               variant="outline"
               onClick={handleDelete}
               disabled={isDeleting}
-              className='text-gray-100'
+              className='text-foreground'
             >
               <Trash2 className="h-4 w-4 mr-2" />
               {isDeleting ? 'Deleting...' : 'Delete'}

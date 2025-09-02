@@ -78,14 +78,14 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
   };
 
   return (
-    <Card className={`w-full max-w-md mx-auto ${shadows.cardLarge} border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm`}>
+    <Card className={`w-full max-w-md mx-auto ${shadows.cardLarge} border-0 bg-card backdrop-blur-sm`}>
       <CardHeader className="space-y-4 text-center">
         <div className="flex justify-center">
           <div className={`p-3 ${gradients.primary} rounded-xl ${shadows.card}`}>
             <Bot className="h-8 w-8 text-white" />
           </div>
         </div>
-        <CardTitle className={`${typography.heading2} ${gradients.text}`}>Create your account</CardTitle>
+        <CardTitle className={`${typography.heading2} text-foreground`}>Create your account</CardTitle>
         <CardDescription className="text-center text-muted-foreground">
           Enter your information to get started with AI Customer Support
         </CardDescription>
@@ -94,24 +94,24 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName" className="text-sm font-medium">First Name</Label>
+              <Label htmlFor="firstName" className="text-sm font-medium text-foreground">First Name</Label>
               <Input
                 id="firstName"
                 placeholder="John"
                 {...register('firstName')}
-                className={`${errors.firstName ? 'border-destructive' : 'border-gray-200 focus:border-purple-300 focus:ring-purple-200'} transition-colors`}
+                className={`${errors.firstName ? 'border-destructive' : ''} transition-colors`}
               />
               {errors.firstName && (
                 <p className="text-sm text-destructive">{errors.firstName.message}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName" className="text-sm font-medium">Last Name</Label>
+              <Label htmlFor="lastName" className="text-sm font-medium text-foreground">Last Name</Label>
               <Input
                 id="lastName"
                 placeholder="Doe"
                 {...register('lastName')}
-                className={`${errors.lastName ? 'border-destructive' : 'border-gray-200 focus:border-purple-300 focus:ring-purple-200'} transition-colors`}
+                className={`${errors.lastName ? 'border-destructive' : ''} transition-colors`}
               />
               {errors.lastName && (
                 <p className="text-sm text-destructive">{errors.lastName.message}</p>
@@ -119,45 +119,45 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+            <Label htmlFor="email" className="text-sm font-medium text-foreground">Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="john@company.com"
               {...register('email')}
-              className={`${errors.email ? 'border-destructive' : 'border-gray-200 focus:border-purple-300 focus:ring-purple-200'} transition-colors`}
+              className={`${errors.email ? 'border-destructive' : ''} transition-colors`}
             />
             {errors.email && (
               <p className="text-sm text-destructive">{errors.email.message}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="companyName" className="text-sm font-medium">Company Name (Optional)</Label>
+            <Label htmlFor="companyName" className="text-sm font-medium text-foreground">Company Name (Optional)</Label>
             <Input
               id="companyName"
               placeholder="Your Company Inc."
               {...register('companyName')}
-              className={`${errors.companyName ? 'border-destructive' : 'border-gray-200 focus:border-purple-300 focus:ring-purple-200'} transition-colors`}
+              className={`${errors.companyName ? 'border-destructive' : ''} transition-colors`}
             />
             {errors.companyName && (
               <p className="text-sm text-destructive">{errors.companyName.message}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+            <Label htmlFor="password" className="text-sm font-medium text-foreground">Password</Label>
             <div className="relative">
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Create a strong password"
                 {...register('password')}
-                className={`${errors.password ? 'border-destructive pr-10' : 'pr-10 border-gray-200 focus:border-purple-300 focus:ring-purple-200'} transition-colors`}
+                className={`${errors.password ? 'border-destructive pr-10' : 'pr-10'} transition-colors`}
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-400 hover:text-gray-600"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-muted-foreground hover:text-foreground"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
@@ -183,7 +183,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
           </Button>
           <div className="text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link href="/auth/login" className={`${gradients.text} hover:underline font-medium`}>
+            <Link href="/auth/login" className={`text-primary hover:underline font-medium`}>
               Sign in
             </Link>
           </div>

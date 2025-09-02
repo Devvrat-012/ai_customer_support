@@ -33,14 +33,21 @@ export async function verifyToken(token: string): Promise<JWTPayload> {
   const { payload } = await jwtVerify(token, secretKey, {
     algorithms: ['HS256'],
   });
-  // Basic shape assurance
-  if (typeof payload.userId !== 'string' || typeof payload.email !== 'string') {
+  // Narrow unknown payload into app-specific shape
+  const userId = (payload as unknown as Record<string, unknown>)?.userId as unknown;
+  const email = (payload as unknown as Record<string, unknown>)?.email as unknown;
+  
+  const userIdStr = typeof userId === 'string' ? userId : undefined;
+  const emailStr = typeof email === 'string' ? email : undefined;
+  if (!userIdStr || !emailStr) {
     throw new Error('Invalid token payload');
   }
   return {
-    ...payload as JWTPayload,
-    id: payload.userId, // Add id for convenience
-  };
+    ...(payload as Record<string, unknown>),
+    userId: userIdStr,
+    email: emailStr,
+    id: userIdStr,
+  } as JWTPayload;
 }
 
 export async function setAuthCookie(payload: JWTPayload) {

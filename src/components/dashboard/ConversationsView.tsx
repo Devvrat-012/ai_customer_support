@@ -83,16 +83,31 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      ACTIVE: { variant: 'default' as const, label: 'Active', icon: Clock },
-      RESOLVED: { variant: 'secondary' as const, label: 'Resolved', icon: CheckCircle },
-      CLOSED: { variant: 'outline' as const, label: 'Closed', icon: XCircle },
+      ACTIVE: { 
+        variant: 'default' as const, 
+        label: 'Active', 
+        icon: Clock,
+        className: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
+      },
+      RESOLVED: { 
+        variant: 'secondary' as const, 
+        label: 'Resolved', 
+        icon: CheckCircle,
+        className: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800'
+      },
+      CLOSED: { 
+        variant: 'outline' as const, 
+        label: 'Closed', 
+        icon: XCircle,
+        className: 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800/50 dark:text-gray-300 dark:border-gray-700'
+      },
     };
     
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.ACTIVE;
     const Icon = config.icon;
     
     return (
-      <Badge variant={config.variant} className="flex items-center gap-1">
+      <Badge variant={config.variant} className={`flex items-center gap-1 ${config.className}`}>
         <Icon className="h-3 w-3" />
         {config.label}
       </Badge>
@@ -111,13 +126,15 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
 
   if (!customer) {
     return (
-      <Card className="p-8">
+      <Card className="p-8 bg-gradient-to-br from-card to-card/50 border shadow-lg">
         <div className="text-center">
-          <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+          <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+            <User className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+          </div>
+          <h3 className="text-lg font-medium text-foreground mb-2">
             No Customer Selected
           </h3>
-          <p className="text-gray-500">
+          <p className="text-muted-foreground">
             Select a customer to view their conversations.
           </p>
         </div>
@@ -128,49 +145,54 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="p-6">
+      <Card className="p-6 bg-gradient-to-r from-card to-card/80 border shadow-md">
         <div className="flex items-center gap-4 mb-4">
           {onBack && (
-            <Button variant="outline" size="sm" onClick={onBack}>
+            <Button variant="outline" size="sm" onClick={onBack} className="hover:bg-muted/50">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           )}
           <div className="flex-1">
-            <h2 className="text-xl font-semibold">
+            <h2 className="text-xl font-semibold text-foreground bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
               {customer.customerName || customer.customerId}&apos;s Conversations
             </h2>
-            <p className="text-gray-500">
+            <p className="text-muted-foreground">
               Customer ID: {customer.customerId} • {customer.sessionCount} total sessions
             </p>
           </div>
         </div>
 
         {/* Customer Info */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gradient-to-br from-muted/20 to-muted/40 border rounded-lg backdrop-blur-sm">
           <div>
-            <div className="text-sm font-medium text-gray-500">Name</div>
-            <div>{customer.customerName || 'Not provided'}</div>
+            <div className="text-sm font-medium text-muted-foreground">Name</div>
+            <div className="text-foreground">{customer.customerName || 'Not provided'}</div>
           </div>
           <div>
-            <div className="text-sm font-medium text-gray-500">Email</div>
-            <div>{customer.customerEmail || 'Not provided'}</div>
+            <div className="text-sm font-medium text-muted-foreground">Email</div>
+            <div className="text-foreground">{customer.customerEmail || 'Not provided'}</div>
           </div>
           <div>
-            <div className="text-sm font-medium text-gray-500">Phone</div>
-            <div>{customer.customerPhone || 'Not provided'}</div>
+            <div className="text-sm font-medium text-muted-foreground">Phone</div>
+            <div className="text-foreground">{customer.customerPhone || 'Not provided'}</div>
           </div>
         </div>
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Conversations List */}
-        <Card className="p-6">
+        <Card className="p-6 bg-gradient-to-br from-card to-card/50 border shadow-lg">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium">Conversations</h3>
+            <div className="flex items-center gap-2">
+              <div className="bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 p-2 rounded-lg">
+                <MessageSquare className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+              </div>
+              <h3 className="text-lg font-medium text-foreground">Conversations</h3>
+            </div>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="p-2 border rounded-md text-sm"
+              className="p-2 border bg-background text-foreground rounded-md text-sm hover:border-primary transition-colors"
             >
               <option value="ALL">All Status</option>
               <option value="ACTIVE">Active</option>
@@ -181,44 +203,55 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
 
           {loading.conversations ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
             </div>
           ) : (
             <div className="space-y-3">
               {conversations.map((conversation) => (
                 <div
                   key={conversation.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                    selectedConversation?.id === conversation.id ? 'ring-2 ring-blue-500' : ''
+                  className={`p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md hover:bg-gradient-to-r hover:from-muted/30 hover:to-muted/50 ${
+                    selectedConversation?.id === conversation.id 
+                      ? 'ring-2 ring-primary bg-gradient-to-r from-primary/10 to-primary/5 shadow-md' 
+                      : 'hover:border-primary/30'
                   }`}
                   onClick={() => handleConversationClick(conversation)}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <MessageSquare className="h-4 w-4 text-gray-400" />
-                      <span className="font-medium">Session: {conversation.sessionId}</span>
+                      <div className="bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 p-1.5 rounded-lg">
+                        <MessageSquare className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <span className="font-medium text-foreground">Session: {conversation.sessionId}</span>
                     </div>
                     {getStatusBadge(conversation.status)}
                   </div>
                   
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>{conversation.messageCount || 0} messages</span>
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 bg-primary/60 rounded-full"></span>
+                      {conversation.messageCount || 0} messages
+                    </span>
                     <span>{formatDate(conversation.updatedAt)}</span>
                   </div>
 
                   {conversation.lastMessage && (
-                    <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-700 rounded text-sm">
+                    <div className="mt-3 p-3 bg-gradient-to-r from-muted/20 to-muted/30 border rounded-lg text-sm">
                       <div className="flex items-center gap-2 mb-1">
                         {conversation.lastMessage.sender === 'CUSTOMER' ? (
-                          <User className="h-3 w-3" />
+                          <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 p-1 rounded-full">
+                            <User className="h-3 w-3 text-green-600 dark:text-green-400" />
+                          </div>
                         ) : (
-                          <Bot className="h-3 w-3" />
+                          <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 p-1 rounded-full">
+                            <Bot className="h-3 w-3 text-purple-600 dark:text-purple-400" />
+                          </div>
                         )}
-                        <span className="font-medium">
+                        <span className="font-medium text-foreground">
                           {conversation.lastMessage.sender === 'CUSTOMER' ? 'Customer' : 'AI'}
                         </span>
                       </div>
-                      <p className="truncate">
+                      <p className="truncate text-muted-foreground">
                         {conversation.lastMessage.content}
                       </p>
                     </div>
@@ -231,6 +264,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                         <Button
                           size="sm"
                           variant="outline"
+                          className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/30"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleStatusUpdate(conversation.id, 'RESOLVED');
@@ -242,6 +276,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                         <Button
                           size="sm"
                           variant="outline"
+                          className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleStatusUpdate(conversation.id, 'CLOSED');
@@ -256,6 +291,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                       <Button
                         size="sm"
                         variant="outline"
+                        className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleStatusUpdate(conversation.id, 'CLOSED');
@@ -269,6 +305,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                       <Button
                         size="sm"
                         variant="outline"
+                        className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/30"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleStatusUpdate(conversation.id, 'ACTIVE');
@@ -284,11 +321,13 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
 
               {conversations.length === 0 && (
                 <div className="text-center py-8">
-                  <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  <div className="bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                    <MessageSquare className="h-8 w-8 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-foreground mb-2">
                     No conversations found
                   </h3>
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     This customer hasn&apos;t started any conversations yet.
                   </p>
                 </div>
@@ -298,34 +337,43 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
         </Card>
 
         {/* Conversation Messages */}
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-4">Messages</h3>
+        <Card className="p-6 bg-gradient-to-br from-card to-card/50 border shadow-lg">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 p-2 rounded-lg">
+              <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            </div>
+            <h3 className="text-lg font-medium text-foreground">Messages</h3>
+          </div>
           
           {selectedConversation ? (
             <div className="space-y-4">
               {loading.messages ? (
                 <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                 </div>
               ) : (
-                <div className="space-y-4 max-h-96 overflow-y-auto">
+                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
                   {selectedConversation.messages?.map((message) => (
                     <div
                       key={message.id}
                       className={`flex ${message.sender === 'CUSTOMER' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                        className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm ${
                           message.sender === 'CUSTOMER'
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                            ? 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground'
+                            : 'bg-gradient-to-r from-muted to-muted/80 text-foreground border'
                         }`}
                       >
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-2">
                           {message.sender === 'CUSTOMER' ? (
-                            <User className="h-3 w-3" />
+                            <div className="bg-white/20 p-1 rounded-full">
+                              <User className="h-3 w-3" />
+                            </div>
                           ) : (
-                            <Bot className="h-3 w-3" />
+                            <div className="bg-primary/20 p-1 rounded-full">
+                              <Bot className="h-3 w-3 text-primary" />
+                            </div>
                           )}
                           <span className="text-xs font-medium">
                             {message.sender === 'CUSTOMER' ? 'Customer' : 'AI'}
@@ -334,9 +382,9 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                             {formatDate(message.createdAt)}
                           </span>
                         </div>
-                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                        <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
                         {message.aiModel && (
-                          <div className="text-xs opacity-75 mt-1">
+                          <div className="text-xs opacity-75 mt-2 bg-black/10 dark:bg-white/10 px-2 py-1 rounded">
                             Model: {message.aiModel}
                           </div>
                         )}
@@ -348,11 +396,13 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
             </div>
           ) : (
             <div className="text-center py-8">
-              <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                <MessageSquare className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h3 className="text-lg font-medium text-foreground mb-2">
                 Select a conversation
               </h3>
-              <p className="text-gray-500">
+              <p className="text-muted-foreground">
                 Choose a conversation from the list to view messages.
               </p>
             </div>

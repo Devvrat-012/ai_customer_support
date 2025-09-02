@@ -57,11 +57,7 @@ A modern SaaS platform that provides AI-powered customer support solutions for b
   - **URL validation and timeout handling** for robust website processing
   - **Structured content extraction** with metadata preservation
   
-- **Testing**
-  - Jest setup with React Testing Library
-  - Unit tests for authentication utilities
-  - Component testing
-  - API route testing
+<!-- Testing section removed as tests were stripped from the repo -->
 
 - **SEO & Performance**
   - Comprehensive meta tags and structured data
@@ -88,7 +84,7 @@ A modern SaaS platform that provides AI-powered customer support solutions for b
 - **Authentication**: JWT + HTTP-only cookies + bcryptjs
 - **UI Components**: Radix UI + shadcn/ui components
 - **Web Scraping**: Cheerio for HTML parsing and content extraction
-- **Testing**: Jest + React Testing Library
+<!-- Testing tooling removed -->
 - **Validation**: Zod
 - **Theming**: next-themes with dark/light mode support
 - **Icons**: Lucide React for consistent iconography
@@ -148,7 +144,7 @@ src/
 │   ├── seo.ts             # SEO utilities
 │   └── utils/             # Helper functions
 ├── hooks/                 # Custom React hooks
-└── __tests__/             # Test files
+└── (tests removed)        # Test files removed from this repo
 ```
 
 ## Getting Started
@@ -232,16 +228,7 @@ npx prisma migrate reset
 
 ### Testing
 
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run tests with coverage
-npm run test:coverage
-```
+Testing artifacts and Jest configuration were removed from this repository per project cleanup.
 
 ## API Endpoints
 

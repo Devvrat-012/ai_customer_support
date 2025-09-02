@@ -23,7 +23,7 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   
-  const isAuthPage = variant === 'auth';
+  // const isAuthPage = variant === 'auth';
   const isDashboardPage = variant === 'dashboard';
   
   const handleLogout = async () => {
@@ -65,11 +65,7 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
   };
   
   return (
-    <nav className={`border-b sticky top-0 z-50 border-gray-200 dark:border-gray-700 ${
-      isAuthPage 
-        ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60'
-        : 'bg-white/95 dark:bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60'
-    }`}>
+    <nav className={`border-b sticky top-0 z-50 border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <Link href={isDashboardPage ? "/dashboard" : "/"} className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
@@ -77,7 +73,7 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
               <Bot className="h-5 w-5 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">
                 AI Customer Support
               </span>
               {isDashboardPage && isHydrated && user && (
@@ -90,13 +86,13 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
               <nav className="hidden md:flex items-center space-x-4">
                 <Link 
                   href="/dashboard" 
-                  className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Dashboard
                 </Link>
                 <Link 
                   href="/customers" 
-                  className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Customers
                 </Link>
@@ -114,7 +110,7 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
                 variant="outline" 
                 size="sm"
                 disabled={isLoggingOut}
-                className="border-2 border-purple-300 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-all duration-300"
+                className="border-2 hover:bg-muted/50 transition-all duration-300"
               >
                 {isLoggingOut ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />

@@ -8,9 +8,7 @@
     "start": "next start",
     "postinstall": "prisma generate",
     "lint": "next lint",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
@@ -53,22 +51,14 @@
     "zod": "^4.0.17"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
-    "@testing-library/jest-dom": "^6.6.4",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
-    "@types/jest": "^30.0.0",
+  "@eslint/eslintrc": "^3",
+  "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
-    "jest": "^30.0.5",
-    "jest-environment-jsdom": "^30.0.5",
-    "next-router-mock": "^1.0.2",
     "tailwindcss": "^4",
-    "ts-jest": "^29.4.1",
     "typescript": "^5"
   }
 }
