@@ -28,8 +28,6 @@ import { useToast } from '@/hooks/use-toast';
 export default function DocumentationPage() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const { toast } = useToast();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
   const copyToClipboard = async (code: string, id: string) => {
     try {
