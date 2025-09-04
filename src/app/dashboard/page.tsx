@@ -1,44 +1,83 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { fetchProfile, selectHasCompanyData, selectShouldFetchProfile, selectAiRepliesCount } from '@/lib/store/profileSlice';
+import { fetchProfile, selectHasCompanyData, selectAiRepliesCount } from '@/lib/store/profileSlice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bot, Loader2, User, Building2, BarChart3, Activity, TrendingUp, Calendar, Settings, Zap, Sparkles } from 'lucide-react';
+import { Bot, Loader2, User, BarChart3, Activity, TrendingUp, Calendar, Settings, Zap, Sparkles, Database, ExternalLink, Play, BookOpen } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { CompanyDataViewer } from '@/components/dashboard/CompanyDataViewer';
 import { AIChatDialog } from '@/components/dashboard/AIChatDialog';
-import { WebsiteExtractor } from '@/components/dashboard/WebsiteExtractor';
-import { WidgetManager } from '@/components/dashboard/WidgetManager';
+import KnowledgeBaseManager from '@/components/dashboard/KnowledgeBaseManager';
+import { AutoMigrate } from '@/components/dashboard/AutoMigrate';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { user, isLoading } = useAuth();
   const dispatch = useAppDispatch();
   const [mounted, setMounted] = useState(false);
+  const [knowledgeBaseStats, setKnowledgeBaseStats] = useState({
+    totalKnowledgeBases: 0,
+    readyKnowledgeBases: 0,
+    totalChunks: 0
+  });
   
   // Use Redux for all state management
   const hasCompanyData = useAppSelector(selectHasCompanyData);
-  const shouldFetchProfile = useAppSelector(selectShouldFetchProfile);
   const aiRepliesCount = useAppSelector(selectAiRepliesCount);
+
+  // Fetch knowledge base stats
+  const fetchKnowledgeBaseStats = async () => {
+    try {
+      const response = await fetch('/api/knowledge-base');
+      
+      if (!response.ok) {
+        console.error('Failed to fetch knowledge base stats:', response.status, response.statusText);
+        return;
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Invalid response type, expected JSON but got:', contentType);
+        return;
+      }
+
+      const data = await response.json();
+      
+      if (!data.success) {
+        console.error('API returned error:', data.error || 'Unknown error');
+        return;
+      }
+
+      const kbs = data.knowledgeBases || [];
+      setKnowledgeBaseStats({
+        totalKnowledgeBases: kbs.length,
+        readyKnowledgeBases: kbs.filter((kb: any) => kb.status === 'READY').length,
+        totalChunks: kbs.reduce((sum: number, kb: any) => sum + (kb.chunkCount || 0), 0)
+      });
+    } catch (error) {
+      console.error('Failed to fetch knowledge base stats:', error);
+      // Set default stats in case of error
+      setKnowledgeBaseStats({
+        totalKnowledgeBases: 0,
+        readyKnowledgeBases: 0,
+        totalChunks: 0
+      });
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Fetch profile data when user is available and should fetch
+  // Fetch profile data when user is available
   useEffect(() => {
-    if (user && shouldFetchProfile) {
-      dispatch(fetchProfile());
-    }
-  }, [user, shouldFetchProfile, dispatch]);
-
-  const handleDataUpdated = async () => {
-    // Instead of making a new API call, refresh the profile data via Redux
     if (user) {
       dispatch(fetchProfile());
+      fetchKnowledgeBaseStats();
     }
-  };
+  }, [user, dispatch]);
 
   // Show loading during hydration
   if (!mounted || isLoading) {
@@ -66,6 +105,9 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
+      {/* Auto-migrate component - runs silently in background */}
+      <AutoMigrate user={user} hasCompanyData={hasCompanyData} />
+      
       {/* Header Section */}
       <div className="border-b border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-8">
@@ -127,25 +169,23 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Company Status Card */}
+          {/* Knowledge Base Stats Card */}
           <Card className="border relative overflow-hidden group hover:shadow-lg transition-all duration-300">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-green-500/5"></div>
             <CardContent className="p-6 relative">
               <div className="flex items-center justify-between">
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Company Data</p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    {hasCompanyData ? 'Active' : 'Setup Required'}
-                  </p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Knowledge Base</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{knowledgeBaseStats.totalKnowledgeBases}</p>
                 </div>
                 <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Building2 className="h-6 w-6 text-emerald-600" />
+                  <Database className="h-6 w-6 text-emerald-600" />
                 </div>
               </div>
               <div className="flex items-center gap-2 mt-4">
-                <div className={`w-2 h-2 rounded-full ${hasCompanyData ? 'bg-green-500' : 'bg-amber-500'}`}></div>
+                <div className={`w-2 h-2 rounded-full ${knowledgeBaseStats.readyKnowledgeBases > 0 ? 'bg-green-500' : 'bg-amber-500'}`}></div>
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {hasCompanyData ? 'Ready for AI training' : 'Upload company info'}
+                  {knowledgeBaseStats.readyKnowledgeBases} ready, {knowledgeBaseStats.totalChunks} chunks
                 </span>
               </div>
             </CardContent>
@@ -195,9 +235,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Profile & Company */}
-          <div className="lg:col-span-1 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column - Profile & Knowledge Base */}
+          <div className="space-y-6">
             {/* Profile Information */}
             <Card className="border">
               <CardHeader className="pb-4">
@@ -235,53 +275,82 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Company Data Section */}
+            {/* Widget Integration Quick Actions */}
             <Card className="border">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                    <Building2 className="h-5 w-5 text-emerald-600" />
+                  <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <Zap className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <CardTitle className="text-foreground">Company Setup</CardTitle>
-                    <CardDescription className="text-muted-foreground">Configure your AI knowledge base</CardDescription>
+                    <CardTitle className="text-gray-900 dark:text-gray-100">Widget Integration</CardTitle>
+                    <CardDescription className="text-gray-600 dark:text-gray-400">Get started with your AI chatbot</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {hasCompanyData ? (
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-lg border bg-green-700/30 border-green-200 dark:border-green-800">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span className="text-sm font-medium text-green-700">Data Configured</span>
-                      </div>
-                      <p className="text-sm text-green-600">Your AI assistant is ready to help customers</p>
-                    </div>
-                    <div className="space-y-2">
-                      <CompanyDataViewer onDataUpdated={handleDataUpdated} />
-                      <WebsiteExtractor hasExistingData={true} onDataUpdated={handleDataUpdated} />
-                    </div>
+                <div className="grid grid-cols-1 gap-3">
+                  <Button 
+                    onClick={() => {
+                      if (knowledgeBaseStats.totalKnowledgeBases === 0) {
+                        // Show inline error message instead of alert
+                        const errorDiv = document.getElementById('demo-error');
+                        if (errorDiv) {
+                          errorDiv.style.display = 'block';
+                          setTimeout(() => {
+                            errorDiv.style.display = 'none';
+                          }, 5000);
+                        }
+                        return;
+                      }
+                      router.push('/widget-demo');
+                    }}
+                    className="w-full gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg"
+                  >
+                    <Play className="h-4 w-4" />
+                    Try Widget Demo
+                  </Button>
+                  
+                  {/* Error message for no knowledge base */}
+                  <div id="demo-error" style={{ display: 'none' }} className="text-xs text-red-600 dark:text-red-400 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
+                    ⚠️ Please upload at least one knowledge base before trying the widget demo.
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-lg border bg-amber-50/50 border-amber-200/50">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
-                        <span className="text-sm font-medium text-amber-700">Setup Required</span>
-                      </div>
-                      <p className="text-sm text-amber-600">Upload company data to train your AI assistant</p>
-                    </div>
-                    <WebsiteExtractor hasExistingData={false} onDataUpdated={handleDataUpdated} />
-                  </div>
-                )}
+                  
+                  <Button 
+                    variant="outline" 
+                    onClick={() => window.open('/documentation', '_blank')}
+                    className="w-full gap-2"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    Start Integration
+                    <ExternalLink className="h-3 w-3" />
+                  </Button>
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 text-center pt-2 border-t border-gray-200 dark:border-gray-600">
+                  Set up your knowledge base first, then integrate the widget
+                </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Right Column - Widget Manager */}
-          <div className="lg:col-span-2">
-            <WidgetManager />
+          {/* Right Column - Knowledge Base (Expanded) */}
+          <div className="space-y-6">
+            <Card className="border">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
+                    <Database className="h-5 w-5 text-violet-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-foreground">Knowledge Base Management</CardTitle>
+                    <CardDescription className="text-muted-foreground">Upload and manage your AI training data</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <KnowledgeBaseManager />
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

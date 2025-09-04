@@ -1,8 +1,6 @@
 import { Metadata } from 'next';
 
-const baseUrl = process.env.NODE_ENV === 'production' 
-  ? 'https://ai-customer-support-five-rose.vercel.app' 
-  : 'http://localhost:3000';
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
 export const generatePageMetadata = (
   title: string,
@@ -52,7 +50,7 @@ export const structuredData = {
     '@type': 'SoftwareApplication',
     name: 'AI Customer Support',
     description: 'Transform your customer support with AI-powered intelligent responses. Reduce response times by 90%, increase satisfaction, and scale your support team effortlessly.',
-    url: 'https://ai-customer-support.com',
+    url: baseUrl,
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
     offers: {
@@ -64,7 +62,7 @@ export const structuredData = {
     creator: {
       '@type': 'Organization',
       name: 'AI Customer Support',
-      url: 'https://ai-customer-support.com',
+      url: baseUrl,
     },
     featureList: [
       'AI-powered instant responses',

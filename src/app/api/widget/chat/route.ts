@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI, GenerateContentResult } from '@google/generative-ai';
 import { prisma } from '@/lib/db';
+import { generateRAGResponse, shouldUseRAG } from '@/lib/ai/rag-chat';
+import { searchKnowledgeBase } from '@/lib/vector/search';
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -94,23 +96,44 @@ export async function POST(request: NextRequest) {
       },
       include: {
         _count: {
-          select: { aiReplies: true }
+          select: { 
+            aiReplies: true,
+            knowledgeBases: true 
+          }
+        },
+        knowledgeBases: {
+          select: {
+            id: true,
+            name: true,
+            createdAt: true
+          },
+          take: 1 // Just to check if any exist
         }
       }
     });
 
     console.log('Widget chat - Found user:', user ? 'Yes' : 'No', user?.id); // Debug log
+    console.log('Widget chat - User details:', {
+      userId: user?.id,
+      widgetKey: user?.widgetKey,
+      companyName: user?.companyName,
+      knowledgeBaseCount: user?._count?.knowledgeBases,
+      knowledgeBases: user?.knowledgeBases
+    }); // Debug log
 
     if (!user) {
       console.log('Widget chat - No user found for key:', widgetKey); // Debug log
       throw new NotFoundError('Invalid widget key');
     }
 
-    // Check if user has company data
-    if (!user.companyInfo) {
+    // Check if user has knowledge base data (new requirement)
+    const hasKnowledgeBase = user._count.knowledgeBases > 0;
+    console.log('Widget chat - Knowledge base check:', hasKnowledgeBase, 'KB count:', user._count.knowledgeBases); // Debug log
+    if (!hasKnowledgeBase) {
+      console.log('Widget chat - No knowledge base found, returning error'); // Debug log
       return NextResponse.json({
         success: false,
-        error: 'Company information not configured. Please contact support.',
+        error: 'Knowledge base not configured. Please upload knowledge base content before using the widget.',
       }, { 
         status: 400,
         headers: corsHeaders 
@@ -177,8 +200,51 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate AI response using Gemini
-    const aiResponse = await generateAIResponse(message, user);
+    // Generate AI response using RAG if suitable, otherwise fallback to regular
+    const shouldEnableRAG = shouldUseRAG(message);
+    let aiResponse: string;
+    let knowledgeInfo: any = null;
+
+    if (shouldEnableRAG) {
+      try {
+        // Use RAG-enhanced response for widget
+        const ragResult = await generateRAGResponse(
+          user.id,
+          message,
+          {
+            companyName: user.companyName || undefined,
+            companyInfo: user.companyInfo || undefined,
+          },
+          {
+            maxContextChunks: 3, // Fewer chunks for widget to keep responses concise
+            minSimilarity: 0.75, // Higher threshold for widget
+            includeKnowledgeInfo: false, // Don't mention knowledge sources in widget
+            fallbackToRegular: true,
+          }
+        );
+
+        aiResponse = ragResult.response;
+        knowledgeInfo = {
+          knowledgeUsed: ragResult.knowledgeUsed,
+          totalChunks: ragResult.totalKnowledgeChunks,
+        };
+
+      } catch (ragError) {
+        console.error('Widget RAG generation failed, falling back to regular chat:', ragError);
+        aiResponse = await generateAIResponse(message, user);
+        knowledgeInfo = {
+          knowledgeUsed: false,
+          fallbackUsed: true,
+        };
+      }
+    } else {
+      // Use regular response for simple queries
+      aiResponse = await generateAIResponse(message, user);
+      knowledgeInfo = {
+        knowledgeUsed: false,
+        ragSkipped: true,
+      };
+    }
 
     // Track the AI reply for billing (existing functionality)
     await prisma.aiReply.create({
@@ -186,7 +252,7 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         question: message,
         response: aiResponse,
-        model: 'gemini-1.5-flash-widget',
+        model: knowledgeInfo?.knowledgeUsed ? 'gemini-1.5-flash-widget-rag' : 'gemini-1.5-flash-widget',
         tokensUsed: Math.floor(message.length / 4) + Math.floor(aiResponse.length / 4), // Rough estimation
       }
     });
@@ -211,7 +277,7 @@ export async function POST(request: NextRequest) {
             sender: 'AI',
             content: aiResponse,
             messageType: 'TEXT',
-            aiModel: 'gemini-1.5-flash-widget',
+            aiModel: knowledgeInfo?.knowledgeUsed ? 'gemini-1.5-flash-widget-rag' : 'gemini-1.5-flash-widget',
             tokensUsed: Math.floor(message.length / 4) + Math.floor(aiResponse.length / 4),
           },
         });
@@ -231,6 +297,8 @@ export async function POST(request: NextRequest) {
         sessionId: sessionId || `session_${Date.now()}`,
         timestamp: new Date().toISOString(),
         companyName: user.companyName,
+        ragEnabled: shouldEnableRAG,
+        knowledgeUsed: knowledgeInfo?.knowledgeUsed || false,
         ...(customer && { 
           customerId: customer.customerId,
           customerTrackingEnabled: true 
@@ -263,38 +331,64 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Type for user data
+// Type for user data with knowledge base
 interface UserData {
-  companyInfo?: string | null;
+  id: string;
   companyName?: string | null;
+  knowledgeBases?: Array<{
+    id: string;
+    name: string;
+    createdAt: Date;
+  }>;
 }
 
-// Generate AI response using Gemini
+// Generate AI response using knowledge base and Gemini
 async function generateAIResponse(message: string, user: UserData): Promise<string> {
   try {
-    // Prepare the context for AI
-    const companyContext = user.companyInfo 
-      ? `Company Information: ${user.companyInfo}`
-      : 'No company information has been uploaded yet.';
+    // Search knowledge base for relevant information
+    let knowledgeContext = '';
+    
+    try {
+      // Use the knowledge base search function directly
+      const searchResult = await searchKnowledgeBase(message, user.id, {
+        limit: 3,
+        minSimilarity: 0.6 // Slightly lower threshold for widget responses
+      });
+      
+      if (searchResult && searchResult.length > 0) {
+        knowledgeContext = searchResult
+          .map((result: any) => result.content)
+          .join('\n\n');
+      }
+    } catch (error) {
+      console.warn('Failed to search knowledge base:', error);
+      knowledgeContext = 'Knowledge base search temporarily unavailable.';
+    }
 
     const companyName = user.companyName || 'the company';
+    
+    // Prepare context based on available knowledge
+    const contextInfo = knowledgeContext 
+      ? `Relevant Information from Knowledge Base:\n${knowledgeContext}`
+      : 'No specific information found in the knowledge base for this query.';
 
     // Create a detailed system prompt for widget chat
-    const systemPrompt = `You are an AI customer support assistant for ${companyName}'s website chat widget. Your role is to help website visitors with their questions and provide accurate, helpful responses based on the company information provided.
+    const systemPrompt = `You are an AI customer support assistant for ${companyName}'s website chat widget. Your role is to help website visitors with their questions and provide accurate, helpful responses based on the knowledge base information provided.
 
-${companyContext}
+${contextInfo}
 
 Guidelines:
 - Always be polite, professional, and helpful
-- Use the company information provided to answer questions accurately
-- If a question cannot be answered with the available company information, politely explain that you need more details or suggest contacting the company directly
+- Use the knowledge base information provided to answer questions accurately
+- If a question cannot be answered with the available knowledge base information, politely explain that you need more details or suggest contacting the company directly
 - Keep responses concise but informative (aim for 1-3 sentences for most responses)
 - Stay focused on customer support topics related to ${companyName}
 - If asked about topics unrelated to the company or customer support, politely redirect the conversation
 - You are representing ${companyName} to their website visitors
 - Always try to be helpful and guide visitors toward getting the assistance they need
+- When you have relevant information from the knowledge base, use it to provide specific and accurate answers
 
-Remember: You are embedded on ${companyName}'s website to help their visitors.`;
+Remember: You are embedded on ${companyName}'s website to help their visitors based on the company's knowledge base.`;
 
     // Get the model
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });

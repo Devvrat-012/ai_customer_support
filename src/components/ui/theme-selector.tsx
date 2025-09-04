@@ -23,17 +23,40 @@ export function ThemeSelector() {
       case "system":
         return <Monitor className="h-4 w-4" />;
       default:
-        return <Sun className="h-4 w-4" />;
+        return <Monitor className="h-4 w-4" />;
     }
   };
 
+  const getCurrentTheme = () => {
+    if (!mounted) return "system"; // Always return system during SSR
+    return theme || "system";
+  };
+
   const label = !mounted
-    ? "Theme"
+    ? "System"
     : theme === "light"
     ? "Light"
     : theme === "dark"
     ? "Dark"
     : "System";
+
+  // Don't render anything until mounted to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="relative">
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 min-w-[120px]"
+          disabled
+        >
+          <Monitor className="h-4 w-4" />
+          <span>System</span>
+          <ChevronDown className="h-3 w-3" />
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
@@ -43,7 +66,7 @@ export function ThemeSelector() {
         onClick={() => setIsOpen((v) => !v)}
         className="gap-2 min-w-[120px]"
       >
-        {getIcon((theme as string) || "system")}
+        {getIcon(getCurrentTheme())}
         <span>{label}</span>
         <ChevronDown className="h-3 w-3" />
       </Button>

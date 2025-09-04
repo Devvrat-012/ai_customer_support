@@ -28,6 +28,8 @@ import { useToast } from '@/hooks/use-toast';
 export default function DocumentationPage() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const { toast } = useToast();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
   const copyToClipboard = async (code: string, id: string) => {
     try {
@@ -189,9 +191,58 @@ export default function DocumentationPage() {
     theme: 'light',
     position: 'bottom-right'
   };
+  
+  // Optional: Set customer data for personalized support
+  window.customerData = {
+    customerId: 'unique-customer-id',
+    name: 'John Doe',
+    email: 'john@example.com',
+    phone: '+1234567890',
+    metadata: {
+      plan: 'premium',
+      company: 'Acme Corp',
+      role: 'admin'
+    }
+  };
 </script>
-<script src="https://ai-customer-support-five-rose.vercel.app/api/widget/js"></script>
+<script src="\${process.env.NEXT_PUBLIC_APP_URL}/api/widget/js?key=YOUR_WIDGET_KEY"></script>
 <div id="ai-support-chat"></div>`}
+                    />
+                  </div>
+                  
+                  <div className="p-4 rounded-lg bg-green-50/50 border border-green-200/50 dark:bg-green-900/20 dark:border-green-800 mt-4">
+                    <h4 className="font-medium text-green-900 dark:text-green-300 mb-2 flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      Dynamic Customer Data
+                    </h4>
+                    <p className="text-sm text-green-700 dark:text-green-300 mb-3">
+                      You can also set customer data dynamically after widget initialization:
+                    </p>
+                    <CodeBlock
+                      id="dynamic-customer"
+                      title="Dynamic Customer Setup"
+                      code={`// Set customer data after user login
+function setCustomerData(user) {
+  if (window.setAIChatCustomer) {
+    window.setAIChatCustomer(user.id, {
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      metadata: {
+        plan: user.subscriptionPlan,
+        company: user.company,
+        lastLogin: user.lastLogin
+      }
+    });
+  }
+}
+
+// Clear customer data on logout
+function clearCustomerData() {
+  if (window.setAIChatCustomer) {
+    window.setAIChatCustomer(null);
+  }
+}`}
                     />
                   </div>
                 </CardContent>
@@ -241,16 +292,26 @@ export default function DocumentationPage() {
                         title="AISupportWidget.tsx"
                         code={`import { useEffect } from 'react';
 
+interface CustomerData {
+  customerId: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  metadata?: Record<string, any>;
+}
+
 interface AISupportWidgetProps {
   widgetKey: string;
   theme?: 'light' | 'dark';
   position?: 'bottom-right' | 'bottom-left';
+  customerData?: CustomerData;
 }
 
 const AISupportWidget: React.FC<AISupportWidgetProps> = ({
   widgetKey,
   theme = 'light',
-  position = 'bottom-right'
+  position = 'bottom-right',
+  customerData
 }) => {
   useEffect(() => {
     // Configuration
@@ -260,9 +321,14 @@ const AISupportWidget: React.FC<AISupportWidgetProps> = ({
       position
     };
 
+    // Set customer data if provided
+    if (customerData) {
+      window.customerData = customerData;
+    }
+
     // Load widget script
     const script = document.createElement('script');
-    script.src = 'https://ai-customer-support-five-rose.vercel.app/api/widget/js';
+    script.src = \`\${baseUrl}/api/widget/js?key=\${widgetKey}\`;
     script.async = true;
     document.body.appendChild(script);
 
@@ -272,7 +338,7 @@ const AISupportWidget: React.FC<AISupportWidgetProps> = ({
         document.body.removeChild(script);
       }
     };
-  }, [widgetKey, theme, position]);
+  }, [widgetKey, theme, position, customerData]);
 
   return <div id="ai-support-chat" />;
 };
@@ -284,8 +350,11 @@ export default AISupportWidget;`}
                         id="react-usage"
                         title="Usage in App.tsx"
                         code={`import AISupportWidget from './components/AISupportWidget';
+import { useAuth } from './hooks/useAuth'; // Your auth hook
 
 function App() {
+  const { user, isAuthenticated } = useAuth();
+
   return (
     <div className="App">
       {/* Your app content */}
@@ -293,10 +362,44 @@ function App() {
         widgetKey="your-widget-key"
         theme="light"
         position="bottom-right"
+        customerData={isAuthenticated ? {
+          customerId: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          metadata: {
+            plan: user.subscriptionPlan,
+            company: user.company,
+            registeredAt: user.createdAt
+          }
+        } : undefined}
       />
     </div>
   );
 }`}
+                      />
+                      
+                      <CodeBlock
+                        id="react-hooks"
+                        title="useAISupport Hook"
+                        code={`import { useEffect, useCallback } from 'react';
+
+export const useAISupport = () => {
+  const setCustomer = useCallback((customerData: CustomerData) => {
+    if (window.setAIChatCustomer) {
+      const { customerId, ...data } = customerData;
+      window.setAIChatCustomer(customerId, data);
+    }
+  }, []);
+
+  const clearCustomer = useCallback(() => {
+    if (window.setAIChatCustomer) {
+      window.setAIChatCustomer(null);
+    }
+  }, []);
+
+  return { setCustomer, clearCustomer };
+};`}
                       />
                     </TabsContent>
 
@@ -321,6 +424,23 @@ function App() {
 // Add to your theme's functions.php file
 function add_ai_support_widget() {
     $widget_key = 'YOUR_WIDGET_KEY'; // Replace with your actual key
+    
+    // Get current user data for logged-in users
+    $current_user = wp_get_current_user();
+    $customer_data = array();
+    
+    if ($current_user->ID) {
+        $customer_data = array(
+            'customerId' => (string)$current_user->ID,
+            'name' => $current_user->display_name,
+            'email' => $current_user->user_email,
+            'metadata' => array(
+                'role' => implode(', ', $current_user->roles),
+                'registeredAt' => $current_user->user_registered,
+                'website' => get_site_url()
+            )
+        );
+    }
     ?>
     <script>
       window.aiSupportConfig = {
@@ -328,8 +448,13 @@ function add_ai_support_widget() {
         theme: 'light',
         position: 'bottom-right'
       };
+      
+      <?php if (!empty($customer_data)): ?>
+      // Set customer data for logged-in users
+      window.customerData = <?php echo json_encode($customer_data, JSON_HEX_TAG | JSON_HEX_AMP); ?>;
+      <?php endif; ?>
     </script>
-    <script src="<?php echo esc_url('https://ai-customer-support-five-rose.vercel.app/api/widget/js'); ?>" async></script>
+    <script src="<?php echo esc_url(get_option('ai_support_base_url', 'YOUR_DOMAIN') . '/api/widget/js?key=' . $widget_key); ?>" async></script>
     <div id="ai-support-chat"></div>
     <?php
 }
@@ -346,6 +471,22 @@ function ai_support_admin_menu() {
     );
 }
 add_action('admin_menu', 'ai_support_admin_menu');
+
+// WooCommerce integration for customer data
+function ai_support_woocommerce_customer_data($customer_data) {
+    if (class_exists('WooCommerce') && is_user_logged_in()) {
+        $user_id = get_current_user_id();
+        $customer = new WC_Customer($user_id);
+        
+        if ($customer->get_id()) {
+            $customer_data['phone'] = $customer->get_billing_phone();
+            $customer_data['metadata']['billingCountry'] = $customer->get_billing_country();
+            $customer_data['metadata']['totalOrders'] = wc_get_customer_order_count($user_id);
+            $customer_data['metadata']['totalSpent'] = wc_get_customer_total_spent($user_id);
+        }
+    }
+    return $customer_data;
+}
 ?>`}
                       />
                       
@@ -380,6 +521,9 @@ class AISupportWidget {
     
     public function render_widget() {
         if (empty($this->widget_key)) return;
+        
+        // Get customer data for logged-in users
+        $customer_data = $this->get_customer_data();
         ?>
         <script>
           window.aiSupportConfig = {
@@ -387,10 +531,43 @@ class AISupportWidget {
             theme: '<?php echo esc_js(get_option('ai_support_theme', 'light')); ?>',
             position: '<?php echo esc_js(get_option('ai_support_position', 'bottom-right')); ?>'
           };
+          
+          <?php if (!empty($customer_data)): ?>
+          // Set customer data for personalized support
+          window.customerData = <?php echo json_encode($customer_data, JSON_HEX_TAG | JSON_HEX_AMP); ?>;
+          <?php endif; ?>
         </script>
-        <script src="<?php echo esc_url('https://ai-customer-support-five-rose.vercel.app/api/widget/js'); ?>" async></script>
+        <script src="<?php echo esc_url(get_option('ai_support_base_url', 'YOUR_DOMAIN') . '/api/widget/js?key=' . $this->widget_key); ?>" async></script>
         <div id="ai-support-chat"></div>
         <?php
+    }
+    
+    private function get_customer_data() {
+        if (!is_user_logged_in()) return array();
+        
+        $current_user = wp_get_current_user();
+        $customer_data = array(
+            'customerId' => (string)$current_user->ID,
+            'name' => $current_user->display_name,
+            'email' => $current_user->user_email,
+            'metadata' => array(
+                'role' => implode(', ', $current_user->roles),
+                'registeredAt' => $current_user->user_registered,
+                'website' => get_site_url()
+            )
+        );
+        
+        // WooCommerce integration
+        if (class_exists('WooCommerce')) {
+            $customer = new WC_Customer($current_user->ID);
+            if ($customer->get_id()) {
+                $customer_data['phone'] = $customer->get_billing_phone();
+                $customer_data['metadata']['totalOrders'] = wc_get_customer_order_count($current_user->ID);
+                $customer_data['metadata']['totalSpent'] = wc_get_customer_total_spent($current_user->ID);
+            }
+        }
+        
+        return $customer_data;
     }
 }
 
@@ -426,19 +603,35 @@ new AISupportWidget();
     shopInfo: {
       shopId: '{{ shop.id }}',
       currency: '{{ shop.currency }}',
-      customer: {
-        {% if customer %}
-        id: '{{ customer.id }}',
-        email: '{{ customer.email }}',
-        name: '{{ customer.first_name }} {{ customer.last_name }}'
-        {% else %}
-        id: null
+      domain: '{{ shop.domain }}'
+    }
+  };
+  
+  {% if customer %}
+  // Set customer data for logged-in users
+  window.customerData = {
+    customerId: '{{ customer.id }}',
+    name: '{{ customer.first_name }} {{ customer.last_name }}',
+    email: '{{ customer.email }}',
+    {% if customer.phone %}phone: '{{ customer.phone }}',{% endif %}
+    metadata: {
+      acceptsMarketing: {{ customer.accepts_marketing }},
+      createdAt: '{{ customer.created_at }}',
+      ordersCount: {{ customer.orders_count }},
+      totalSpent: '{{ customer.total_spent | money_without_currency }}',
+      tags: [{% for tag in customer.tags %}'{{ tag }}'{% unless forloop.last %},{% endunless %}{% endfor %}],
+      defaultAddress: {
+        {% if customer.default_address %}
+        city: '{{ customer.default_address.city }}',
+        country: '{{ customer.default_address.country }}',
+        province: '{{ customer.default_address.province }}'
         {% endif %}
       }
     }
   };
+  {% endif %}
 </script>
-<script src="https://ai-customer-support-five-rose.vercel.app/api/widget/js" async></script>
+<script src="\${baseUrl}/api/widget/js?key=YOUR_WIDGET_KEY" async></script>
 <div id="ai-support-chat"></div>`}
                       />
                       
@@ -451,11 +644,26 @@ new AISupportWidget();
     widgetKey: 'YOUR_WIDGET_KEY',
     theme: 'light',
     position: 'bottom-right',
-    context: 'checkout',
-    order: {
-      {% if checkout %}
-      total: '{{ checkout.total_price | money_without_currency }}',
+    context: 'checkout'
+  };
+  
+  {% if checkout %}
+  // Set customer data during checkout
+  window.customerData = {
+    customerId: '{{ checkout.customer.id | default: "guest" }}',
+    name: '{{ checkout.shipping_address.first_name }} {{ checkout.shipping_address.last_name }}',
+    email: '{{ checkout.email }}',
+    {% if checkout.shipping_address.phone %}phone: '{{ checkout.shipping_address.phone }}',{% endif %}
+    metadata: {
+      context: 'checkout',
+      orderTotal: '{{ checkout.total_price | money_without_currency }}',
       currency: '{{ checkout.currency }}',
+      itemCount: {{ checkout.line_items.size }},
+      shippingAddress: {
+        city: '{{ checkout.shipping_address.city }}',
+        country: '{{ checkout.shipping_address.country }}',
+        province: '{{ checkout.shipping_address.province }}'
+      },
       items: [
         {% for line_item in checkout.line_items %}
         {
@@ -465,11 +673,11 @@ new AISupportWidget();
         }{% unless forloop.last %},{% endunless %}
         {% endfor %}
       ]
-      {% endif %}
     }
   };
+  {% endif %}
 </script>
-<script src="https://ai-customer-support-five-rose.vercel.app/api/widget/js" async></script>
+<script src="\${baseUrl}/api/widget/js?key=YOUR_WIDGET_KEY" async></script>
 <div id="ai-support-chat"></div>`}
                       />
                     </TabsContent>
@@ -491,7 +699,15 @@ new AISupportWidget();
                       <CodeBlock
                         id="angular-component"
                         title="ai-support.component.ts"
-                        code={`import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+                        code={`import { Component, Input, OnInit, OnDestroy, Inject, Optional } from '@angular/core';
+
+export interface CustomerData {
+  customerId: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  metadata?: Record<string, any>;
+}
 
 @Component({
   selector: 'app-ai-support',
@@ -501,8 +717,13 @@ export class AiSupportComponent implements OnInit, OnDestroy {
   @Input() widgetKey: string = '';
   @Input() theme: 'light' | 'dark' = 'light';
   @Input() position: 'bottom-right' | 'bottom-left' = 'bottom-right';
+  @Input() customerData?: CustomerData;
   
   private script?: HTMLScriptElement;
+
+  constructor(
+    @Optional() @Inject('AuthService') private authService?: any
+  ) {}
 
   ngOnInit() {
     if (!this.widgetKey) {
@@ -510,6 +731,13 @@ export class AiSupportComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.initializeWidget();
+  }
+
+  private async initializeWidget() {
+    // Get customer data from auth service if available
+    const customer = this.customerData || await this.getCurrentCustomer();
+    
     // Configuration
     (window as any).aiSupportConfig = {
       widgetKey: this.widgetKey,
@@ -517,11 +745,41 @@ export class AiSupportComponent implements OnInit, OnDestroy {
       position: this.position
     };
 
+    // Set customer data if available
+    if (customer) {
+      (window as any).customerData = customer;
+    }
+
     // Load widget script
     this.script = document.createElement('script');
-    this.script.src = 'https://ai-customer-support-five-rose.vercel.app/api/widget/js';
+    this.script.src = \`\${environment.baseUrl}/api/widget/js?key=\${this.widgetKey}\`;
     this.script.async = true;
     document.body.appendChild(this.script);
+  }
+
+  private async getCurrentCustomer(): Promise<CustomerData | null> {
+    if (!this.authService) return null;
+    
+    try {
+      const user = await this.authService.getCurrentUser();
+      if (!user) return null;
+
+      return {
+        customerId: user.id,
+        name: user.name || \`\${user.firstName} \${user.lastName}\`.trim(),
+        email: user.email,
+        phone: user.phone,
+        metadata: {
+          role: user.role,
+          createdAt: user.createdAt,
+          lastLoginAt: user.lastLoginAt,
+          preferences: user.preferences
+        }
+      };
+    } catch (error) {
+      console.warn('Failed to get current user:', error);
+      return null;
+    }
   }
 
   ngOnDestroy() {
@@ -556,16 +814,53 @@ export class AppModule { }`}
                       
                       <CodeBlock
                         id="angular-usage"
-                        title="app.component.html"
-                        code={`<div class="app-container">
+                        title="app.component.html & app.component.ts"
+                        code={`<!-- app.component.html -->
+<div class="app-container">
   <!-- Your app content -->
   
+  <!-- Basic usage -->
   <app-ai-support 
     widgetKey="your-widget-key"
     theme="light"
     position="bottom-right">
   </app-ai-support>
-</div>`}
+  
+  <!-- With customer data -->
+  <app-ai-support 
+    widgetKey="your-widget-key"
+    theme="light"
+    position="bottom-right"
+    [customerData]="currentCustomer">
+  </app-ai-support>
+</div>
+
+<!-- app.component.ts -->
+import { Component, OnInit } from '@angular/core';
+import { CustomerData } from './ai-support.component';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html'
+})
+export class AppComponent implements OnInit {
+  currentCustomer?: CustomerData;
+
+  ngOnInit() {
+    // Set customer data from your auth system
+    this.currentCustomer = {
+      customerId: 'user-123',
+      name: 'John Doe',
+      email: 'john@example.com',
+      phone: '+1-555-0123',
+      metadata: {
+        accountType: 'premium',
+        lastPurchase: '2024-01-15',
+        totalOrders: 5
+      }
+    };
+  }
+}`}
                       />
                     </TabsContent>
 
@@ -591,7 +886,7 @@ export class AppModule { }`}
 </template>
 
 <script>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, inject } from 'vue'
 
 export default {
   name: 'AiSupportWidget',
@@ -609,12 +904,34 @@ export default {
       type: String,
       default: 'bottom-right',
       validator: (value) => ['bottom-right', 'bottom-left'].includes(value)
+    },
+    customerData: {
+      type: Object,
+      default: null
     }
   },
   setup(props) {
     const script = ref(null)
+    const authStore = inject('authStore', null)
 
-    onMounted(() => {
+    const initializeWidget = async () => {
+      // Get customer data from prop or auth store
+      let customer = props.customerData
+      
+      if (!customer && authStore?.currentUser) {
+        customer = {
+          customerId: authStore.currentUser.id,
+          name: authStore.currentUser.name,
+          email: authStore.currentUser.email,
+          phone: authStore.currentUser.phone,
+          metadata: {
+            role: authStore.currentUser.role,
+            createdAt: authStore.currentUser.createdAt,
+            preferences: authStore.currentUser.preferences
+          }
+        }
+      }
+
       // Configuration
       window.aiSupportConfig = {
         widgetKey: props.widgetKey,
@@ -622,11 +939,20 @@ export default {
         position: props.position
       }
 
+      // Set customer data if available
+      if (customer) {
+        window.customerData = customer
+      }
+
       // Load widget script
       script.value = document.createElement('script')
-      script.value.src = 'https://ai-customer-support-five-rose.vercel.app/api/widget/js'
+      script.value.src = \`\${import.meta.env.VITE_BASE_URL || window.location.origin}/api/widget/js?key=\${props.widgetKey}\`
       script.value.async = true
       document.body.appendChild(script.value)
+    }
+
+    onMounted(() => {
+      initializeWidget()
     })
 
     onUnmounted(() => {
@@ -648,21 +974,54 @@ export default {
   <div id="app">
     <!-- Your app content -->
     
+    <!-- Basic usage -->
     <AiSupportWidget 
       widget-key="your-widget-key"
       theme="light"
       position="bottom-right"
     />
+    
+    <!-- With customer data -->
+    <AiSupportWidget 
+      widget-key="your-widget-key"
+      theme="light"
+      position="bottom-right"
+      :customer-data="currentCustomer"
+    />
   </div>
 </template>
 
 <script>
+import { ref, onMounted } from 'vue'
 import AiSupportWidget from './components/AiSupportWidget.vue'
 
 export default {
   name: 'App',
   components: {
     AiSupportWidget
+  },
+  setup() {
+    const currentCustomer = ref(null)
+
+    onMounted(() => {
+      // Set customer data from your auth system
+      currentCustomer.value = {
+        customerId: 'user-123',
+        name: 'John Doe',
+        email: 'john@example.com',
+        phone: '+1-555-0123',
+        metadata: {
+          accountType: 'premium',
+          lastPurchase: '2024-01-15',
+          totalOrders: 5,
+          favoriteCategories: ['electronics', 'books']
+        }
+      }
+    })
+
+    return {
+      currentCustomer
+    }
   }
 }
 </script>`}
@@ -924,8 +1283,151 @@ function sendWelcomeMessage() {
 // Open widget when user clicks a custom button
 document.getElementById('help-button').addEventListener('click', function() {
   window.AiSupport.open();
-});`}
+});
+
+// Update customer data dynamically
+function updateCustomerData(customerData) {
+  window.AiSupport.setCustomer(customerData);
+}
+
+// Example: Update customer after login
+function onUserLogin(user) {
+  updateCustomerData({
+    customerId: user.id,
+    name: user.name,
+    email: user.email,
+    metadata: {
+      accountType: user.subscription,
+      loginTime: new Date().toISOString()
+    }
+  });
+}`}
                   />
+                  
+                  <div className="mt-8">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Customer Data API</h3>
+                    <div className="space-y-4">
+                      <Card className="bg-blue-50/50 border-blue-200/50 dark:bg-blue-900/20 dark:border-blue-800">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-lg text-blue-900 dark:text-blue-300">Customer Data Schema</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <CodeBlock
+                            id="customer-schema"
+                            title="Customer Data Interface"
+                            code={`interface CustomerData {
+  customerId: string;          // Required: Unique customer identifier
+  name?: string;               // Optional: Customer's full name
+  email?: string;              // Optional: Customer's email address
+  phone?: string;              // Optional: Customer's phone number
+  metadata?: {                 // Optional: Additional customer information
+    [key: string]: any;        // Any custom data relevant to your business
+    
+    // Common examples:
+    accountType?: string;      // e.g., 'premium', 'basic', 'enterprise'
+    registeredAt?: string;     // ISO date string
+    lastLoginAt?: string;      // ISO date string
+    totalOrders?: number;      // Total number of orders
+    totalSpent?: number;       // Total amount spent
+    preferences?: object;      // User preferences
+    tags?: string[];           // Customer tags/categories
+    location?: {               // Customer location data
+      city?: string;
+      country?: string;
+      timezone?: string;
+    };
+  };
+}
+
+// Example customer data objects:
+const basicCustomer = {
+  customerId: 'user-123',
+  name: 'John Doe',
+  email: 'john@example.com'
+};
+
+const detailedCustomer = {
+  customerId: 'premium-user-456',
+  name: 'Jane Smith',
+  email: 'jane@company.com',
+  phone: '+1-555-0123',
+  metadata: {
+    accountType: 'premium',
+    registeredAt: '2023-01-15T10:30:00Z',
+    totalOrders: 12,
+    totalSpent: 2449.99,
+    preferences: {
+      newsletter: true,
+      smsNotifications: false
+    },
+    tags: ['vip', 'enterprise'],
+    location: {
+      city: 'San Francisco',
+      country: 'USA',
+      timezone: 'America/Los_Angeles'
+    }
+  }
+};`}
+                          />
+                        </CardContent>
+                      </Card>
+                      
+                      <Card className="bg-green-50/50 border-green-200/50 dark:bg-green-900/20 dark:border-green-800">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-lg text-green-900 dark:text-green-300">Dynamic Customer Updates</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <CodeBlock
+                            id="dynamic-updates"
+                            title="Updating Customer Data"
+                            code={`// Method 1: Update via window.customerData
+function updateCustomerData(newData) {
+  window.customerData = {
+    ...window.customerData,
+    ...newData
+  };
+  
+  // Notify widget of the update
+  if (window.AiSupport) {
+    window.AiSupport.updateCustomer(window.customerData);
+  }
+}
+
+// Method 2: Direct API call
+function setCustomerData(customerData) {
+  if (window.AiSupport) {
+    window.AiSupport.setCustomer(customerData);
+  }
+}
+
+// Example: Update after user action
+function onPurchaseComplete(orderData) {
+  updateCustomerData({
+    metadata: {
+      ...window.customerData?.metadata,
+      lastPurchase: new Date().toISOString(),
+      totalOrders: (window.customerData?.metadata?.totalOrders || 0) + 1,
+      recentOrder: {
+        id: orderData.id,
+        total: orderData.total,
+        items: orderData.items.length
+      }
+    }
+  });
+}
+
+// Example: Clear customer data on logout
+function onUserLogout() {
+  window.customerData = null;
+  if (window.AiSupport) {
+    window.AiSupport.clearCustomer();
+  }
+}`}
+                          />
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </section>

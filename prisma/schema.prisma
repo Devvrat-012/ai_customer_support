@@ -1,33 +1,31 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [uuid_ossp(map: "uuid-ossp", schema: "extensions"), vector]
 }
 
 model User {
-  id               String    @id @default(cuid())
-  email            String    @unique
-  password         String
-  firstName        String    @map("first_name")
-  lastName         String    @map("last_name")
-  companyName      String?   @map("company_name")
-  companyInfo      String?   @map("company_info") // This will store the uploaded text file content
-  widgetKey        String?   @unique @map("widget_key") // Unique key for widget authentication
-  isEmailVerified  Boolean   @default(false) @map("is_email_verified")
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @updatedAt @map("updated_at")
-  
-  // Relations
-  sessions         Session[]
-  aiReplies        AiReply[]
-  customers        Customer[] // Company's customers using the widget
+  id              String          @id @default(cuid())
+  email           String          @unique
+  password        String
+  firstName       String          @map("first_name")
+  lastName        String          @map("last_name")
+  companyName     String?         @map("company_name")
+  companyInfo     String?         @map("company_info")
+  widgetKey       String?         @unique @map("widget_key")
+  isEmailVerified Boolean         @default(false) @map("is_email_verified")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+  aiReplies       AiReply[]
+  customers       Customer[]
+  knowledgeBases  KnowledgeBase[]
+  sessions        Session[]
 
   @@map("users")
 }
@@ -38,81 +36,100 @@ model Session {
   token     String
   expiresAt DateTime @map("expires_at")
   createdAt DateTime @default(now()) @map("created_at")
-  
-  // Relations
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
 }
 
 model AiReply {
-  id          String   @id @default(cuid())
-  userId      String   @map("user_id")
-  question    String   @db.Text
-  response    String   @db.Text
-  model       String   @default("gpt-3.5-turbo")
-  tokensUsed  Int?     @map("tokens_used")
-  createdAt   DateTime @default(now()) @map("created_at")
-  
-  // Relations
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  question   String
+  response   String
+  model      String   @default("gpt-3.5-turbo")
+  tokensUsed Int?     @map("tokens_used")
+  createdAt  DateTime @default(now()) @map("created_at")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("ai_replies")
 }
 
 model Customer {
-  id              String      @id @default(cuid())
-  customerId      String      @map("customer_id") // The ID provided by the company using the widget
-  companyUserId   String      @map("company_user_id") // Reference to the company (User) that owns this customer
-  customerName    String?     @map("customer_name")
-  customerEmail   String?     @map("customer_email")
-  customerPhone   String?     @map("customer_phone")
-  customerMeta    Json?       @map("customer_meta") // Additional customer data as JSON
-  sessionCount    Int         @default(0) @map("session_count")
-  lastSeenAt      DateTime?   @map("last_seen_at")
-  createdAt       DateTime    @default(now()) @map("created_at")
-  updatedAt       DateTime    @updatedAt @map("updated_at")
-  
-  // Relations
-  companyUser     User        @relation(fields: [companyUserId], references: [id], onDelete: Cascade)
-  conversations   CustomerConversation[]
-  
-  // Ensure unique customer ID per company
+  id            String                 @id @default(cuid())
+  customerId    String                 @map("customer_id")
+  companyUserId String                 @map("company_user_id")
+  customerName  String?                @map("customer_name")
+  customerEmail String?                @map("customer_email")
+  customerPhone String?                @map("customer_phone")
+  customerMeta  Json?                  @map("customer_meta")
+  sessionCount  Int                    @default(0) @map("session_count")
+  lastSeenAt    DateTime?              @map("last_seen_at")
+  createdAt     DateTime               @default(now()) @map("created_at")
+  updatedAt     DateTime               @updatedAt @map("updated_at")
+  conversations CustomerConversation[]
+  companyUser   User                   @relation(fields: [companyUserId], references: [id], onDelete: Cascade)
+
   @@unique([customerId, companyUserId])
   @@map("customers")
 }
 
 model CustomerConversation {
-  id           String                 @id @default(cuid())
-  customerId   String                 @map("customer_id")
-  sessionId    String                 @map("session_id")
-  status       CustomerConversationStatus @default(ACTIVE)
-  createdAt    DateTime               @default(now()) @map("created_at")
-  updatedAt    DateTime               @updatedAt @map("updated_at")
-  
-  // Relations
-  customer     Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  messages     CustomerMessage[]
-  
-  // Ensure unique session per customer
+  id         String                     @id @default(cuid())
+  customerId String                     @map("customer_id")
+  sessionId  String                     @map("session_id")
+  status     CustomerConversationStatus @default(ACTIVE)
+  createdAt  DateTime                   @default(now()) @map("created_at")
+  updatedAt  DateTime                   @updatedAt @map("updated_at")
+  customer   Customer                   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  messages   CustomerMessage[]
+
   @@unique([customerId, sessionId])
   @@map("customer_conversations")
 }
 
 model CustomerMessage {
-  id               String               @id @default(cuid())
-  conversationId   String               @map("conversation_id")
-  sender           CustomerMessageSender
-  content          String               @db.Text
-  messageType      CustomerMessageType  @default(TEXT) @map("message_type")
-  aiModel          String?              @map("ai_model") // Only for AI messages
-  tokensUsed       Int?                 @map("tokens_used") // Only for AI messages
-  createdAt        DateTime             @default(now()) @map("created_at")
-  
-  // Relations
-  conversation     CustomerConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  
+  id             String                @id @default(cuid())
+  conversationId String                @map("conversation_id")
+  sender         CustomerMessageSender
+  content        String
+  messageType    CustomerMessageType   @default(TEXT) @map("message_type")
+  aiModel        String?               @map("ai_model")
+  tokensUsed     Int?                  @map("tokens_used")
+  createdAt      DateTime              @default(now()) @map("created_at")
+  conversation   CustomerConversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
   @@map("customer_messages")
+}
+
+model KnowledgeBase {
+  id          String              @id @default(cuid())
+  userId      String              @map("user_id")
+  name        String
+  description String?
+  sourceType  KnowledgeSourceType @map("source_type")
+  sourceUrl   String?             @map("source_url")
+  fileName    String?             @map("file_name")
+  metadata    Json?
+  status      KnowledgeStatus     @default(PROCESSING)
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chunks      KnowledgeChunk[]
+
+  @@map("knowledge_bases")
+}
+
+model KnowledgeChunk {
+  id              String                 @id @default(cuid())
+  knowledgeBaseId String                 @map("knowledge_base_id")
+  content         String
+  chunkIndex      Int                    @map("chunk_index")
+  embedding       Unsupported("vector")?
+  metadata        Json?
+  createdAt       DateTime               @default(now()) @map("created_at")
+  knowledgeBase   KnowledgeBase          @relation(fields: [knowledgeBaseId], references: [id], onDelete: Cascade)
+
+  @@map("knowledge_chunks")
 }
 
 enum CustomerConversationStatus {
@@ -130,4 +147,16 @@ enum CustomerMessageType {
   TEXT
   IMAGE
   FILE
+}
+
+enum KnowledgeSourceType {
+  UPLOAD
+  WEBSITE
+  MANUAL
+}
+
+enum KnowledgeStatus {
+  PROCESSING
+  READY
+  ERROR
 }

@@ -75,17 +75,17 @@ export const updateProfile = createAsyncThunk(
 );
 
 // Async thunk to generate widget key
-// Note: Widget key depends on company data, so company data must exist first
+// Note: Widget key now requires knowledge base data instead of company data
 export const generateWidgetKey = createAsyncThunk(
   'profile/generateWidgetKey',
-  async (_, { rejectWithValue, getState }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      // Check if company data exists first (widget key requires company data)
-      const state = getState() as { profile: ProfileState };
-      const hasCompanyData = !!(state.profile.data?.companyInfo?.trim().length);
+      // Check if user has knowledge base data first
+      const kbResponse = await fetch('/api/knowledge-base/search?action=stats');
+      const kbResult = await kbResponse.json();
       
-      if (!hasCompanyData) {
-        return rejectWithValue('Company data is required before generating a widget key');
+      if (!kbResult.success || !kbResult.data?.totalKnowledgeBases || kbResult.data.totalKnowledgeBases === 0) {
+        return rejectWithValue('At least one knowledge base is required before generating a widget key. Please upload knowledge base content first.');
       }
       
       const response = await fetch('/api/widget/key', {

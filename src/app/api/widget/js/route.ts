@@ -3,7 +3,19 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const widgetKey = searchParams.get('key');
-  const apiUrl = process.env.NEXT_PUBLIC_APP_URL;
+  
+  // Determine API URL based on environment
+  let apiUrl = process.env.NEXT_PUBLIC_APP_URL;
+  
+  // For development, use localhost
+  if (process.env.NODE_ENV === 'development') {
+    const { headers } = request;
+    const host = headers.get('host');
+    const protocol = headers.get('x-forwarded-proto') || (host?.includes('localhost') ? 'http' : 'https');
+    apiUrl = `${protocol}://${host}`;
+  }
+  
+  console.log('Widget JS - Environment:', process.env.NODE_ENV, 'API URL:', apiUrl); // Debug log
 
   // Widget JavaScript code
   const widgetScript = `
@@ -541,6 +553,16 @@ export async function GET(request: NextRequest) {
 
   // Apply pending customer data if it exists
   function applyPendingCustomerData() {
+    // Check for customer data set via window.customerData
+    if (window.customerData && window.aiChatWidget) {
+      const { customerId, ...customerData } = window.customerData;
+      if (customerId) {
+        window.aiChatWidget.setCustomerId(customerId);
+        window.aiChatWidget.setCustomerData(customerData);
+      }
+    }
+    
+    // Check for customer data set via setAIChatCustomer before widget was ready
     if (window._aiChatPendingCustomer && window.aiChatWidget) {
       const { customerId, customerData } = window._aiChatPendingCustomer;
       window.aiChatWidget.setCustomerId(customerId);

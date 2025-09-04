@@ -1,345 +1,467 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Code, ExternalLink, Copy, CheckCircle } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { generateWidgetKey as generateWidgetKeyAction, selectWidgetKey, selectHasWidgetKey } from '@/lib/store/profileSlice';
+import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import { 
+  Copy, 
+  Code2, 
+  Settings, 
+  Key,
+  User,
+  MessageSquare,
+  Sparkles,
+  CheckCircle,
+  ExternalLink
+} from 'lucide-react';
 
 export default function WidgetDemoPage() {
-  const [demoHtml, setDemoHtml] = useState('');
-  const [copied, setCopied] = useState(false);
-  const [generating, setGenerating] = useState(false);
-  const dispatch = useAppDispatch();
-  const reduxWidgetKey = useAppSelector(selectWidgetKey);
-  const hasWidgetKey = useAppSelector(selectHasWidgetKey);
-  const [localWidgetKey, setLocalWidgetKey] = useState('');
+  const router = useRouter();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const [widgetKey, setWidgetKey] = useState('');
+  const [customerData, setCustomerData] = useState({
+    customerId: 'demo-user-123',
+    name: 'John Doe',
+    email: 'john@example.com',
+    phone: '+1-555-0123'
+  });
+  const [isGeneratingKey, setIsGeneratingKey] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Use Redux widget key if available, otherwise use local state
-  const widgetKey = reduxWidgetKey || localWidgetKey;
-
-  const generateWidgetKey = useCallback(async () => {
-    setGenerating(true);
-    try {
-      // Check if we have a key from URL params
-      const urlParams = new URLSearchParams(window.location.search);
-      const keyFromUrl = urlParams.get('key');
-      
-      if (keyFromUrl) {
-        setLocalWidgetKey(keyFromUrl);
-        updateDemoHtml(keyFromUrl);
-        setGenerating(false);
+  // Check authentication and load existing widget key
+  useEffect(() => {
+    const checkAuthAndLoadKey = async () => {
+      if (!user) {
+        router.push('/auth/login');
         return;
       }
 
-      // Generate a new key using Redux action
-      const result = await dispatch(generateWidgetKeyAction()).unwrap();
-      updateDemoHtml(result);
-    } catch {
-      alert('Error generating widget key. Please try again.');
-    } finally {
-      setGenerating(false);
-    }
-  }, [dispatch]);
-
-  const updateDemoHtml = (key: string) => {
-    const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Website - AI Customer Support Demo</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: white;
-        }
-        .demo-content {
-            max-width: 800px;
-            margin: 0 auto;
-            text-align: center;
-            padding: 40px 20px;
-        }
-        h1 { font-size: 2.5rem; margin-bottom: 1rem; }
-        p { font-size: 1.2rem; opacity: 0.9; }
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 40px 0;
-        }
-        .feature {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-        }
-        .customer-demo {
-            background: rgba(255,255,255,0.15);
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            text-align: left;
-        }
-        .btn {
-            background: #4f46e5;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-        }
-        .btn:hover { background: #3730a3; }
-    </style>
-</head>
-<body>
-    <div class="demo-content">
-        <h1>🚀 Your Company Website</h1>
-        <p>This is a demo website showing how the AI Customer Support widget works.</p>
-        <p><strong>Try the chat widget in the bottom-right corner!</strong></p>
+      try {
+        // Try to get existing widget key
+        const response = await fetch('/api/widget/key');
+        const result = await response.json();
         
-        <div class="features">
-            <div class="feature">
-                <h3>💬 Instant Support</h3>
-                <p>Get immediate answers to customer questions</p>
-            </div>
-            <div class="feature">
-                <h3>🤖 AI-Powered</h3>
-                <p>Smart responses based on your company data</p>
-            </div>
-            <div class="feature">
-                <h3>📱 Mobile Friendly</h3>
-                <p>Works perfectly on all devices</p>
-            </div>
-            <div class="feature">
-                <h3>👥 Customer Tracking</h3>
-                <p>Track individual customer conversations</p>
-            </div>
-        </div>
-
-        <div class="customer-demo">
-            <h3>🔍 Customer Tracking Demo</h3>
-            <p>Test the customer tracking feature by setting different customer identities:</p>
-            <button class="btn" onclick="setCustomer('customer-001', {name: 'John Doe', email: 'john@example.com'})">
-                Set as John Doe
-            </button>
-            <button class="btn" onclick="setCustomer('customer-002', {name: 'Jane Smith', email: 'jane@example.com'})">
-                Set as Jane Smith
-            </button>
-            <button class="btn" onclick="setCustomer('customer-003', {name: 'Bob Johnson', email: 'bob@example.com'})">
-                Set as Bob Johnson
-            </button>
-            <button class="btn" onclick="clearCustomer()">
-                Clear Customer ID
-            </button>
-            <p><small>Current Customer: <span id="current-customer">None</span></small></p>
-        </div>
-    </div>
-
-    <!-- AI Customer Support Widget -->
-    <script>
-        // Customer management functions
-        function setCustomer(customerId, customerData) {
-            if (window.setAIChatCustomer) {
-                window.setAIChatCustomer(customerId, customerData);
-                document.getElementById('current-customer').textContent = 
-                    customerData.name + ' (' + customerId + ')';
-            } else {
-                console.log('Widget not ready yet');
-            }
+        if (result.success && result.data.widgetKey) {
+          setWidgetKey(result.data.widgetKey);
         }
 
-        function clearCustomer() {
-            if (window.setAIChatCustomer) {
-                window.setAIChatCustomer(null);
-                document.getElementById('current-customer').textContent = 'None';
-            }
+        // Set customer data based on logged-in user
+        if (user) {
+          setCustomerData({
+            customerId: user.id || 'demo-user-123',
+            name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Demo User',
+            email: user.email || 'demo@example.com',
+            phone: '+1-555-0123'
+          });
         }
+      } catch (error) {
+        console.warn('Failed to load existing widget key:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-        // Get current customer info
-        function getCurrentCustomer() {
-            if (window.getAIChatCustomer) {
-                return window.getAIChatCustomer();
-            }
-            return null;
-        }
-    </script>
-    <script src="${process.env.NEXT_PUBLIC_APP_URL}/api/widget/js?key=${key}&t=${Date.now()}"></script>
-    <div id="ai-support-chat"></div>
-</body>
-</html>`;
-    setDemoHtml(html);
-  };
+    checkAuthAndLoadKey();
+  }, [user, router]);
 
-  const copyToClipboard = async () => {
+  // Generate a real widget key using the API
+  const generateWidgetKey = async () => {
+    setIsGeneratingKey(true);
     try {
-      await navigator.clipboard.writeText(demoHtml);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
+      const response = await fetch('/api/widget/key', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to generate widget key. Please ensure you have company data configured.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setWidgetKey(result.data.widgetKey);
+      toast({
+        title: "Widget Key Generated",
+        description: "Your widget key has been created successfully!",
+      });
+    } catch (error: unknown) {
+      console.error('Failed to generate widget key:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate widget key. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingKey(false);
     }
   };
 
-  const openDemo = () => {
-    const blob = new Blob([demoHtml], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
+  // Copy code to clipboard
+  const copyToClipboard = async (text: string, description: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Copied!",
+        description: `${description} copied to clipboard`,
+      });
+    } catch (error: unknown) {
+      console.error('Failed to copy to clipboard:', error);
+      toast({
+        title: "Error",
+        description: "Failed to copy to clipboard",
+        variant: "destructive",
+      });
+    }
   };
 
-  useEffect(() => {
-    // Auto-generate widget key on page load for demo purposes
-    generateWidgetKey();
-  }, [generateWidgetKey]);
+  // Generate integration code
+  const generateIntegrationCode = () => {
+    const customerDataCode = `window.customerData = ${JSON.stringify(customerData, null, 2)};`;
+    
+    return `<!-- Add this before closing </body> tag -->
+<script>
+  window.aiSupportConfig = {
+    widgetKey: '${widgetKey}',
+    theme: 'light',
+    position: 'bottom-right'
+  };
+  
+  ${customerDataCode}
+</script>
+<script src="${baseUrl}/api/widget/js?key=${widgetKey}" async></script>
+<div id="ai-support-chat"></div>`;
+  };
+
+  // Show loading state while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading widget demo...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to login if not authenticated
+  if (!user) {
+    return null; // Will redirect in useEffect
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            🚀 AI Customer Support Widget Demo
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300">
-            Test and integrate our chat widget into your website
-          </p>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+              <MessageSquare className="h-6 w-6 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                Widget Demo & Integration
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Test your AI support widget and generate integration code
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline" className="bg-green-50 dark:bg-gray-700 text-green-700 dark:text-green-300 border-green-200">
+              Live Preview
+            </Badge>
+            <Badge variant="outline" className="bg-blue-50 dark:bg-gray-700 text-blue-700 dark:text-blue-300 border-blue-200">
+              Code Generation
+            </Badge>
+            <Badge variant="outline" className="bg-purple-50 dark:bg-gray-700 text-purple-700 dark:text-purple-300 border-purple-200">
+              Customer Data
+            </Badge>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Widget Configuration */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Code className="h-5 w-5" />
-                Widget Configuration
-              </CardTitle>
-              <CardDescription>
-                Generate your widget key and get the integration code
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Widget Key</label>
+          {/* Configuration Panel */}
+          <div className="space-y-6">
+            {/* Widget Key Generation */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Key className="h-5 w-5" />
+                  Widget Key
+                </CardTitle>
+                <CardDescription>
+                  Generate a widget key to test the integration
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="flex gap-2">
-                  <input
-                    type="text"
+                  <Input
                     value={widgetKey}
+                    placeholder="Generate a widget key to get started"
                     readOnly
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600"
-                    placeholder="Generate a widget key first"
+                    className="font-mono text-sm"
                   />
-                  <Button onClick={generateWidgetKey} disabled={generating || hasWidgetKey}>
-                    {generating ? 'Generating...' : hasWidgetKey ? 'Key Generated' : 'Generate'}
+                  <Button 
+                    onClick={generateWidgetKey}
+                    disabled={isGeneratingKey}
+                    size="sm"
+                  >
+                    {isGeneratingKey ? (
+                      <Sparkles className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Key className="h-4 w-4" />
+                    )}
+                    {isGeneratingKey ? 'Generating...' : widgetKey ? 'Regenerate' : 'Generate Key'}
                   </Button>
                 </div>
-              </div>
+                {widgetKey && (
+                  <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <p className="text-sm text-green-800 dark:text-green-300">
+                      ✅ Widget key ready! You can now test the integration.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Basic Integration Code</label>
-                <div className="bg-gray-900 text-green-400 p-4 rounded-md text-sm font-mono overflow-x-auto">
-                  <div>{`<!-- Basic widget integration -->`}</div>
-                  <div>{`<script src="https://yourapp.com/api/widget/js?key=${widgetKey || 'YOUR_WIDGET_KEY'}"></script>`}</div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Advanced Integration with Customer Tracking</label>
-                <div className="bg-gray-900 text-green-400 p-4 rounded-md text-sm font-mono overflow-x-auto">
-                  <div>{`<!-- Advanced integration with customer tracking -->`}</div>
-                  <div>{`<script src="https://yourapp.com/api/widget/js?key=${widgetKey || 'YOUR_WIDGET_KEY'}"></script>`}</div>
-                  <div className="mt-2">{`<script>`}</div>
-                  <div className="ml-4">{`// Set customer information when available`}</div>
-                  <div className="ml-4">{`setAIChatCustomer('customer-123', {`}</div>
-                  <div className="ml-8">{`name: 'John Doe',`}</div>
-                  <div className="ml-8">{`email: 'john@example.com',`}</div>
-                  <div className="ml-8">{`phone: '+1234567890'`}</div>
-                  <div className="ml-4">{`});`}</div>
-                  <div>{`</script>`}</div>
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <Button onClick={openDemo} disabled={!widgetKey} className="flex-1">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Open Live Demo
-                </Button>
-                <Button variant="outline" onClick={copyToClipboard} disabled={!demoHtml}>
-                  {copied ? <CheckCircle className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
-                  {copied ? 'Copied!' : 'Copy HTML'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Demo Preview */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Demo Website Preview</CardTitle>
-              <CardDescription>
-                See how the widget looks on a sample website
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center bg-gray-50 dark:bg-gray-800">
-                <div className="space-y-4">
-                  <div className="text-2xl">🌐</div>
-                  <h3 className="text-lg font-semibold">Your Website</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    The chat widget will appear as a floating bubble in the bottom-right corner
-                  </p>
-                  <div className="bg-blue-500 text-white px-4 py-2 rounded-full inline-block text-sm">
-                    💬 Chat with us!
+            {/* Customer Data Configuration */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Customer Data
+                </CardTitle>
+                <CardDescription>
+                  Configure customer information for personalized support
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="customerId">Customer ID</Label>
+                    <Input
+                      id="customerId"
+                      value={customerData.customerId}
+                      onChange={(e) => setCustomerData(prev => ({ ...prev, customerId: e.target.value }))}
+                      placeholder="demo-user-123"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="customerName">Name</Label>
+                    <Input
+                      id="customerName"
+                      value={customerData.name}
+                      onChange={(e) => setCustomerData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="John Doe"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="customerEmail">Email</Label>
+                    <Input
+                      id="customerEmail"
+                      type="email"
+                      value={customerData.email}
+                      onChange={(e) => setCustomerData(prev => ({ ...prev, email: e.target.value }))}
+                      placeholder="john@example.com"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="customerPhone">Phone</Label>
+                    <Input
+                      id="customerPhone"
+                      value={customerData.phone}
+                      onChange={(e) => setCustomerData(prev => ({ ...prev, phone: e.target.value }))}
+                      placeholder="+1-555-0123"
+                    />
                   </div>
                 </div>
-              </div>
-              
-              <div className="mt-4 space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Floating chat bubble</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Responsive design</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>AI-powered responses</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Easy integration</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
 
-        {/* Demo HTML Code */}
-        {demoHtml && (
-          <Card className="mt-8">
-            <CardHeader>
-              <CardTitle>Complete Demo HTML</CardTitle>
-              <CardDescription>
-                Full HTML code for testing the widget integration
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={demoHtml}
-                readOnly
-                className="min-h-96 font-mono text-sm"
-                placeholder="Generate a widget key to see the demo HTML"
-              />
-            </CardContent>
-          </Card>
-        )}
+            {/* Integration Code */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Code2 className="h-5 w-5" />
+                  Integration Code
+                </CardTitle>
+                <CardDescription>
+                  Copy this code to integrate the widget into your website
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {widgetKey ? (
+                  <div className="space-y-4">
+                    <Textarea
+                      value={generateIntegrationCode()}
+                      readOnly
+                      className="font-mono text-sm h-40"
+                    />
+                    <Button
+                      onClick={() => copyToClipboard(generateIntegrationCode(), "Integration code")}
+                      className="w-full"
+                      variant="outline"
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copy Integration Code
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-center">
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Generate a widget key first to see the integration code
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Preview Panel */}
+          <div className="space-y-6">
+            {/* Test Widget Button */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  Test Your Widget
+                </CardTitle>
+                <CardDescription>
+                  Try your widget with a live chat bubble on a test page
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {widgetKey ? (
+                  <div className="space-y-4">
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium text-green-800 dark:text-green-300">
+                          Widget Ready for Testing
+                        </span>
+                      </div>
+                      <p className="text-sm text-green-700 dark:text-green-400">
+                        Your widget is configured with customer data for {customerData.name}
+                      </p>
+                    </div>
+                    
+                    <Button
+                      onClick={() => {
+                        // Navigate to a test page with the widget
+                        const testUrl = `/api/widget/test?key=${widgetKey}&customer=${encodeURIComponent(JSON.stringify(customerData))}`;
+                        window.open(testUrl, '_blank', 'width=1200,height=800');
+                      }}
+                      className="w-full h-16 text-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg"
+                    >
+                      <MessageSquare className="h-6 w-6 mr-3" />
+                      Open Widget Test Page
+                      <ExternalLink className="h-4 w-4 ml-3" />
+                    </Button>
+                    
+                    <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
+                      Opens in a new window with a live chat bubble for testing
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-center">
+                    <Settings className="h-12 w-12 mx-auto mb-2 opacity-50 text-gray-500 dark:text-gray-400" />
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                      Generate a widget key first to test your widget
+                    </p>
+                    <Button
+                      onClick={generateWidgetKey}
+                      disabled={isGeneratingKey}
+                      variant="outline"
+                    >
+                      {isGeneratingKey ? (
+                        <Sparkles className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Key className="h-4 w-4 mr-2" />
+                      )}
+                      {isGeneratingKey ? 'Generating...' : 'Generate Key'}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Quick Start Guide */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Start Guide</CardTitle>
+                <CardDescription>
+                  Follow these steps to integrate the widget
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center font-semibold mt-0.5">
+                      1
+                    </div>
+                    <div>
+                      <p className="font-medium">Generate Widget Key</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Click &ldquo;Generate Key&rdquo; to create your unique widget identifier
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center font-semibold mt-0.5">
+                      2
+                    </div>
+                    <div>
+                      <p className="font-medium">Configure Customer Data</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Set up customer information for personalized support
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center font-semibold mt-0.5">
+                      3
+                    </div>
+                    <div>
+                      <p className="font-medium">Copy Integration Code</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Add the generated code to your website before the closing &lt;/body&gt; tag
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-green-500 text-white text-xs flex items-center justify-center font-semibold mt-0.5">
+                      ✓
+                    </div>
+                    <div>
+                      <p className="font-medium">Test & Deploy</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Test the widget on your staging site, then deploy to production
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

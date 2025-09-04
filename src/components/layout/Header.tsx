@@ -96,6 +96,12 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
                 >
                   Customers
                 </Link>
+                <Link 
+                  href="/knowledge-base" 
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
+                >
+                  Knowledge Base
+                </Link>
               </nav>
             )}
             <ThemeSelector />

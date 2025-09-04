@@ -474,7 +474,7 @@ export default MyApp;`
 
                 {!hasCompanyData && (
                   <div className="mt-4 p-3 rounded-lg bg-amber-50/50 border border-amber-200/50">
-                    <p className="text-sm text-amber-700 flex items-center gap-2">
+                    <p className="text-sm text-amber-700 dark:text-red-700 flex items-center gap-2">
                       <AlertTriangle className="h-4 w-4" />
                       Please upload company data first to generate your widget key
                     </p>
