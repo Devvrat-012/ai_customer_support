@@ -26,7 +26,7 @@ export default function WidgetDemoPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { toast } = useToast();
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
   const [widgetKey, setWidgetKey] = useState('');
   const [customerData, setCustomerData] = useState({
     customerId: 'demo-user-123',
