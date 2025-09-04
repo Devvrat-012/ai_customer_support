@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   const widgetKey = searchParams.get('key');
   
   // Determine API URL based on environment
-  let apiUrl = process.env.NEXT_PUBLIC_APP_URL;
+  let apiUrl: string;
   
   // For development, use localhost
   if (process.env.NODE_ENV === 'development') {
@@ -13,6 +13,17 @@ export async function GET(request: NextRequest) {
     const host = headers.get('host');
     const protocol = headers.get('x-forwarded-proto') || (host?.includes('localhost') ? 'http' : 'https');
     apiUrl = `${protocol}://${host}`;
+  } else {
+    // For production, try environment variable first, then fall back to request origin
+    apiUrl = process.env.NEXT_PUBLIC_APP_URL || '';
+    
+    // If NEXT_PUBLIC_APP_URL is not set or still pointing to localhost, use request origin
+    if (!apiUrl || apiUrl.includes('localhost')) {
+      const { headers } = request;
+      const host = headers.get('host');
+      const protocol = headers.get('x-forwarded-proto') || 'https';
+      apiUrl = `${protocol}://${host}`;
+    }
   }
   
   console.log('Widget JS - Environment:', process.env.NODE_ENV, 'API URL:', apiUrl); // Debug log

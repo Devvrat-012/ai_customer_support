@@ -26,7 +26,8 @@ export default function WidgetDemoPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { toast } = useToast();
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+  // Use window.location.origin in browser, fallback to env var
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
   const [widgetKey, setWidgetKey] = useState('');
   const [customerData, setCustomerData] = useState({
     customerId: 'demo-user-123',
