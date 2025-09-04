@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const baseUrl = `http://localhost:${process.env.PORT || 3000}`;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
   const html = `
 <!DOCTYPE html>
