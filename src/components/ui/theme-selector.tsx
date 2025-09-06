@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from 'react-dom';
 import { Monitor, Moon, Sun, ChevronDown } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
@@ -71,10 +72,11 @@ export function ThemeSelector() {
         <ChevronDown className="h-3 w-3" />
       </Button>
 
-      {isOpen && (
+  {isOpen && mounted && typeof document !== 'undefined' && createPortal(
         <>
-          <div className="fixed inset-0 z-20" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 mt-2 w-48 rounded-md border border-gray-200 bg-white text-gray-900 shadow-lg z-20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+          {/* portal overlay lives at document.body so it covers the whole viewport and closes reliably */}
+          <div className="fixed inset-0" onClick={() => setIsOpen(false)} style={{ zIndex: 1000 }} />
+          <div className="rounded-md border border-gray-200 bg-white text-gray-900 shadow-lg dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" style={{ position: 'fixed', top: '56px', right: '16px', width: '12rem', zIndex: 1001 }}>
             <div className="py-1">
               {(["light", "dark", "system"] as const).map((name) => (
                 <button
@@ -94,7 +96,8 @@ export function ThemeSelector() {
               ))}
             </div>
           </div>
-        </>
+        </>,
+        document.body,
       )}
     </div>
   );

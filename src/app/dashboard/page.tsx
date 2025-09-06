@@ -291,6 +291,7 @@ export default function DashboardPage() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 gap-3">
                   <Button 
+                    disabled={isLoading}
                     onClick={() => {
                       if (knowledgeBaseStats.totalKnowledgeBases === 0) {
                         // Show inline error message instead of alert

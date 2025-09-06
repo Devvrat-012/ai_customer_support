@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Bot, LogOut, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ThemeSelector } from '@/components/ui/theme-selector';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { clearUser, setLoading } from '@/lib/store/authSlice';
@@ -22,6 +23,7 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   
   // const isAuthPage = variant === 'auth';
   const isDashboardPage = variant === 'dashboard';
@@ -30,6 +32,7 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
     if (isLoggingOut) return; // Prevent multiple clicks
     
     setIsLoggingOut(true);
+    setShowLogoutDialog(false); // Close the dialog
     dispatch(setLoading(true));
     
     try {
@@ -39,8 +42,15 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
       });
       
       if (response.ok) {
+        // Clear Redux state
         dispatch(clearUser());
+        
+        // Clear persist storage
         await persistor.purge();
+        
+        // Also manually clear localStorage to be sure
+        localStorage.removeItem('persist:root');
+        localStorage.clear();
         
         dispatch(addAlert({
           type: 'success',
@@ -62,6 +72,10 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
       setIsLoggingOut(false);
       dispatch(setLoading(false));
     }
+  };
+  
+  const handleLogoutClick = () => {
+    setShowLogoutDialog(true);
   };
   
   return (
@@ -112,7 +126,7 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
             )}
             {isDashboardPage && isHydrated && user && (
               <Button 
-                onClick={handleLogout} 
+                onClick={handleLogoutClick} 
                 variant="outline" 
                 size="sm"
                 disabled={isLoggingOut}
@@ -129,6 +143,37 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
           </div>
         </div>
       </div>
+      
+      {/* Logout Confirmation Dialog */}
+      <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Logout</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to logout? You will need to sign in again to access your dashboard.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowLogoutDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isLoggingOut ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Logging out...
+                </>
+              ) : (
+                'Logout'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </nav>
   );
 }
