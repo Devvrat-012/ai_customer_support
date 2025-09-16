@@ -1,6 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { 
+  fetchKnowledgeBases,
+  selectKnowledgeBases,
+  selectKnowledgeBaseStats,
+  selectKnowledgeBaseStatus,
+  selectKnowledgeBaseError,
+  selectIsKnowledgeBaseFresh
+} from '@/lib/store/knowledgeBaseSlice';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,32 +20,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 
-interface KnowledgeBase {
-  id: string;
-  name: string;
-  description?: string;
-  sourceType: 'UPLOAD' | 'WEBSITE' | 'MANUAL';
-  sourceUrl?: string;
-  fileName?: string;
-  status: 'PROCESSING' | 'READY' | 'ERROR';
-  chunkCount: number;
-  createdAt: string;
-  updatedAt: string;
-  metadata?: any;
-}
-
-interface KnowledgeBaseStats {
-  totalKnowledgeBases: number;
-  readyKnowledgeBases: number;
-  totalChunks: number;
-  byStatus: Record<string, number>;
-  bySourceType: Record<string, number>;
-}
-
 export default function KnowledgeBaseManager() {
-  const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>([]);
-  const [stats, setStats] = useState<KnowledgeBaseStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  
+  // Redux state
+  const knowledgeBases = useAppSelector(selectKnowledgeBases);
+  const stats = useAppSelector(selectKnowledgeBaseStats);
+  const loading = useAppSelector(selectKnowledgeBaseStatus) === 'loading';
+  const error = useAppSelector(selectKnowledgeBaseError);
+  // freshness can be used later if needed
+  useAppSelector(selectIsKnowledgeBaseFresh);
+  
+  // Local state for form inputs and UI interactions
   const [uploadLoading, setUploadLoading] = useState(false);
   const [websiteLoading, setWebsiteLoading] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -55,40 +50,16 @@ export default function KnowledgeBaseManager() {
     websiteUrl: '',
   });
 
-  // Load knowledge bases and stats
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      
-      // Load knowledge bases
-      const kbResponse = await fetch('/api/knowledge-base/upload');
-      if (kbResponse.ok) {
-        const kbData = await kbResponse.json();
-        setKnowledgeBases(kbData.data.knowledgeBases || []);
-      }
-
-      // Load stats
-      const statsResponse = await fetch('/api/knowledge-base/search?action=stats');
-      if (statsResponse.ok) {
-        const statsData = await statsResponse.json();
-        setStats(statsData.data.stats);
-      }
-
-    } catch (error) {
-      console.error('Error loading knowledge base data:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load knowledge base data',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
+  // Load knowledge bases using Redux - only if data is not already loaded
+  const loadData = useCallback(async () => {
+    if (knowledgeBases.length === 0 && loading === false && error === null) {
+      dispatch(fetchKnowledgeBases());
     }
-  };
+  }, [knowledgeBases.length, loading, error, dispatch]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   // Handle file upload
   const handleFileUpload = async (e: React.FormEvent) => {
@@ -290,7 +261,7 @@ export default function KnowledgeBaseManager() {
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-orange-600">{stats.bySourceType.WEBSITE || 0}</div>
+              <div className="text-2xl font-bold text-orange-600">{stats.bySourceType?.WEBSITE || 0}</div>
               <div className="text-sm text-gray-600 dark:text-gray-400">From Websites</div>
             </CardContent>
           </Card>

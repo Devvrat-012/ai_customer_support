@@ -63,7 +63,7 @@ export const spacing = {
 } as const;
 
 export const typography = {
-  heading1: 'text-4xl font-bold tracking-tight sm:text-6xl',
+  heading1: 'text-4xl font-bold tracking-tight sm:text-6xl pb-2',
   heading2: 'text-3xl font-bold tracking-tight sm:text-4xl',
   heading3: 'text-xl font-semibold',
   body: 'text-lg leading-8',

@@ -14,6 +14,7 @@ import authReducer from './authSlice';
 import alertReducer from './alertSlice';
 import profileReducer from './profileSlice';
 import customersReducer from './customersSlice';
+import knowledgeBaseReducer from './knowledgeBaseSlice';
 
 const createNoopStorage = () => {
   return {
@@ -44,6 +45,7 @@ const rootReducer = combineReducers({
   alert: alertReducer,
   profile: profileReducer,
   customers: customersReducer,
+  knowledgeBase: knowledgeBaseReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

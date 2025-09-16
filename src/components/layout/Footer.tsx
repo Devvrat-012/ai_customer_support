@@ -26,17 +26,17 @@ export function Footer() {
             <h3 className="font-semibold mb-4 text-gray-900 dark:text-gray-100">Product</h3>
             <ul className="space-y-2 text-gray-600 dark:text-gray-400">
               <li>
-                <Link href="#features" className="hover:text-primary transition-colors">
+                <Link href="/features" className="hover:text-primary transition-colors">
                   Features
                 </Link>
               </li>
               <li>
-                <Link href="/auth/login" className="hover:text-primary transition-colors">
+                <Link href="/pricing" className="hover:text-primary transition-colors">
                   Pricing
                 </Link>
               </li>
               <li>
-                <Link href="/auth/login" className="hover:text-primary transition-colors">
+                <Link href="/documentation" className="hover:text-primary transition-colors">
                   Documentation
                 </Link>
               </li>
@@ -46,17 +46,17 @@ export function Footer() {
             <h3 className="font-semibold mb-4 text-gray-900 dark:text-gray-100">Company</h3>
             <ul className="space-y-2 text-gray-600 dark:text-gray-400">
               <li>
-                <Link href="/auth/login" className="hover:text-primary transition-colors">
+                <Link href="/about" className="hover:text-primary transition-colors">
                   About
                 </Link>
               </li>
               <li>
-                <Link href="/auth/login" className="hover:text-primary transition-colors">
+                <Link href="/contact" className="hover:text-primary transition-colors">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link href="/auth/login" className="hover:text-primary transition-colors">
+                <Link href="/privacy" className="hover:text-primary transition-colors">
                   Privacy
                 </Link>
               </li>

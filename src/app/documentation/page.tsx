@@ -101,7 +101,7 @@ export default function DocumentationPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Table of Contents */}
           <div className="lg:col-span-1">
-            <Card className="bg-white dark:bg-gray-800 border sticky top-8">
+            <Card className="bg-white dark:bg-gray-800 border sticky top-18">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg text-gray-900 dark:text-gray-100 flex items-center gap-2">
                   <FileText className="h-5 w-5" />

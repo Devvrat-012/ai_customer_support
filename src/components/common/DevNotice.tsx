@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { X, AlertTriangle, Wrench, Lightbulb, Bug } from 'lucide-react';
+import { X, AlertTriangle, Wrench, Bug } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -66,16 +66,8 @@ export function DevNotice() {
               </p>
               <div className="space-y-2 text-xs text-orange-700 dark:text-orange-300">
                 <div className="flex items-center gap-2">
-                  <Lightbulb className="h-3 w-3" />
-                  <span>Light theme styling issues</span>
-                </div>
-                <div className="flex items-center gap-2">
                   <Bug className="h-3 w-3" />
                   <span>Some features may not work perfectly</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Wrench className="h-3 w-3" />
-                  <span>UI improvements in progress</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="h-3 w-3" />

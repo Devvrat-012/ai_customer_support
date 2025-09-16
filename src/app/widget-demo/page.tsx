@@ -3,6 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { 
+  generateWidgetKey, 
+  selectWidgetKey, 
+  selectProfileStatus 
+} from '@/lib/store/profileSlice';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,77 +32,53 @@ export default function WidgetDemoPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { toast } = useToast();
+  const dispatch = useAppDispatch();
+  
   // Use window.location.origin in browser, fallback to env var
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL);
-  const [widgetKey, setWidgetKey] = useState('');
+  
+  // Redux state
+  const widgetKey = useAppSelector(selectWidgetKey);
+  const profileStatus = useAppSelector(selectProfileStatus);
+  const isGeneratingKey = profileStatus === 'loading';
+  
+  // Local UI state
   const [customerData, setCustomerData] = useState({
     customerId: 'demo-user-123',
     name: 'John Doe',
     email: 'john@example.com',
     phone: '+1-555-0123'
   });
-  const [isGeneratingKey, setIsGeneratingKey] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check authentication and load existing widget key
+  // Check authentication and set customer data
   useEffect(() => {
-    const checkAuthAndLoadKey = async () => {
+    const checkAuthAndSetup = async () => {
       if (!user) {
         router.push('/auth/login');
         return;
       }
 
-      try {
-        // Try to get existing widget key
-        const response = await fetch('/api/widget/key');
-        const result = await response.json();
-        
-        if (result.success && result.data.widgetKey) {
-          setWidgetKey(result.data.widgetKey);
-        }
-
-        // Set customer data based on logged-in user
-        if (user) {
-          setCustomerData({
-            customerId: user.id || 'demo-user-123',
-            name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Demo User',
-            email: user.email || 'demo@example.com',
-            phone: '+1-555-0123'
-          });
-        }
-      } catch (error) {
-        console.warn('Failed to load existing widget key:', error);
-      } finally {
-        setIsLoading(false);
+      // Set customer data based on logged-in user
+      if (user) {
+        setCustomerData({
+          customerId: user.id || 'demo-user-123',
+          name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Demo User',
+          email: user.email || 'demo@example.com',
+          phone: '+1-555-0123'
+        });
       }
+
+      setIsLoading(false);
     };
 
-    checkAuthAndLoadKey();
+    checkAuthAndSetup();
   }, [user, router]);
 
-  // Generate a real widget key using the API
-  const generateWidgetKey = async () => {
-    setIsGeneratingKey(true);
+  // Generate a real widget key using Redux
+  const handleGenerateWidgetKey = async () => {
     try {
-      const response = await fetch('/api/widget/key', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const result = await response.json();
-      
-      if (!result.success) {
-        toast({
-          title: "Error",
-          description: result.error || "Failed to generate widget key. Please ensure you have company data configured.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      setWidgetKey(result.data.widgetKey);
+      await dispatch(generateWidgetKey()).unwrap();
       toast({
         title: "Widget Key Generated",
         description: "Your widget key has been created successfully!",
@@ -105,11 +87,9 @@ export default function WidgetDemoPage() {
       console.error('Failed to generate widget key:', error);
       toast({
         title: "Error",
-        description: "Failed to generate widget key. Please try again.",
+        description: "Failed to generate widget key. Please ensure you have company data configured.",
         variant: "destructive",
       });
-    } finally {
-      setIsGeneratingKey(false);
     }
   };
 
@@ -135,7 +115,7 @@ export default function WidgetDemoPage() {
   const generateIntegrationCode = () => {
     const customerDataCode = `window.customerData = ${JSON.stringify(customerData, null, 2)};`;
     
-    return `<!-- Add this before closing </body> tag -->
+    return `<!-- Add this before closing <\/body> tag -->
 <script>
   window.aiSupportConfig = {
     widgetKey: '${widgetKey}',
@@ -221,7 +201,7 @@ export default function WidgetDemoPage() {
                     className="font-mono text-sm"
                   />
                   <Button 
-                    onClick={generateWidgetKey}
+                    onClick={handleGenerateWidgetKey}
                     disabled={isGeneratingKey}
                     size="sm"
                   >
@@ -388,7 +368,7 @@ export default function WidgetDemoPage() {
                       Generate a widget key first to test your widget
                     </p>
                     <Button
-                      onClick={generateWidgetKey}
+                      onClick={handleGenerateWidgetKey}
                       disabled={isGeneratingKey}
                       variant="outline"
                     >

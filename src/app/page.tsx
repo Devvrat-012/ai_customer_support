@@ -93,7 +93,7 @@ function LandingPage() {
                   Get Started <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="h-12 px-8 border-2 border-purple-300 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-all duration-300">
+              <Button size="lg" variant="outline" asChild className="h-12 px-8 border-2 border-purple-300 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:text-purple-50 dark:hover:bg-purple-950/30 transition-all duration-300">
                 <Link href="#features">Learn More</Link>
               </Button>
             </div>
@@ -283,7 +283,7 @@ function LandingPage() {
           <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
             Join thousands of businesses already using our AI-powered customer support assistant.
           </p>
-          <Button size="lg" variant="secondary" asChild className="h-12 px-8 bg-white text-gray-900 hover:bg-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+          <Button size="lg" asChild className={`h-12 px-8 ${gradients.primary} ${gradients.primaryHover} text-white ${shadows.button} transition-all duration-300 transform hover:scale-105`}>
             <Link href="/auth/login">
               Start Your Free Trial <ArrowRight className="ml-2 h-4 w-4" />
             </Link>

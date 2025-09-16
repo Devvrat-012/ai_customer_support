@@ -24,40 +24,40 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
-  
+
   // const isAuthPage = variant === 'auth';
   const isDashboardPage = variant === 'dashboard';
-  
+
   const handleLogout = async () => {
     if (isLoggingOut) return; // Prevent multiple clicks
-    
+
     setIsLoggingOut(true);
     setShowLogoutDialog(false); // Close the dialog
     dispatch(setLoading(true));
-    
+
     try {
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
       });
-      
+
       if (response.ok) {
         // Clear Redux state
         dispatch(clearUser());
-        
+
         // Clear persist storage
         await persistor.purge();
-        
+
         // Also manually clear localStorage to be sure
         localStorage.removeItem('persist:root');
         localStorage.clear();
-        
+
         dispatch(addAlert({
           type: 'success',
           title: 'Success',
           message: 'Logged out successfully'
         }));
-        
+
         router.push('/');
       } else {
         throw new Error('Logout failed');
@@ -73,11 +73,11 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
       dispatch(setLoading(false));
     }
   };
-  
+
   const handleLogoutClick = () => {
     setShowLogoutDialog(true);
   };
-  
+
   return (
     <nav className={`border-b sticky top-0 z-50 border border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 supports-[backdrop-filter]:dark:bg-gray-900/70`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,23 +98,39 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
           <div className="flex items-center space-x-4">
             {isDashboardPage && isHydrated && user && (
               <nav className="hidden md:flex items-center space-x-4">
-                <Link 
-                  href="/dashboard" 
+                <Link
+                  href="/documentation"
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
+                >
+                  Documentation
+                </Link>
+                <Link
+                  href="/dashboard"
                   className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
                 >
                   Dashboard
                 </Link>
-                <Link 
-                  href="/customers" 
+                <Link
+                  href="/customers"
                   className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
                 >
                   Customers
                 </Link>
-                <Link 
-                  href="/knowledge-base" 
+                <Link
+                  href="/knowledge-base"
                   className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
                 >
                   Knowledge Base
+                </Link>
+              </nav>
+            )}
+            {!user && showSignIn && (
+              <nav className="hidden sm:flex items-center space-x-4">
+                <Link
+                  href="/documentation"
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
+                >
+                  Documentation
                 </Link>
               </nav>
             )}
@@ -125,9 +141,9 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
               </Button>
             )}
             {isDashboardPage && isHydrated && user && (
-              <Button 
-                onClick={handleLogoutClick} 
-                variant="outline" 
+              <Button
+                onClick={handleLogoutClick}
+                variant="outline"
                 size="sm"
                 disabled={isLoggingOut}
                 className="border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300"
@@ -143,7 +159,7 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
           </div>
         </div>
       </div>
-      
+
       {/* Logout Confirmation Dialog */}
       <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
         <DialogContent>

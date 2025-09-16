@@ -4,6 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { fetchProfile, selectHasCompanyData, selectAiRepliesCount } from '@/lib/store/profileSlice';
+import { 
+  fetchKnowledgeBases, 
+  selectKnowledgeBaseStats, 
+  selectKnowledgeBaseStatus,
+} from '@/lib/store/knowledgeBaseSlice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bot, Loader2, User, BarChart3, Activity, TrendingUp, Calendar, Settings, Zap, Sparkles, Database, ExternalLink, Play, BookOpen } from 'lucide-react';
@@ -17,67 +22,30 @@ export default function DashboardPage() {
   const { user, isLoading } = useAuth();
   const dispatch = useAppDispatch();
   const [mounted, setMounted] = useState(false);
-  const [knowledgeBaseStats, setKnowledgeBaseStats] = useState({
-    totalKnowledgeBases: 0,
-    readyKnowledgeBases: 0,
-    totalChunks: 0
-  });
   
   // Use Redux for all state management
   const hasCompanyData = useAppSelector(selectHasCompanyData);
   const aiRepliesCount = useAppSelector(selectAiRepliesCount);
-
-  // Fetch knowledge base stats
-  const fetchKnowledgeBaseStats = async () => {
-    try {
-      const response = await fetch('/api/knowledge-base');
-      
-      if (!response.ok) {
-        console.error('Failed to fetch knowledge base stats:', response.status, response.statusText);
-        return;
-      }
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        console.error('Invalid response type, expected JSON but got:', contentType);
-        return;
-      }
-
-      const data = await response.json();
-      
-      if (!data.success) {
-        console.error('API returned error:', data.error || 'Unknown error');
-        return;
-      }
-
-      const kbs = data.knowledgeBases || [];
-      setKnowledgeBaseStats({
-        totalKnowledgeBases: kbs.length,
-        readyKnowledgeBases: kbs.filter((kb: any) => kb.status === 'READY').length,
-        totalChunks: kbs.reduce((sum: number, kb: any) => sum + (kb.chunkCount || 0), 0)
-      });
-    } catch (error) {
-      console.error('Failed to fetch knowledge base stats:', error);
-      // Set default stats in case of error
-      setKnowledgeBaseStats({
-        totalKnowledgeBases: 0,
-        readyKnowledgeBases: 0,
-        totalChunks: 0
-      });
-    }
-  };
+  const knowledgeBaseStats = useAppSelector(selectKnowledgeBaseStats);
+  const knowledgeBaseStatus = useAppSelector(selectKnowledgeBaseStatus);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Fetch profile data when user is available
+  // Fetch profile data and knowledge base data when user is available
   useEffect(() => {
     if (user) {
+      // Always fetch profile
       dispatch(fetchProfile());
-      fetchKnowledgeBaseStats();
+      
+      // Only fetch knowledge base data if we don't already have it
+      if (knowledgeBaseStatus === 'idle' || 
+          (knowledgeBaseStatus === 'failed' && knowledgeBaseStats.totalKnowledgeBases === 0)) {
+        dispatch(fetchKnowledgeBases());
+      }
     }
-  }, [user, dispatch]);
+  }, [user, dispatch, knowledgeBaseStatus, knowledgeBaseStats.totalKnowledgeBases]);
 
   // Show loading during hydration
   if (!mounted || isLoading) {
