@@ -88,7 +88,59 @@ export async function PUT(request: Request) {
       throw new AuthenticationError('Not authenticated');
     }
 
-    const updateData = await request.json();
+    const body = await request.json();
+    const { firstName, lastName, companyName, companyInfo } = body;
+
+    // Validation
+    if (!firstName || !lastName) {
+      return NextResponse.json({
+        success: false,
+        error: 'First name and last name are required'
+      }, { status: 400 });
+    }
+
+    if (firstName.trim().length < 1 || lastName.trim().length < 1) {
+      return NextResponse.json({
+        success: false,
+        error: 'First name and last name cannot be empty'
+      }, { status: 400 });
+    }
+
+    if (firstName.trim().length > 50 || lastName.trim().length > 50) {
+      return NextResponse.json({
+        success: false,
+        error: 'First name and last name must be 50 characters or less'
+      }, { status: 400 });
+    }
+
+    if (companyName && companyName.trim().length > 100) {
+      return NextResponse.json({
+        success: false,
+        error: 'Company name must be 100 characters or less'
+      }, { status: 400 });
+    }
+
+    if (companyInfo && companyInfo.trim().length > 500) {
+      return NextResponse.json({
+        success: false,
+        error: 'Company description must be 500 characters or less'
+      }, { status: 400 });
+    }
+
+    // Prepare update data - only include fields that are provided
+    const updateData: any = {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+    };
+
+    // Handle optional fields - use null for empty strings to clear the field
+    if (companyName !== undefined) {
+      updateData.companyName = companyName.trim() || null;
+    }
+
+    if (companyInfo !== undefined) {
+      updateData.companyInfo = companyInfo.trim() || null;
+    }
 
     // Update user profile
     const updatedUser = await prisma.user.update({

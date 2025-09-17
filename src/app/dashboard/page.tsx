@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { fetchProfile, selectHasCompanyData, selectAiRepliesCount } from '@/lib/store/profileSlice';
-import { 
-  fetchKnowledgeBases, 
-  selectKnowledgeBaseStats, 
+import {
+  fetchKnowledgeBases,
+  selectKnowledgeBaseStats,
   selectKnowledgeBaseStatus,
 } from '@/lib/store/knowledgeBaseSlice';
 import { Button } from '@/components/ui/button';
@@ -16,13 +16,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { AIChatDialog } from '@/components/dashboard/AIChatDialog';
 import KnowledgeBaseManager from '@/components/dashboard/KnowledgeBaseManager';
 import { AutoMigrate } from '@/components/dashboard/AutoMigrate';
+import { ProfileEditDialog } from '@/components/dashboard/ProfileEditDialog';
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
   const dispatch = useAppDispatch();
   const [mounted, setMounted] = useState(false);
-  
+
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+
   // Use Redux for all state management
   const hasCompanyData = useAppSelector(selectHasCompanyData);
   const aiRepliesCount = useAppSelector(selectAiRepliesCount);
@@ -38,10 +41,10 @@ export default function DashboardPage() {
     if (user) {
       // Always fetch profile
       dispatch(fetchProfile());
-      
+
       // Only fetch knowledge base data if we don't already have it
-      if (knowledgeBaseStatus === 'idle' || 
-          (knowledgeBaseStatus === 'failed' && knowledgeBaseStats.totalKnowledgeBases === 0)) {
+      if (knowledgeBaseStatus === 'idle' ||
+        (knowledgeBaseStatus === 'failed' && knowledgeBaseStats.totalKnowledgeBases === 0)) {
         dispatch(fetchKnowledgeBases());
       }
     }
@@ -75,7 +78,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-white dark:bg-gray-900">
       {/* Auto-migrate component - runs silently in background */}
       <AutoMigrate user={user} hasCompanyData={hasCompanyData} />
-      
+
       {/* Header Section */}
       <div className="border-b border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-8">
@@ -92,20 +95,20 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors">
                 <Settings className="h-4 w-4" />
                 Settings
               </Button>
-              <Button 
-                variant="default" 
-                size="sm" 
+              <Button
+                variant="default"
+                size="sm"
                 className="gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg"
                 onClick={() => window.open('/documentation', '_blank')}
               >
                 <BarChart3 className="h-4 w-4" />
                 Documentation
               </Button>
-              <AIChatDialog 
+              <AIChatDialog
                 companyName={user.companyName || undefined}
                 userName={user.firstName || undefined}
               />
@@ -236,7 +239,11 @@ export default function DashboardPage() {
                     </div>
                   )}
                 </div>
-                <Button variant="outline" className="w-full gap-2">
+                <Button
+                  variant="outline"
+                  className="w-full gap-2 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors"
+                  onClick={() => setProfileDialogOpen(true)}
+                >
                   <Settings className="h-4 w-4" />
                   Edit Profile
                 </Button>
@@ -258,7 +265,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 gap-3">
-                  <Button 
+                  <Button
                     disabled={isLoading}
                     onClick={() => {
                       if (knowledgeBaseStats.totalKnowledgeBases === 0) {
@@ -279,16 +286,16 @@ export default function DashboardPage() {
                     <Play className="h-4 w-4" />
                     Try Widget Demo
                   </Button>
-                  
+
                   {/* Error message for no knowledge base */}
                   <div id="demo-error" style={{ display: 'none' }} className="text-xs text-red-600 dark:text-red-400 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
                     ⚠️ Please upload at least one knowledge base before trying the widget demo.
                   </div>
-                  
-                  <Button 
-                    variant="outline" 
+
+                  <Button
+                    variant="outline"
                     onClick={() => window.open('/documentation', '_blank')}
-                    className="w-full gap-2"
+                    className="w-full gap-2 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors"
                   >
                     <BookOpen className="h-4 w-4" />
                     Start Integration
@@ -323,6 +330,13 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Profile Edit Dialog */}
+      <ProfileEditDialog 
+        open={profileDialogOpen} 
+        onOpenChange={setProfileDialogOpen} 
+      />
+
     </div>
   );
 }

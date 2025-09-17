@@ -37,7 +37,7 @@ const storage = typeof window !== 'undefined'
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['auth'], // Only persist auth state, profile data will be fresh on reload
+  whitelist: ['auth', 'profile'], // Persist both auth and profile state
 };
 
 const rootReducer = combineReducers({

@@ -146,7 +146,7 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
                 variant="outline"
                 size="sm"
                 disabled={isLoggingOut}
-                className="border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300"
+                className="border-2 border-gray-200 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors"
               >
                 {isLoggingOut ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -170,7 +170,7 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowLogoutDialog(false)}>
+            <Button variant="outline" onClick={() => setShowLogoutDialog(false)} className=' hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors'>
               Cancel
             </Button>
             <Button
