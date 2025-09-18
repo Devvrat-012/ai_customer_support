@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import KnowledgeBaseManager from '@/components/dashboard/KnowledgeBaseManager';
 
 export const metadata: Metadata = {
-  title: 'Knowledge Base | AI Customer Support',
+  title: 'Knowledge Base | Makora',
   description: 'Manage your AI knowledge base for enhanced customer support',
 };
 

@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'AI Customer Support - Transform Your Customer Service with AI',
+  title: 'Makora - Transform Your Customer Service with AI',
   description: 'Reduce response times by 90% with our AI-powered customer support assistant. Deliver instant, intelligent responses that increase customer satisfaction. Start your free trial today.',
   keywords: [
     'AI customer support',
@@ -16,32 +16,32 @@ export const metadata: Metadata = {
     '24/7 customer support'
   ],
   alternates: {
-    canonical: 'https://ai-customer-support.com',
+    canonical: 'https://makora.live',
   },
   openGraph: {
-    title: 'AI Customer Support - Transform Your Customer Service with AI',
+    title: 'Makora - Transform Your Customer Service with AI',
     description: 'Reduce response times by 90% with AI-powered customer support. Deliver instant, intelligent responses that increase customer satisfaction.',
-    url: 'https://ai-customer-support.com',
-    siteName: 'AI Customer Support',
+    url: 'https://makora.live',
+    siteName: 'Makora',
     type: 'website',
     locale: 'en_US',
     images: [
       {
-        url: 'https://ai-customer-support.com/og-image.jpg',
+        url: 'https://makora.live/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'AI Customer Support Platform - Transform Your Customer Service',
+        alt: 'Makora Platform - Transform Your Customer Service',
         type: 'image/jpeg',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AI Customer Support - Transform Your Customer Service with AI',
+    title: 'Makora - Transform Your Customer Service with AI',
     description: 'Reduce response times by 90% with AI-powered customer support. Start your free trial today.',
-    images: ['https://ai-customer-support.com/og-image.jpg'],
-    creator: '@aicustomersupport',
-    site: '@aicustomersupport',
+    images: ['https://makora.live/og-image.jpg'],
+    creator: '@makora',
+    site: '@makora',
   },
   robots: {
     index: true,

@@ -13,8 +13,7 @@ import {
   Users, 
   BarChart3, 
   ArrowRight,
-  CheckCircle,
-  Star
+  CheckCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import Script from 'next/script';
@@ -195,7 +194,7 @@ function LandingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className={`${typography.heading2} mb-6 bg-gradient-to-r from-gray-900 to-blue-700 dark:from-white dark:to-blue-300 bg-clip-text text-transparent`}>
-                Why choose our AI Customer Support?
+                Why choose Makora?
               </h2>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3 p-4 rounded-lg bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-shadow">
@@ -245,22 +244,31 @@ function LandingPage() {
               </div>
             </div>
             <div className="lg:pl-8">
-              <Card className="border-0 shadow-2xl bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-gray-900">
-                <CardHeader className="text-center pb-2">
+              <Card className="border-0 shadow-2xl bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-gray-900">
+                <CardHeader className="text-center pb-4">
                   <div className="flex justify-center mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                    ))}
+                    <div className="p-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full">
+                      <CheckCircle className="h-8 w-8 text-white" />
+                    </div>
                   </div>
-                  <CardTitle className="text-xl text-gray-900 dark:text-gray-100">What our customers say</CardTitle>
+                  <CardTitle className="text-xl text-gray-900 dark:text-gray-100">Supporting Every Business</CardTitle>
                 </CardHeader>
-                <CardContent className="text-center">
-                  <blockquote className="text-lg italic text-gray-600 dark:text-gray-300 mb-4">
-                    &ldquo;This AI customer support tool has transformed our business. We&rsquo;ve seen a 95% reduction in response times 
-                    and our customer satisfaction scores have never been higher.&rdquo;
-                  </blockquote>
-                  <div className="font-semibold text-gray-900 dark:text-gray-100">Sarah Johnson</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Customer Success Manager</div>
+                <CardContent className="text-center space-y-4">
+                  <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <h3 className="font-semibold text-green-800 dark:text-green-300 mb-2">🚀 Startups & Small Teams</h3>
+                    <p className="text-green-700 dark:text-green-400 text-sm">
+                      <strong>Completely FREE</strong> for startups and small businesses. We believe in supporting innovation.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">🏢 Large Companies</h3>
+                    <p className="text-blue-700 dark:text-blue-400 text-sm">
+                      <strong>Minimal charges</strong> with transparent pricing. No hidden fees, no surprises.
+                    </p>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+                    Our mission: Make AI customer support accessible to everyone
+                  </p>
                 </CardContent>
               </Card>
             </div>

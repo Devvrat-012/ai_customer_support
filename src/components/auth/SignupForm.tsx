@@ -87,7 +87,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         </div>
   <CardTitle className={`${typography.heading2} text-gray-900 dark:text-gray-100`}>Create your account</CardTitle>
   <CardDescription className="text-center text-gray-600 dark:text-gray-400">
-          Enter your information to get started with AI Customer Support
+          Enter your information to get started with Makora
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>

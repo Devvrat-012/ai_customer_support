@@ -374,7 +374,7 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5 text-primary" />
               <div>
-                <DialogTitle>AI Customer Support Assistant</DialogTitle>
+                <DialogTitle>Makora AI Assistant</DialogTitle>
                 <DialogDescription>
                   Chat with our AI assistant for instant help and support
                 </DialogDescription>

@@ -1,4 +1,4 @@
-# AI Customer Support Reply Assistant
+# Makora - AI Customer Support Reply Assistant
 
 A modern SaaS platform that provides AI-powered customer support solutions for businesses. Built with Next.js 15+, TypeScript, Tailwind CSS, PostgreSQL, and Redux Toolkit.
 

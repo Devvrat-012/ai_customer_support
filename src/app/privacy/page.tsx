@@ -44,7 +44,7 @@ export default function PrivacyPage() {
 
             <div className="mt-8">
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Contact</h3>
-              <p className="mt-2 text-gray-700 dark:text-gray-200">Questions or requests about privacy can be sent to <a href="mailto:privacy@aicustomersupport.example" className="text-primary underline">privacy@aicustomersupport.example</a>.</p>
+              <p className="mt-2 text-gray-700 dark:text-gray-200">Questions or requests about privacy can be sent to <a href="mailto:privacy@makora.example" className="text-primary underline">privacy@makora.example</a>.</p>
             </div>
           </section>
 

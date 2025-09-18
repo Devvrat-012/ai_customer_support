@@ -13,7 +13,7 @@ export default function ContactPage() {
         <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className={`bg-white dark:bg-gray-800 p-8 rounded-lg ${shadows.card}`}>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Get in touch</h3>
-            <p className="mt-2 text-gray-700 dark:text-gray-200">Email: <a href="mailto:help@aicustomersupport.example" className="text-primary underline">help@aicustomersupport.example</a></p>
+            <p className="mt-2 text-gray-700 dark:text-gray-200">Email: <a href="mailto:help@makora.example" className="text-primary underline">help@makora.example</a></p>
             <p className="mt-2 text-gray-700 dark:text-gray-200">Phone: +1 (555) 123-4567</p>
             <p className="mt-4 text-gray-600 dark:text-gray-400">For enterprise or press inquiries, please include your company name and a brief description.</p>
           </div>

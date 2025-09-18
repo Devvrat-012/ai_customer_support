@@ -14,7 +14,7 @@ export function Footer() {
                 <Bot className="h-5 w-5 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400 bg-clip-text text-transparent">
-                AI Customer Support
+                Makora
               </span>
             </div>
             <p className="text-gray-600 dark:text-gray-400 max-w-md">
@@ -65,7 +65,7 @@ export function Footer() {
         </div>
         <div className="border-t border-gray-200 dark:border-gray-800 mt-8 pt-8 text-center">
           <p className="text-gray-600 dark:text-gray-400">
-            &copy; 2025 AI Customer Support. All rights reserved.
+            &copy; 2025 Makora. All rights reserved.
           </p>
         </div>
       </div>

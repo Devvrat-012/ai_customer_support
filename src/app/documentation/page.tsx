@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { useAppSelector } from '@/lib/store/hooks';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +29,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function DocumentationPage() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const { user } = useAppSelector((state) => state.auth);
   const { toast } = useToast();
 
   const copyToClipboard = async (code: string, id: string) => {
@@ -89,10 +92,19 @@ export default function DocumentationPage() {
                 </p>
               </div>
             </div>
-            <Badge variant="secondary" className="gap-1">
-              <Heart className="h-3 w-3 text-red-500" />
-              v2.0
-            </Badge>
+            {user ? (
+              <Badge variant="secondary" className="gap-1">
+                <Heart className="h-3 w-3 text-red-500" />
+                v1.0
+              </Badge>
+            ) : (
+              <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+                <Link href="/auth/signup">
+                  <Rocket className="h-4 w-4 mr-2" />
+                  Generate Widget Key
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>

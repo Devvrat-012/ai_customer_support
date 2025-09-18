@@ -23,7 +23,7 @@ export const generatePageMetadata = (
       url: fullUrl,
       type: 'website',
       locale: 'en_US',
-      siteName: 'AI Customer Support',
+      siteName: 'Makora',
       images: [
         {
           url: '/og-image.jpg',
@@ -38,7 +38,7 @@ export const generatePageMetadata = (
       title,
       description,
       images: ['/og-image.jpg'],
-      creator: '@aicustomersupport',
+      creator: '@makora',
     },
     ...additionalMetadata,
   };
@@ -48,7 +48,7 @@ export const structuredData = {
   homepage: {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'AI Customer Support',
+    name: 'Makora',
     description: 'Transform your customer support with AI-powered intelligent responses. Reduce response times by 90%, increase satisfaction, and scale your support team effortlessly.',
     url: baseUrl,
     applicationCategory: 'BusinessApplication',
@@ -61,7 +61,7 @@ export const structuredData = {
     },
     creator: {
       '@type': 'Organization',
-      name: 'AI Customer Support',
+      name: 'Makora',
       url: baseUrl,
     },
     featureList: [
@@ -72,19 +72,19 @@ export const structuredData = {
       'Secure and reliable',
       'Easy integration',
     ],
-    screenshot: 'https://ai-customer-support.com/screenshot.jpg',
+    screenshot: 'https://makora.live/screenshot.jpg',
   },
   organization: {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'AI Customer Support',
-    url: 'https://ai-customer-support.com',
-    logo: 'https://ai-customer-support.com/logo.png',
+    name: 'Makora',
+    url: 'https://makora.live',
+    logo: 'https://makora.live/logo.png',
     description: 'Leading provider of AI-powered customer support solutions',
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer service',
-      email: 'support@ai-customer-support.com',
+      email: 'support@makora.live',
     },
   },
 };

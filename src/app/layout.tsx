@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://ai-customer-support.com'),
-  title: "AI Customer Support - Intelligent Support Solutions",
+  metadataBase: new URL('https://makora.live'),
+  title: "Makora - Intelligent Support Solutions",
   description: "Transform your customer support with AI-powered intelligent responses. Reduce response times by 90%, increase satisfaction, and scale your support team effortlessly. Start your free trial today.",
   keywords: [
     "AI customer support", 
@@ -32,9 +32,9 @@ export const metadata: Metadata = {
     "customer satisfaction",
     "support analytics"
   ],
-  authors: [{ name: "AI Customer Support Team" }],
-  creator: "AI Customer Support",
-  publisher: "AI Customer Support",
+  authors: [{ name: "Makora Team" }],
+  creator: "Makora",
+  publisher: "Makora",
   robots: {
     index: true,
     follow: true,
@@ -49,25 +49,25 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://ai-customer-support.com',
-    title: 'AI Customer Support - Intelligent Support Solutions',
+    url: 'https://makora.live',
+    title: 'Makora - Intelligent Support Solutions',
     description: 'Transform your customer support with AI-powered intelligent responses. Reduce response times by 90% and increase customer satisfaction.',
-    siteName: 'AI Customer Support',
+    siteName: 'Makora',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'AI Customer Support Platform',
+        alt: 'Makora Platform',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AI Customer Support - Intelligent Support Solutions',
+    title: 'Makora - Intelligent Support Solutions',
     description: 'Transform your customer support with AI-powered intelligent responses. Start your free trial today.',
     images: ['/og-image.jpg'],
-    creator: '@aicustomersupport',
+    creator: '@makora',
   },
   verification: {
     google: 'your-google-verification-code',
