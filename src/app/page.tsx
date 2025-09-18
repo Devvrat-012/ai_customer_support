@@ -5,16 +5,16 @@ import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/lib/store/hooks';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Zap, 
-  Shield, 
-  Clock, 
-  Users, 
-  BarChart3, 
+import {
+  Bot,
+  Zap,
+  Shield,
+  Clock,
+  Users,
+  BarChart3,
   ArrowRight,
   CheckCircle
 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import Script from 'next/script';
 import { structuredData } from '@/lib/seo';
@@ -29,7 +29,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!mounted) return; // wait for persist rehydration
-    
+
     if (user) {
       router.replace('/dashboard');
     }
@@ -76,14 +76,14 @@ function LandingPage() {
         <div className={`absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 ${animations.blob}`}></div>
         <div className={`absolute top-0 right-4 w-72 h-72 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 ${animations.blob} ${animations.delayShort}`}></div>
         <div className={`absolute -bottom-8 left-20 w-72 h-72 bg-gradient-to-r from-pink-400 to-red-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 ${animations.blob} ${animations.delayLong}`}></div>
-        
+
         <div className={`${spacing.container} relative`}>
           <div className="mx-auto max-w-4xl text-center">
             <h1 className={`${typography.heading1} ${gradients.hero}`}>
               Transform Your Customer Support with AI
             </h1>
             <p className={`mt-6 ${typography.body} text-gray-600 dark:text-gray-300 max-w-2xl mx-auto`}>
-              Deliver instant, intelligent, and personalized customer support responses with our advanced AI assistant. 
+              Deliver instant, intelligent, and personalized customer support responses with our advanced AI assistant.
               Reduce response times and increase customer satisfaction effortlessly.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4 flex-wrap">
@@ -128,13 +128,7 @@ function LandingPage() {
             <Card className={`border-0 ${shadows.card} transition-all duration-300 transform hover:-translate-y-2 ${featureColors.ai.card}`}>
               <CardHeader>
                 <div className={`${spacing.iconContainer} ${featureColors.ai.icon} rounded-lg flex items-center justify-center mb-4 shadow-lg`}>
-                  <Image 
-                    src="/Makora.png" 
-                    alt="Makora Logo" 
-                    width={40} 
-                    height={40} 
-                    className="rounded-lg"
-                  />
+                  <Bot className={`${spacing.iconSize} text-white`} />
                 </div>
                 <CardTitle className="text-gray-800 dark:text-gray-100">AI-Powered Intelligence</CardTitle>
                 <CardDescription className="text-gray-600 dark:text-gray-300">
@@ -289,7 +283,7 @@ function LandingPage() {
         <div className="absolute top-0 left-0 w-full h-full opacity-20">
           <div className="w-full h-full bg-white/10 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:30px_30px]"></div>
         </div>
-        
+
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-6">
             Ready to revolutionize your customer support?
