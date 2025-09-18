@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     images: [
       {
-        url: 'https://makora.live/og-image.jpg',
+        url: 'https://makora.live/Makora.png',
         width: 1200,
         height: 630,
         alt: 'Makora Platform - Transform Your Customer Service',
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Makora - Transform Your Customer Service with AI',
     description: 'Reduce response times by 90% with AI-powered customer support. Start your free trial today.',
-    images: ['https://makora.live/og-image.jpg'],
+    images: ['https://makora.live/Makora.png'],
     creator: '@makora',
     site: '@makora',
   },

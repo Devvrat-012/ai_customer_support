@@ -8,11 +8,11 @@ import {
   ArrowLeft,
   MessageSquare,
   User,
-  Bot,
   CheckCircle,
   XCircle,
   Clock
 } from 'lucide-react';
+import Image from 'next/image';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { 
   fetchConversations,
@@ -244,7 +244,13 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                           </div>
                         ) : (
                           <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 p-1 rounded-full">
-                            <Bot className="h-3 w-3 text-purple-600 dark:text-purple-400" />
+                            <Image 
+                              src="/Makora.png" 
+                              alt="Makora Logo" 
+                              width={12} 
+                              height={12} 
+                              className="rounded-full"
+                            />
                           </div>
                         )}
                         <span className="font-medium text-gray-900 dark:text-gray-100">
@@ -372,7 +378,13 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                             </div>
                           ) : (
                             <div className="bg-primary/20 p-1 rounded-full">
-                              <Bot className="h-3 w-3 text-primary" />
+                              <Image 
+                                src="/Makora.png" 
+                                alt="Makora Logo" 
+                                width={12} 
+                                height={12} 
+                                className="rounded-full"
+                              />
                             </div>
                           )}
                           <span className="text-xs font-medium">

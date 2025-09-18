@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Bot } from 'lucide-react';
+import Image from 'next/image';
 
 export function Footer() {
   return (
@@ -9,10 +9,14 @@ export function Footer() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
-                <Bot className="h-5 w-5 text-white" />
-              </div>
+            <div className="flex items-center space-x-3 mb-4">
+              <Image
+                src="/Makora.png"
+                alt="Makora Logo"
+                width={32}
+                height={32}
+                className="rounded-lg"
+              />
               <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400 bg-clip-text text-transparent">
                 Makora
               </span>

@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Bot, Send, User, Loader2, MessageCircle, Trash2, Copy, Edit, RefreshCw } from 'lucide-react';
+import { Send, User, Loader2, MessageCircle, Trash2, Copy, Edit, RefreshCw } from 'lucide-react';
+import Image from 'next/image';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { addAlert } from '@/lib/store/alertSlice';
 import { incrementAiRepliesCount } from '@/lib/store/profileSlice';
@@ -372,7 +373,13 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-primary" />
+              <Image 
+                src="/Makora.png" 
+                alt="Makora Logo" 
+                width={20} 
+                height={20} 
+                className="rounded-lg"
+              />
               <div>
                 <DialogTitle>Makora AI Assistant</DialogTitle>
                 <DialogDescription>
@@ -402,7 +409,13 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
             >
               {message.role === 'assistant' && (
                 <div className="flex-shrink-0">
-                  <Bot className="h-6 w-6 text-primary bg-white dark:bg-gray-900 rounded-full p-1 border border-gray-200 dark:border-gray-700" />
+                  <Image 
+                    src="/Makora.png" 
+                    alt="Makora Logo" 
+                    width={24} 
+                    height={24} 
+                    className="rounded-full border border-gray-200 dark:border-gray-700"
+                  />
                 </div>
               )}
               
@@ -484,7 +497,13 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
           {isLoading && (
             <div className="flex gap-3 justify-start">
               <div className="flex-shrink-0">
-                <Bot className="h-6 w-6 text-primary bg-white dark:bg-gray-900 rounded-full p-1 border border-gray-200 dark:border-gray-700" />
+                <Image 
+                  src="/Makora.png" 
+                  alt="Makora Logo" 
+                  width={24} 
+                  height={24} 
+                  className="rounded-full border border-gray-200 dark:border-gray-700"
+                />
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-3 rounded-lg">
                 <div className="flex items-center gap-2">

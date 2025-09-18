@@ -6,7 +6,6 @@ import { useAppSelector } from '@/lib/store/hooks';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
-  Bot, 
   Zap, 
   Shield, 
   Clock, 
@@ -15,6 +14,7 @@ import {
   ArrowRight,
   CheckCircle
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import Script from 'next/script';
 import { structuredData } from '@/lib/seo';
@@ -128,7 +128,13 @@ function LandingPage() {
             <Card className={`border-0 ${shadows.card} transition-all duration-300 transform hover:-translate-y-2 ${featureColors.ai.card}`}>
               <CardHeader>
                 <div className={`${spacing.iconContainer} ${featureColors.ai.icon} rounded-lg flex items-center justify-center mb-4 shadow-lg`}>
-                  <Bot className={`${spacing.iconSize} text-white`} />
+                  <Image 
+                    src="/Makora.png" 
+                    alt="Makora Logo" 
+                    width={40} 
+                    height={40} 
+                    className="rounded-lg"
+                  />
                 </div>
                 <CardTitle className="text-gray-800 dark:text-gray-100">AI-Powered Intelligence</CardTitle>
                 <CardDescription className="text-gray-600 dark:text-gray-300">

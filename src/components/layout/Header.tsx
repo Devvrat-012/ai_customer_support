@@ -1,7 +1,8 @@
 "use client";
 
 import Link from 'next/link';
-import { Bot, LogOut, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { LogOut, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ThemeSelector } from '@/components/ui/theme-selector';
@@ -82,15 +83,17 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
     <nav className={`border-b sticky top-0 z-50 border border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 supports-[backdrop-filter]:dark:bg-gray-900/70`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          <Link href={isDashboardPage ? "/dashboard" : "/"} className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-            <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
-              <Bot className="h-5 w-5 text-white" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400 bg-clip-text text-transparent">
-                Makora
-              </span>
-            </div>
+          <Link href={isDashboardPage ? "/dashboard" : "/"} className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+            <Image
+              src="/Makora.png"
+              alt="Makora Logo"
+              width={40}
+              height={40}
+              className="rounded-lg"
+            />
+            <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400 bg-clip-text text-transparent">
+              Makora
+            </span>
           </Link>
           <div className="flex items-center space-x-4">
             {isDashboardPage && isHydrated && user && (

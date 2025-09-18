@@ -16,7 +16,7 @@ import { setUser } from '@/lib/store/authSlice';
 import { addAlert } from '@/lib/store/alertSlice';
 import { signupSchema, type SignupData } from '@/lib/db/schema';
 import { gradients, shadows, typography } from '@/lib/design-system';
-import { Bot } from 'lucide-react';
+import Image from 'next/image';
 
 interface SignupFormProps {
   onSuccess?: () => void;
@@ -82,7 +82,13 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
       <CardHeader className="space-y-4 text-center">
         <div className="flex justify-center">
           <div className={`p-3 ${gradients.primary} rounded-xl ${shadows.card}`}>
-            <Bot className="h-8 w-8 text-white" />
+            <Image 
+              src="/Makora.png" 
+              alt="Makora Logo" 
+              width={32} 
+              height={32} 
+              className="rounded-lg"
+            />
           </div>
         </div>
   <CardTitle className={`${typography.heading2} text-gray-900 dark:text-gray-100`}>Create your account</CardTitle>
