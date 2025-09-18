@@ -3,6 +3,11 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Makora - Transform Your Customer Service with AI',
   description: 'Reduce response times by 90% with our AI-powered customer support assistant. Deliver instant, intelligent responses that increase customer satisfaction. Start your free trial today.',
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
+  },
   keywords: [
     'AI customer support',
     'customer service automation', 
