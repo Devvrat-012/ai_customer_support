@@ -11,8 +11,7 @@ import {
 } from '@/lib/store/knowledgeBaseSlice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, User, BarChart3, Activity, TrendingUp, Calendar, Settings, Zap, Sparkles, Database, ExternalLink, Play, BookOpen } from 'lucide-react';
-import Image from 'next/image';
+import { Loader2, User, BarChart3, Activity, TrendingUp, Calendar, Settings, Zap, Sparkles, Database, ExternalLink, Play, BookOpen, Bot } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { AIChatDialog } from '@/components/dashboard/AIChatDialog';
 import KnowledgeBaseManager from '@/components/dashboard/KnowledgeBaseManager';
@@ -131,13 +130,7 @@ export default function DashboardPage() {
                   <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{aiRepliesCount}</p>
                 </div>
                 <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Image 
-                    src="/Makora.png" 
-                    alt="Makora Logo" 
-                    width={24} 
-                    height={24} 
-                    className="rounded-lg"
-                  />
+                  <Bot className="h-6 w-6 text-blue-600" />
                 </div>
               </div>
               <div className="flex items-center gap-2 mt-4">

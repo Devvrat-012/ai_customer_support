@@ -2,18 +2,25 @@
 let encoding_for_model: any = null;
 let tiktoken_available = false;
 
+const isServer = typeof window === 'undefined';
+
 async function initializeTiktoken() {
+  if (!isServer) {
+    // Do not try to load WASM-based tiktoken in the browser; use fallback.
+    return;
+  }
   try {
     const tiktoken = await import('tiktoken');
     encoding_for_model = tiktoken.encoding_for_model;
     tiktoken_available = true;
-  } catch (error) {
-    console.warn('Tiktoken not available, will use fallback chunking:', error);
+  } catch {
+    // Silently fall back; no noisy logs on production
+    tiktoken_available = false;
   }
 }
 
-// Initialize tiktoken asynchronously
-initializeTiktoken();
+// Initialize tiktoken asynchronously (server only)
+void initializeTiktoken();
 
 export interface TextChunk {
   content: string;
@@ -27,6 +34,7 @@ export interface ChunkingOptions {
   overlapTokens?: number;    // Token overlap between chunks (default: 50)
   preserveParagraphs?: boolean; // Try to preserve paragraph boundaries (default: true)
   preserveSentences?: boolean;  // Try to preserve sentence boundaries (default: true)
+  model?: string;            // Model name for tokenizer when using tiktoken (default: 'gpt-3.5-turbo')
 }
 
 const DEFAULT_CHUNKING_OPTIONS: Required<ChunkingOptions> = {
@@ -34,48 +42,27 @@ const DEFAULT_CHUNKING_OPTIONS: Required<ChunkingOptions> = {
   overlapTokens: 50,
   preserveParagraphs: true,
   preserveSentences: true,
+  model: 'gpt-3.5-turbo',
 };
 
-/**
- * Split text into chunks suitable for embedding
- */
-export function chunkText(text: string, options: ChunkingOptions = {}): TextChunk[] {
-  // If tiktoken is not available, throw error to trigger fallback
-  if (!tiktoken_available || !encoding_for_model) {
-    throw new Error('Tiktoken not available, fallback needed');
-  }
+// --- Fallback helpers (no WASM) ---
+function approxTokenCount(s: string): number {
+  // Rough approximation used widely: ~4 characters per token
+  return Math.max(1, Math.ceil(s.length / 4));
+}
 
-  const config = { ...DEFAULT_CHUNKING_OPTIONS, ...options };
-  
-  let encoding;
-  try {
-    encoding = encoding_for_model('gpt-3.5-turbo'); // Using GPT tokenizer as approximation
-  } catch (error: unknown) {
-    console.error('Failed to get encoding:', error);
-    throw new Error('Failed to get encoding, fallback needed');
-  }
-  
-  // Clean and normalize the text
+function fallbackChunkText(text: string, options: Required<ChunkingOptions>): TextChunk[] {
   const cleanText = text
-    .replace(/\r\n/g, '\n')           // Normalize line endings
-    .replace(/\n{3,}/g, '\n\n')       // Remove excessive newlines
-    .replace(/\s+/g, ' ')             // Normalize whitespace
+    .replace(/\r\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/\s+/g, ' ')
     .trim();
 
-  if (!cleanText) {
-    encoding?.free?.();
-    return [];
-  }
+  if (!cleanText) return [];
 
-  // If text is small enough, return as single chunk
-  const totalTokens = encoding.encode(cleanText).length;
-  if (totalTokens <= config.maxTokens) {
-    encoding.free();
-    return [{
-      content: cleanText,
-      index: 0,
-      tokenCount: totalTokens,
-    }];
+  const totalApprox = approxTokenCount(cleanText);
+  if (totalApprox <= options.maxTokens) {
+    return [{ content: cleanText, index: 0, tokenCount: totalApprox }];
   }
 
   const chunks: TextChunk[] = [];
@@ -83,103 +70,122 @@ export function chunkText(text: string, options: ChunkingOptions = {}): TextChun
   let chunkIndex = 0;
 
   while (currentPosition < cleanText.length) {
-    let chunkText = '';
-    let chunkTokens = 0;
-    
-    // Find the end position for this chunk
-    let endPosition = currentPosition;
-    let tempText = '';
-    
-    // Build chunk character by character until we hit token limit
-    while (endPosition < cleanText.length) {
-      const nextChar = cleanText[endPosition];
-      const testText = tempText + nextChar;
-      const testTokens = encoding.encode(testText).length;
-      
-      if (testTokens > config.maxTokens && tempText.length > 0) {
-        // We've hit the limit, try to find a good break point
-        break;
-      }
-      
-      tempText = testText;
-      endPosition++;
-    }
 
-    chunkText = tempText;
-    chunkTokens = encoding.encode(chunkText).length;
+    // Start by trying to take as many characters as roughly equal to maxTokens
+    // Convert tokens->chars using 4 chars per token rule, then adjust at boundaries.
+    const targetChars = options.maxTokens * 4;
+    let endPosition = Math.min(cleanText.length, currentPosition + targetChars);
+    let candidate = cleanText.slice(currentPosition, endPosition);
 
-    // Try to find better break points if enabled
-    if (endPosition < cleanText.length) {
-      const remainingText = cleanText.slice(currentPosition, endPosition);
-      
-      if (config.preserveParagraphs) {
-        const lastParagraphBreak = remainingText.lastIndexOf('\n\n');
-        if (lastParagraphBreak > remainingText.length * 0.5) { // Only if we keep at least half
-          const adjustedText = remainingText.slice(0, lastParagraphBreak + 2);
-          const adjustedTokens = encoding.encode(adjustedText).length;
-          if (adjustedTokens >= config.maxTokens * 0.3) { // Minimum 30% of max tokens
-            chunkText = adjustedText;
-            chunkTokens = adjustedTokens;
-            endPosition = currentPosition + lastParagraphBreak + 2;
-          }
-        }
-      }
-      
-      if (config.preserveSentences && chunkText === tempText) {
-        // Look for sentence boundaries
-        const sentenceEndings = /[.!?]\s+/g;
-        let lastSentenceEnd = -1;
-        let match;
-        
-        while ((match = sentenceEndings.exec(remainingText)) !== null) {
-          const sentenceEndPos = match.index + match[0].length;
-          const testText = remainingText.slice(0, sentenceEndPos);
-          const testTokens = encoding.encode(testText).length;
-          
-          if (testTokens <= config.maxTokens) {
-            lastSentenceEnd = sentenceEndPos;
-          } else {
-            break;
-          }
-        }
-        
-        if (lastSentenceEnd > remainingText.length * 0.3) { // Keep at least 30%
-          const adjustedText = remainingText.slice(0, lastSentenceEnd);
-          chunkText = adjustedText;
-          chunkTokens = encoding.encode(adjustedText).length;
-          endPosition = currentPosition + lastSentenceEnd;
-        }
+    // Try to improve breakpoints
+    if (options.preserveParagraphs) {
+      const lastParaBreak = candidate.lastIndexOf('\n\n');
+      if (lastParaBreak > candidate.length * 0.5) {
+        candidate = candidate.slice(0, lastParaBreak + 2);
+        endPosition = currentPosition + candidate.length;
       }
     }
 
-    // Add the chunk
+    if (options.preserveSentences) {
+      const sentenceEndings = /[.!?]\s+/g;
+      let match: RegExpExecArray | null;
+      let lastSentenceEnd = -1;
+      while ((match = sentenceEndings.exec(candidate)) !== null) {
+        lastSentenceEnd = match.index + match[0].length;
+      }
+      if (lastSentenceEnd > candidate.length * 0.3) {
+        candidate = candidate.slice(0, lastSentenceEnd);
+        endPosition = currentPosition + candidate.length;
+      }
+    }
+
+    const tokenCount = approxTokenCount(candidate);
     chunks.push({
-      content: chunkText.trim(),
+      content: candidate.trim(),
       index: chunkIndex,
-      tokenCount: chunkTokens,
+      tokenCount,
       metadata: {
         startPosition: currentPosition,
-        endPosition: currentPosition + chunkText.length,
-      }
+        endPosition: endPosition,
+      },
     });
 
-    // Calculate next position with overlap
-    if (endPosition >= cleanText.length) {
-      break;
-    }
+    if (endPosition >= cleanText.length) break;
 
-    // Calculate overlap position
     const overlapChars = Math.min(
-      chunkText.length,
-      Math.floor(chunkText.length * (config.overlapTokens / config.maxTokens))
+      candidate.length,
+      Math.floor(candidate.length * (options.overlapTokens / options.maxTokens))
     );
-    
     currentPosition = endPosition - overlapChars;
     chunkIndex++;
   }
 
-  encoding.free();
   return chunks;
+}
+
+/**
+ * Split text into chunks suitable for embedding
+ */
+export function chunkText(text: string, options: ChunkingOptions = {}): TextChunk[] {
+  const config = { ...DEFAULT_CHUNKING_OPTIONS, model: 'gpt-3.5-turbo', ...options } as Required<ChunkingOptions>;
+
+  // If tiktoken is not available, use robust fallback (no throwing)
+  if (!tiktoken_available || !encoding_for_model) {
+    return fallbackChunkText(text, config);
+  }
+  
+  let encoding: any;
+  // Clean and normalize the text once
+  const cleanText = text
+    .replace(/\r\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!cleanText) return [];
+
+  try {
+    encoding = encoding_for_model(config.model);
+  } catch (_error: unknown) {
+    return fallbackChunkText(cleanText, config);
+  }
+
+  try {
+    const tokenIds: number[] = encoding.encode(cleanText);
+    const totalTokens = tokenIds.length;
+    if (totalTokens <= config.maxTokens) {
+      const content = encoding.decode(tokenIds);
+      return [{ content, index: 0, tokenCount: totalTokens, metadata: { tokenStartIndex: 0, tokenEndIndex: totalTokens } }];
+    }
+
+    const chunks: TextChunk[] = [];
+    let start = 0;
+    let index = 0;
+    const overlap = Math.max(0, Math.min(config.overlapTokens, config.maxTokens - 1));
+
+    while (start < totalTokens) {
+      const end = Math.min(start + config.maxTokens, totalTokens);
+      const window = tokenIds.slice(start, end);
+      const content = encoding.decode(window);
+      chunks.push({
+        content: content.trim(),
+        index,
+        tokenCount: window.length,
+        metadata: { tokenStartIndex: start, tokenEndIndex: end },
+      });
+
+      if (end >= totalTokens) break;
+      start = end - overlap;
+      index++;
+    }
+    return chunks;
+  } finally {
+    try {
+      encoding?.free?.();
+    } catch {
+      // ignore
+    }
+  }
 }
 
 /**
@@ -246,11 +252,6 @@ export function extractTextMetadata(text: string): Record<string, any> {
  * Prepare document content for chunking (clean and structure)
  */
 export function prepareDocumentForChunking(content: string, sourceType: 'website' | 'upload' | 'manual'): string {
-  // If tiktoken is not available, throw error to trigger fallback
-  if (!tiktoken_available) {
-    throw new Error('Tiktoken not available, using fallback preparation');
-  }
-
   let cleaned = content;
 
   if (sourceType === 'website') {
