@@ -58,7 +58,7 @@ export default function CustomersPage() {
             </p>
           </div>
           {currentView === 'conversations' && (
-            <Button variant="outline" onClick={handleBackToTable}>
+            <Button variant="outline" onClick={handleBackToTable} className="cursor-pointer">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Customers
             </Button>
@@ -199,7 +199,7 @@ setAIChatCustomer('customer-123', {
               </div>
 
               <div className="mt-6">
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer" onClick={() => window.open('/widget-demo', '_blank')}>
                   View Widget Setup Guide
                 </Button>
               </div>

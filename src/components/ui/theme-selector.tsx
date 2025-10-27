@@ -65,7 +65,7 @@ export function ThemeSelector() {
         variant="outline"
         size="sm"
         onClick={() => setIsOpen((v) => !v)}
-        className="gap-2 min-w-[120px] hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors"
+        className="gap-2 min-w-[120px] hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors cursor-pointer"
       >
         {getIcon(getCurrentTheme())}
         <span>{label}</span>
@@ -89,7 +89,7 @@ export function ThemeSelector() {
                   }}
                   className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 
                     rounded-sm transition-colors hover:bg-gray-100 hover:text-gray-900
-                    dark:hover:bg-gray-700 dark:hover:text-gray-100 ${theme === name ? "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100" : ""
+                    dark:hover:bg-gray-700 dark:hover:text-gray-100 cursor-pointer ${theme === name ? "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100" : ""
                     }`}
                 >
                   {getIcon(name)}

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Send, User, Loader2, MessageCircle, Trash2, Copy, Edit, RefreshCw } from 'lucide-react';
+import { Send, User, Loader2, Trash2, Copy, Edit, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { addAlert } from '@/lib/store/alertSlice';
@@ -352,21 +352,9 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
     }));
   };
 
-  const handleButtonClick = () => {
-    setIsOpen(true);
-  };
 
   return (
     <>
-      <Button 
-        className="w-full" 
-        size="sm"
-        onClick={handleButtonClick}
-      >
-        <MessageCircle className="h-4 w-4 mr-2" />
-        Try AI Assistant
-      </Button>
-
       <Dialog open={isOpen} onOpenChange={handleDialogClose}>
       
       <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
@@ -391,7 +379,7 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
               variant="outline"
               size="sm"
               onClick={clearChat}
-              className="flex items-center gap-1 text-xs text-muted-foreground mr-10"
+              className="flex items-center gap-1 text-xs text-muted-foreground mr-10 cursor-pointer"
               title="Clear chat history"
             >
               <Trash2 className="h-3 w-3" />
@@ -434,10 +422,10 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
                       className="text-sm min-h-[60px] resize-none"
                     />
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => saveEdit(message.id)}>
+                      <Button size="sm" variant="outline" onClick={() => saveEdit(message.id)} className="cursor-pointer">
                         Save
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => cancelEdit(message.id)}>
+                      <Button size="sm" variant="ghost" onClick={() => cancelEdit(message.id)} className="cursor-pointer">
                         Cancel
                       </Button>
                     </div>
@@ -454,7 +442,7 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-6 w-6 p-0 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                            className="h-6 w-6 p-0 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 cursor-pointer"
                             onClick={() => copyMessage(message.content)}
                             title="Copy message"
                           >
@@ -463,7 +451,7 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-6 w-6 p-0 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                            className="h-6 w-6 p-0 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 cursor-pointer"
                             onClick={() => startEdit(message.id)}
                             title="Edit message"
                           >
@@ -472,7 +460,7 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-6 w-6 p-0 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                            className="h-6 w-6 p-0 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 cursor-pointer"
                             onClick={() => regenerateResponse(message.id)}
                             disabled={isLoading}
                             title="Regenerate response"
@@ -532,6 +520,7 @@ export function AIChatDialog({ companyName = 'our company', userName = 'there' }
             type="submit" 
             disabled={isLoading || !currentMessage.trim()}
             size="sm"
+            className="cursor-pointer"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />

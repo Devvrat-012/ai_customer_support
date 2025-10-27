@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { fetchProfile, selectHasCompanyData, selectAiRepliesCount } from '@/lib/store/profileSlice';
@@ -11,7 +11,7 @@ import {
 } from '@/lib/store/knowledgeBaseSlice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, User, BarChart3, Activity, TrendingUp, Calendar, Settings, Zap, Sparkles, Database, ExternalLink, Play, BookOpen, Bot } from 'lucide-react';
+import { Loader2, User, Activity, TrendingUp, Calendar, Settings, Zap, Sparkles, Database, ExternalLink, Play, BookOpen, Bot } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { AIChatDialog } from '@/components/dashboard/AIChatDialog';
 import KnowledgeBaseManager from '@/components/dashboard/KnowledgeBaseManager';
@@ -23,6 +23,7 @@ export default function DashboardPage() {
   const { user, isLoading } = useAuth();
   const dispatch = useAppDispatch();
   const [mounted, setMounted] = useState(false);
+  const kbFetchedRef = useRef(false); // Track if we've fetched KB data
 
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
@@ -38,17 +39,17 @@ export default function DashboardPage() {
 
   // Fetch profile data and knowledge base data when user is available
   useEffect(() => {
-    if (user) {
-      // Always fetch profile
+    if (user && mounted) {
+      // Fetch profile (can be called multiple times as it's not critical)
       dispatch(fetchProfile());
 
-      // Only fetch knowledge base data if we don't already have it
-      if (knowledgeBaseStatus === 'idle' ||
-        (knowledgeBaseStatus === 'failed' && knowledgeBaseStats.totalKnowledgeBases === 0)) {
+      // Only fetch knowledge base data ONCE per session when user is available
+      if (!kbFetchedRef.current && knowledgeBaseStatus === 'idle') {
+        kbFetchedRef.current = true;
         dispatch(fetchKnowledgeBases());
       }
     }
-  }, [user, dispatch, knowledgeBaseStatus, knowledgeBaseStats.totalKnowledgeBases]);
+  }, [user, mounted, dispatch, knowledgeBaseStatus]);
 
   // Show loading during hydration
   if (!mounted || isLoading) {
@@ -95,18 +96,14 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" className="gap-2 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors">
-                <Settings className="h-4 w-4" />
-                Settings
-              </Button>
               <Button
-                variant="default"
-                size="sm"
-                className="gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg"
+                variant="outline"
                 onClick={() => window.open('/documentation', '_blank')}
+                className="w-full gap-2 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors cursor-pointer"
               >
-                <BarChart3 className="h-4 w-4" />
-                Documentation
+                <BookOpen className="h-4 w-4" />
+                Start Integration
+                <ExternalLink className="h-3 w-3" />
               </Button>
               <AIChatDialog
                 companyName={user.companyName || undefined}
@@ -241,7 +238,7 @@ export default function DashboardPage() {
                 </div>
                 <Button
                   variant="outline"
-                  className="w-full gap-2 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors"
+                  className="w-full gap-2 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors cursor-pointer"
                   onClick={() => setProfileDialogOpen(true)}
                 >
                   <Settings className="h-4 w-4" />
@@ -281,10 +278,10 @@ export default function DashboardPage() {
                       }
                       router.push('/widget-demo');
                     }}
-                    className="w-full gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg"
+                    className="w-full gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg cursor-pointer"
                   >
                     <Play className="h-4 w-4" />
-                    Try Widget Demo
+                    Get Your Widget Key
                   </Button>
 
                   {/* Error message for no knowledge base */}
@@ -295,7 +292,7 @@ export default function DashboardPage() {
                   <Button
                     variant="outline"
                     onClick={() => window.open('/documentation', '_blank')}
-                    className="w-full gap-2 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors"
+                    className="w-full gap-2 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors cursor-pointer"
                   >
                     <BookOpen className="h-4 w-4" />
                     Start Integration
@@ -332,9 +329,9 @@ export default function DashboardPage() {
       </div>
 
       {/* Profile Edit Dialog */}
-      <ProfileEditDialog 
-        open={profileDialogOpen} 
-        onOpenChange={setProfileDialogOpen} 
+      <ProfileEditDialog
+        open={profileDialogOpen}
+        onOpenChange={setProfileDialogOpen}
       />
 
     </div>

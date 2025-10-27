@@ -5,10 +5,10 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Search, 
-  Filter, 
-  MoreVertical, 
+import {
+  Search,
+  Filter,
+  MoreVertical,
   Eye,
   MessageSquare,
   User,
@@ -17,12 +17,12 @@ import {
   Clock
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { 
-  fetchCustomers, 
-  setFilters, 
+import {
+  fetchCustomers,
+  setFilters,
   clearFilters,
   type Customer,
-  type CustomersFilters 
+  type CustomersFilters
 } from '@/lib/store/customersSlice';
 import { addAlert } from '@/lib/store/alertSlice';
 
@@ -31,24 +31,24 @@ interface CustomersTableProps {
   onViewConversations?: (customer: Customer) => void;
 }
 
-export function CustomersTable({ onCustomerClick, onViewConversations }: CustomersTableProps) {
+export function CustomersTable({ onViewConversations }: CustomersTableProps) {
   const dispatch = useAppDispatch();
-  const { 
-    customers, 
-    loading, 
-    error, 
-    filters, 
-    pagination 
+  const {
+    customers,
+    loading,
+    error,
+    filters,
+    pagination
   } = useAppSelector((state) => state.customers);
 
   const [searchInput, setSearchInput] = useState(filters.search || '');
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchCustomers({ 
-      page: pagination.customers.page, 
+    dispatch(fetchCustomers({
+      page: pagination.customers.page,
       limit: pagination.customers.limit,
-      filters 
+      filters
     }));
   }, [dispatch, filters, pagination.customers.page, pagination.customers.limit]);
 
@@ -76,10 +76,10 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
   };
 
   const handlePageChange = (page: number) => {
-    dispatch(fetchCustomers({ 
-      page, 
+    dispatch(fetchCustomers({
+      page,
       limit: pagination.customers.limit,
-      filters 
+      filters
     }));
   };
 
@@ -89,7 +89,7 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
       RESOLVED: { variant: 'secondary' as const, label: 'Resolved' },
       CLOSED: { variant: 'outline' as const, label: 'Closed' },
     };
-    
+
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.ACTIVE;
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
@@ -130,22 +130,24 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               className="flex-1"
             />
-            <Button onClick={handleSearch} variant="outline">
+            <Button onClick={handleSearch} variant="outline" className="cursor-pointer">
               <Search className="h-4 w-4" />
             </Button>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => setShowFilters(!showFilters)}
+            className="cursor-pointer"
           >
             <Filter className="h-4 w-4 mr-2" />
             Filters
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={handleClearFilters}
+            className="cursor-pointer"
           >
             Clear
           </Button>
@@ -154,14 +156,14 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
 
       {/* Filters */}
       {showFilters && (
-  <Card className="p-4 mb-6 bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
+        <Card className="p-4 mb-6 bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">Status</label>
               <select
                 value={filters.status || 'ALL'}
                 onChange={(e) => handleFilterChange({ status: e.target.value as 'ACTIVE' | 'RESOLVED' | 'CLOSED' | 'ALL' })}
-                className="w-full p-2 border rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                className="w-full p-2 border rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700 cursor-pointer hover:border-blue-400 transition-colors"
               >
                 <option value="ALL">All Status</option>
                 <option value="ACTIVE">Active</option>
@@ -174,7 +176,7 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
               <select
                 value={filters.sortBy || 'lastSeenAt'}
                 onChange={(e) => handleFilterChange({ sortBy: e.target.value as 'lastSeenAt' | 'createdAt' | 'sessionCount' | 'customerName' })}
-                className="w-full p-2 border rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                className="w-full p-2 border rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700 cursor-pointer hover:border-blue-400 transition-colors"
               >
                 <option value="lastSeenAt">Last Seen</option>
                 <option value="createdAt">Created Date</option>
@@ -187,7 +189,7 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
               <select
                 value={filters.sortOrder || 'desc'}
                 onChange={(e) => handleFilterChange({ sortOrder: e.target.value as 'asc' | 'desc' })}
-                className="w-full p-2 border rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                className="w-full p-2 border rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700 cursor-pointer hover:border-blue-400 transition-colors"
               >
                 <option value="desc">Descending</option>
                 <option value="asc">Ascending</option>
@@ -212,10 +214,9 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
           </thead>
           <tbody>
             {customers.map((customer) => (
-              <tr 
-                key={customer.id} 
-                className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-                onClick={() => onCustomerClick?.(customer)}
+              <tr
+                key={customer.id}
+                className="border-b border-gray-200 dark:border-gray-800"
               >
                 <td className="p-3">
                   <div className="flex items-center gap-3">
@@ -283,10 +284,11 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
                         e.stopPropagation();
                         onViewConversations?.(customer);
                       }}
+                      className="cursor-pointer"
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="cursor-pointer">
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </div>
@@ -323,6 +325,7 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
               size="sm"
               onClick={() => handlePageChange(pagination.customers.page - 1)}
               disabled={pagination.customers.page === 1}
+              className="cursor-pointer"
             >
               Previous
             </Button>
@@ -331,6 +334,7 @@ export function CustomersTable({ onCustomerClick, onViewConversations }: Custome
               size="sm"
               onClick={() => handlePageChange(pagination.customers.page + 1)}
               disabled={pagination.customers.page === pagination.customers.totalPages}
+              className="cursor-pointer"
             >
               Next
             </Button>

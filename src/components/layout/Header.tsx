@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { clearUser, setLoading } from '@/lib/store/authSlice';
 import { addAlert } from '@/lib/store/alertSlice';
 import { persistor } from '@/lib/store';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 interface HeaderProps {
@@ -19,15 +19,37 @@ interface HeaderProps {
   isHydrated?: boolean;
 }
 
+interface NavLink {
+  href: string;
+  label: string;
+  showWhen: 'always' | 'authenticated' | 'unauthenticated';
+}
+
 export function Header({ showSignIn = true, variant = 'default', isHydrated = true }: HeaderProps) {
   const { user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const pathname = usePathname();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
-  // const isAuthPage = variant === 'auth';
   const isDashboardPage = variant === 'dashboard';
+
+  // Define navigation links
+  const navLinks: NavLink[] = [
+    { href: '/dashboard', label: 'Dashboard', showWhen: 'authenticated' },
+    { href: '/documentation', label: 'Documentation', showWhen: 'always' },
+    { href: '/customers', label: 'Customers', showWhen: 'authenticated' },
+    { href: '/knowledge-base', label: 'Knowledge Base', showWhen: 'authenticated' },
+  ];
+
+  // Filter links based on authentication status
+  const visibleLinks = navLinks.filter(link => {
+    if (link.showWhen === 'always') return true;
+    if (link.showWhen === 'authenticated') return isHydrated && user;
+    if (link.showWhen === 'unauthenticated') return !user;
+    return false;
+  });
 
   const handleLogout = async () => {
     if (isLoggingOut) return; // Prevent multiple clicks
@@ -83,7 +105,7 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
     <nav className={`border-b sticky top-0 z-50 border border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 supports-[backdrop-filter]:dark:bg-gray-900/70`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          <Link href={isDashboardPage ? "/dashboard" : "/"} className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+          <Link href={isDashboardPage ? "/dashboard" : "/"} className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer">
             <Image
               src="/Makora.png"
               alt="Makora Logo"
@@ -96,57 +118,42 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
             </span>
           </Link>
           <div className="flex items-center space-x-4">
-            {isDashboardPage && isHydrated && user && (
+            {/* Navigation Links */}
+            {visibleLinks.length > 0 && (
               <nav className="hidden md:flex items-center space-x-4">
-                <Link
-                  href="/documentation"
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
-                >
-                  Documentation
-                </Link>
-                <Link
-                  href="/dashboard"
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/customers"
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
-                >
-                  Customers
-                </Link>
-                <Link
-                  href="/knowledge-base"
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
-                >
-                  Knowledge Base
-                </Link>
+                {visibleLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`text-sm font-medium transition-colors cursor-pointer ${pathname === link.href
+                        ? 'text-gray-900 dark:text-gray-100 font-semibold'
+                        : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
+                      }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
               </nav>
             )}
-            {!user && showSignIn && (
-              <nav className="hidden sm:flex items-center space-x-4">
-                <Link
-                  href="/documentation"
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
-                >
-                  Documentation
-                </Link>
-              </nav>
-            )}
+
+            {/* Theme Selector */}
             <ThemeSelector />
+
+            {/* Sign In Button - Show only when showSignIn is true */}
             {showSignIn && (
-              <Button asChild className="hidden sm:flex bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all duration-300">
+              <Button asChild className="hidden sm:flex bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all duration-300 cursor-pointer">
                 <Link href="/auth/login">Sign In</Link>
               </Button>
             )}
-            {isDashboardPage && isHydrated && user && (
+
+            {/* Logout Button */}
+            {isHydrated && user && (
               <Button
                 onClick={handleLogoutClick}
                 variant="outline"
                 size="sm"
                 disabled={isLoggingOut}
-                className="border-2 border-gray-200 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors"
+                className="border-2 border-gray-200 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors cursor-pointer"
               >
                 {isLoggingOut ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -170,13 +177,13 @@ export function Header({ showSignIn = true, variant = 'default', isHydrated = tr
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowLogoutDialog(false)} className=' hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors'>
+            <Button variant="outline" onClick={() => setShowLogoutDialog(false)} className='hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors cursor-pointer'>
               Cancel
             </Button>
             <Button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 cursor-pointer"
             >
               {isLoggingOut ? (
                 <>

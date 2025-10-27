@@ -66,31 +66,62 @@ export async function processDocument(
         documentMetadata = extractTextMetadata(preparedContent);
         chunks = chunkText(preparedContent, options.chunkingOptions);
         
-        console.log('Using advanced chunking with tiktoken');
+        console.log('✅ Using advanced chunking with tiktoken');
+        console.log('📊 Tokenization Details (Advanced):', {
+          method: 'tiktoken',
+          chunkCount: chunks.length,
+          chunks: chunks.slice(0, 3).map((c) => ({
+            index: c.index,
+            tokens: c.tokenCount,
+            contentLength: c.content.length,
+            preview: c.content.substring(0, 100).replace(/\n/g, ' ') + '...'
+          })),
+          ...(chunks.length > 3 && { 
+            moreChunks: `${chunks.length - 3} more chunks`,
+            totalTokens: chunks.reduce((sum, c) => sum + c.tokenCount, 0)
+          })
+        });
       } catch (tiktokenError) {
-        console.warn('Tiktoken failed, falling back to simple chunking:', tiktokenError);
+        console.warn('⚠️ Tiktoken failed, falling back to simple chunking:', tiktokenError instanceof Error ? tiktokenError.message : tiktokenError);
         
         // Fallback to simple chunking
         preparedContent = simplePrepareDocs(content, options.sourceType);
         documentMetadata = simpleExtractMetadata(preparedContent);
         chunks = simpleChunkText(preparedContent, options.chunkingOptions);
         
-        console.log('Using simple chunking fallback');
+        console.log('✅ Using simple chunking fallback');
+        console.log('📊 Tokenization Details (Fallback):', {
+          method: 'simple-chunking',
+          chunkCount: chunks.length,
+          chunks: chunks.slice(0, 3).map((c) => ({
+            index: c.index,
+            tokens: c.tokenCount,
+            contentLength: c.content.length,
+            preview: c.content.substring(0, 100).replace(/\n/g, ' ') + '...'
+          })),
+          ...(chunks.length > 3 && { 
+            moreChunks: `${chunks.length - 3} more chunks`,
+            totalTokens: chunks.reduce((sum, c) => sum + c.tokenCount, 0)
+          })
+        });
       }
 
       if (!preparedContent.trim()) {
         throw new Error('Document content is empty after processing');
       }
 
-      console.log('Document prepared:', {
+      const totalTokens = chunks.reduce((sum, chunk) => sum + chunk.tokenCount, 0);
+      const avgTokensPerChunk = chunks.length > 0 ? Math.round(totalTokens / chunks.length) : 0;
+
+      console.log('📈 Document Preparation Summary:', {
         originalLength: content.length,
         preparedLength: preparedContent.length,
-        chunkingMethod: chunks.length > 0 ? (chunks[0].tokenCount ? 'advanced' : 'simple') : 'unknown'
-      });
-
-      console.log('Document chunked:', {
+        compressionRatio: ((1 - preparedContent.length / content.length) * 100).toFixed(2) + '%',
         totalChunks: chunks.length,
-        avgTokensPerChunk: chunks.length > 0 ? Math.round(chunks.reduce((sum, chunk) => sum + chunk.tokenCount, 0) / chunks.length) : 0
+        totalTokens: totalTokens,
+        avgTokensPerChunk: avgTokensPerChunk,
+        minTokens: Math.min(...chunks.map(c => c.tokenCount)),
+        maxTokens: Math.max(...chunks.map(c => c.tokenCount))
       });
 
     } catch (error) {
@@ -122,20 +153,35 @@ export async function processDocument(
 
     try {
       const chunkContents = chunks.map(chunk => chunk.content);
-      console.log('Generating embeddings for', chunkContents.length, 'chunks');
+      console.log('🔄 Generating embeddings for', chunkContents.length, 'chunks');
+      console.log('📍 Chunk sizes for embedding:', {
+        chunks: chunkContents.slice(0, 5).map((content, i) => ({
+          index: i,
+          contentLength: content.length,
+          preview: content.substring(0, 80).replace(/\n/g, ' ') + '...'
+        })),
+        ...(chunkContents.length > 5 && { moreChunks: `${chunkContents.length - 5} more chunks` })
+      });
       
       const embeddingResult = await generateEmbeddingsBatch(chunkContents);
       embeddings = embeddingResult.embeddings;
       tokenCount = embeddingResult.tokenCount || 0;
 
-      console.log('Embeddings generated:', {
+      console.log('✅ Embeddings Generated Successfully:', {
         embeddingCount: embeddings.length,
-        tokenCount,
-        embeddingDimension: embeddings[0]?.length || 0
+        tokenCount: tokenCount,
+        embeddingDimension: embeddings[0]?.length || 0,
+        embeddingsStatus: embeddings.map((emb, i) => ({
+          index: i,
+          dimension: emb.length,
+          hasValidValues: emb.every(v => typeof v === 'number' && !isNaN(v) && isFinite(v)),
+          sample: emb.slice(0, 3).map(v => v.toFixed(6))
+        })).slice(0, 3),
+        ...(embeddings.length > 3 && { moreEmbeddings: `${embeddings.length - 3} more` })
       });
 
     } catch (error) {
-      console.error('Error generating embeddings:', error);
+      console.error('❌ Error generating embeddings:', error);
       throw new Error(`Embedding generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -159,8 +205,21 @@ export async function processDocument(
 
     // Insert chunks in batches to avoid query size limits
     const batchSize = 50;
+    console.log('💾 Starting chunk insertion into database:', {
+      totalChunks: chunkData.length,
+      batchSize: batchSize,
+      totalBatches: Math.ceil(chunkData.length / batchSize)
+    });
+
     for (let i = 0; i < chunkData.length; i += batchSize) {
       const batch = chunkData.slice(i, i + batchSize);
+      const batchNumber = Math.floor(i / batchSize) + 1;
+      
+      console.log(`📦 Processing batch ${batchNumber}/${Math.ceil(chunkData.length / batchSize)}:`, {
+        batchStartIndex: i,
+        batchSize: batch.length,
+        chunkIndices: batch.map(c => c.chunkIndex)
+      });
       
       await prisma.$transaction(async (tx) => {
         for (const chunk of batch) {
@@ -171,7 +230,7 @@ export async function processDocument(
               : [];
             
             if (validEmbedding.length === 0) {
-              throw new Error(`Invalid embedding for chunk ${chunk.chunkIndex}`);
+              throw new Error(`Invalid embedding for chunk ${chunk.chunkIndex} - no valid numbers found`);
             }
 
             await tx.$executeRaw`
@@ -187,29 +246,58 @@ export async function processDocument(
                 NOW()
               )
             `;
+            
+            console.log(`  ✅ Chunk ${chunk.chunkIndex} stored:`, {
+              contentLength: chunk.content.length,
+              embeddingDimension: validEmbedding.length,
+              tokenCount: chunk.metadata?.tokenCount,
+              embeddingPreview: validEmbedding.slice(0, 3).map(v => v.toFixed(6))
+            });
           } catch (error) {
-            console.error(`Error inserting chunk ${chunk.chunkIndex}:`, error);
+            console.error(`  ❌ Error inserting chunk ${chunk.chunkIndex}:`, error);
             throw new Error(`Failed to store chunk ${chunk.chunkIndex}: ${error instanceof Error ? error.message : 'Unknown error'}`);
           }
         }
       });
+      
+      console.log(`✅ Batch ${batchNumber} completed successfully`);
     }
 
+    console.log('🎉 All chunks inserted successfully');
+
     // Update knowledge base status to READY
+    const finalMetadata = {
+      ...documentMetadata,
+      originalLength: content.length,
+      processedLength: preparedContent.length,
+      processedAt: new Date().toISOString(),
+      totalChunks: chunks.length,
+      totalTokens: tokenCount,
+      embeddingsGenerated: embeddings.length,
+    };
+
+    console.log('📋 Final Knowledge Base Metadata:', {
+      totalChunks: chunks.length,
+      totalTokens: tokenCount,
+      embeddingCount: embeddings.length,
+      averageTokensPerChunk: Math.round(tokenCount / chunks.length),
+      originalContentLength: content.length,
+      processedContentLength: preparedContent.length,
+      compressionRatio: `${((1 - preparedContent.length / content.length) * 100).toFixed(1)}%`
+    });
+
     await prisma.knowledgeBase.update({
       where: { id: knowledgeBaseId },
       data: {
         status: 'READY',
-        metadata: {
-          ...documentMetadata,
-          originalLength: content.length,
-          processedLength: preparedContent.length,
-          processedAt: new Date().toISOString(),
-          totalChunks: chunks.length,
-          totalTokens: tokenCount,
-          embeddingsGenerated: embeddings.length,
-        },
+        metadata: finalMetadata,
       },
+    });
+
+    console.log('✨ Knowledge base processing completed successfully!', {
+      knowledgeBaseId,
+      status: 'READY',
+      readyTime: new Date().toISOString()
     });
 
     return {
@@ -219,23 +307,34 @@ export async function processDocument(
     };
 
   } catch (error) {
-    console.error('Error processing document:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    console.error('❌ Error processing document:', {
+      errorMessage,
+      errorStack,
+      knowledgeBaseId,
+      errorTime: new Date().toISOString()
+    });
 
     // Update knowledge base status to ERROR if it was created
     if (knowledgeBaseId) {
       try {
+        console.log('🔄 Updating knowledge base status to ERROR...');
         await prisma.knowledgeBase.update({
           where: { id: knowledgeBaseId },
           data: {
             status: 'ERROR',
             metadata: {
-              error: error instanceof Error ? error.message : 'Unknown error',
+              error: errorMessage,
               erroredAt: new Date().toISOString(),
             },
           },
         });
+        console.log('✅ Knowledge base status updated to ERROR');
       } catch (updateError) {
-        console.error('Error updating knowledge base status:', updateError);
+        const updateErrorMsg = updateError instanceof Error ? updateError.message : 'Unknown error';
+        console.error('❌ Error updating knowledge base status:', updateErrorMsg);
       }
     }
 

@@ -391,7 +391,7 @@ Guidelines:
 Remember: You are embedded on ${companyName}'s website to help their visitors based on the company's knowledge base.`;
 
     // Get the model
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     // Generate response with retry logic
     const chat = model.startChat({

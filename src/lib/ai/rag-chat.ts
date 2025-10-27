@@ -108,7 +108,7 @@ User's question: ${userMessage}
 Please provide a helpful response based on the available information.`;
 
     // Generate response using Gemini
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     
     const result = await model.generateContent(systemPrompt);
     const response = await result.response;
@@ -180,7 +180,7 @@ Guidelines:
 
 Current user: ${userName}`;
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
   const chat = model.startChat({
     history: [

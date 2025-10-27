@@ -125,7 +125,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 cursor-pointer"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
@@ -143,7 +143,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         <CardFooter className="flex flex-col space-y-4">
           <Button 
             type="submit" 
-            className={`w-full ${gradients.primary} ${gradients.primaryHover} text-white ${shadows.button} transition-all duration-300 transform hover:scale-105`} 
+            className={`w-full ${gradients.primary} ${gradients.primaryHover} text-white ${shadows.button} transition-all duration-300 transform hover:scale-105 cursor-pointer`} 
             disabled={isLoading}
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -151,7 +151,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           </Button>
           <div className="text-center text-sm text-gray-600 dark:text-gray-400">
             Don&apos;t have an account?{' '}
-            <Link href="/auth/signup" className={`text-primary hover:underline font-medium`}>
+            <Link href="/auth/signup" className={`text-primary hover:underline font-medium cursor-pointer`}>
               Sign up
             </Link>
           </div>

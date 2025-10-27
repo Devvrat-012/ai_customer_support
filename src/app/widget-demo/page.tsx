@@ -4,28 +4,25 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { 
-  generateWidgetKey, 
-  selectWidgetKey, 
-  selectProfileStatus 
+import {
+  generateWidgetKey,
+  selectWidgetKey,
+  selectProfileStatus
 } from '@/lib/store/profileSlice';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Copy, 
-  Code2, 
-  Settings, 
+import {
+  Code2,
+  Settings,
   Key,
-  User,
   MessageSquare,
   Sparkles,
   CheckCircle,
-  ExternalLink
+  ExternalLink,
+  BookOpen
 } from 'lucide-react';
 
 export default function WidgetDemoPage() {
@@ -33,46 +30,24 @@ export default function WidgetDemoPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const dispatch = useAppDispatch();
-  
-  // Use window.location.origin in browser, fallback to env var
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL);
-  
+
   // Redux state
   const widgetKey = useAppSelector(selectWidgetKey);
   const profileStatus = useAppSelector(selectProfileStatus);
   const isGeneratingKey = profileStatus === 'loading';
-  
-  // Local UI state
-  const [customerData, setCustomerData] = useState({
-    customerId: 'demo-user-123',
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '+1-555-0123'
-  });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check authentication and set customer data
+  // Check authentication
   useEffect(() => {
-    const checkAuthAndSetup = async () => {
+    const checkAuth = async () => {
       if (!user) {
         router.push('/auth/login');
         return;
       }
-
-      // Set customer data based on logged-in user
-      if (user) {
-        setCustomerData({
-          customerId: user.id || 'demo-user-123',
-          name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Demo User',
-          email: user.email || 'demo@example.com',
-          phone: '+1-555-0123'
-        });
-      }
-
       setIsLoading(false);
     };
 
-    checkAuthAndSetup();
+    checkAuth();
   }, [user, router]);
 
   // Generate a real widget key using Redux
@@ -91,42 +66,6 @@ export default function WidgetDemoPage() {
         variant: "destructive",
       });
     }
-  };
-
-  // Copy code to clipboard
-  const copyToClipboard = async (text: string, description: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast({
-        title: "Copied!",
-        description: `${description} copied to clipboard`,
-      });
-    } catch (error: unknown) {
-      console.error('Failed to copy to clipboard:', error);
-      toast({
-        title: "Error",
-        description: "Failed to copy to clipboard",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Generate integration code
-  const generateIntegrationCode = () => {
-    const customerDataCode = `window.customerData = ${JSON.stringify(customerData, null, 2)};`;
-    
-    return `<!-- Add this before closing <\/body> tag -->
-<script>
-  window.aiSupportConfig = {
-    widgetKey: '${widgetKey}',
-    theme: 'light',
-    position: 'bottom-right'
-  };
-  
-  ${customerDataCode}
-</script>
-<script src="${baseUrl}/api/widget/js?key=${widgetKey}" async></script>
-<div id="ai-support-chat"></div>`;
   };
 
   // Show loading state while checking auth
@@ -164,16 +103,16 @@ export default function WidgetDemoPage() {
               </p>
             </div>
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             <Badge variant="outline" className="bg-green-50 dark:bg-gray-700 text-green-700 dark:text-green-300 border-green-200">
               Live Preview
             </Badge>
             <Badge variant="outline" className="bg-blue-50 dark:bg-gray-700 text-blue-700 dark:text-blue-300 border-blue-200">
-              Code Generation
+              Documentation
             </Badge>
             <Badge variant="outline" className="bg-purple-50 dark:bg-gray-700 text-purple-700 dark:text-purple-300 border-purple-200">
-              Customer Data
+              Easy Integration
             </Badge>
           </div>
         </div>
@@ -200,7 +139,7 @@ export default function WidgetDemoPage() {
                     readOnly
                     className="font-mono text-sm"
                   />
-                  <Button 
+                  <Button
                     onClick={handleGenerateWidgetKey}
                     disabled={isGeneratingKey}
                     size="sm"
@@ -223,93 +162,71 @@ export default function WidgetDemoPage() {
               </CardContent>
             </Card>
 
-            {/* Customer Data Configuration */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Customer Data
-                </CardTitle>
-                <CardDescription>
-                  Configure customer information for personalized support
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="customerId">Customer ID</Label>
-                    <Input
-                      id="customerId"
-                      value={customerData.customerId}
-                      onChange={(e) => setCustomerData(prev => ({ ...prev, customerId: e.target.value }))}
-                      placeholder="demo-user-123"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="customerName">Name</Label>
-                    <Input
-                      id="customerName"
-                      value={customerData.name}
-                      onChange={(e) => setCustomerData(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="John Doe"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="customerEmail">Email</Label>
-                    <Input
-                      id="customerEmail"
-                      type="email"
-                      value={customerData.email}
-                      onChange={(e) => setCustomerData(prev => ({ ...prev, email: e.target.value }))}
-                      placeholder="john@example.com"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="customerPhone">Phone</Label>
-                    <Input
-                      id="customerPhone"
-                      value={customerData.phone}
-                      onChange={(e) => setCustomerData(prev => ({ ...prev, phone: e.target.value }))}
-                      placeholder="+1-555-0123"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Integration Code */}
+            {/* Integration Instructions */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Code2 className="h-5 w-5" />
-                  Integration Code
+                  Integration Instructions
                 </CardTitle>
                 <CardDescription>
-                  Copy this code to integrate the widget into your website
+                  Complete guide to integrate the widget into your website
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 {widgetKey ? (
                   <div className="space-y-4">
-                    <Textarea
-                      value={generateIntegrationCode()}
-                      readOnly
-                      className="font-mono text-sm h-40"
-                    />
+
+                    <div className="space-y-3">
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">📖 Step 1: Read the Documentation</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                          Our comprehensive documentation covers all integration methods, customization options, and best practices for your platform.
+                        </p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">🔧 Step 2: Follow Integration Guide</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                          Choose your platform or framework from the documentation and follow the specific integration steps.
+                        </p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">✅ Step 3: Use Your Widget Key</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Replace the placeholder widget key in the documentation code with the key shown above.
+                        </p>
+                      </div>
+                    </div>
+
                     <Button
-                      onClick={() => copyToClipboard(generateIntegrationCode(), "Integration code")}
-                      className="w-full"
-                      variant="outline"
+                      onClick={() => window.open('/documentation', '_blank')}
+                      className="w-full h-12 text-base bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
                     >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy Integration Code
+                      <BookOpen className="h-5 w-5 mr-2" />
+                      View Full Documentation
+                      <ExternalLink className="h-4 w-4 ml-2" />
                     </Button>
                   </div>
                 ) : (
                   <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-center">
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Generate a widget key first to see the integration code
+                    <Settings className="h-12 w-12 mx-auto mb-3 opacity-50 text-gray-500 dark:text-gray-400" />
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                      Generate a widget key first to see integration instructions
                     </p>
+                    <Button
+                      onClick={handleGenerateWidgetKey}
+                      disabled={isGeneratingKey}
+                      variant="outline"
+                    >
+                      {isGeneratingKey ? (
+                        <Sparkles className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Key className="h-4 w-4 mr-2" />
+                      )}
+                      {isGeneratingKey ? 'Generating...' : 'Generate Key'}
+                    </Button>
                   </div>
                 )}
               </CardContent>
@@ -340,14 +257,14 @@ export default function WidgetDemoPage() {
                         </span>
                       </div>
                       <p className="text-sm text-green-700 dark:text-green-400">
-                        Your widget is configured with customer data for {customerData.name}
+                        Your widget is ready to be tested with your live chat support
                       </p>
                     </div>
-                    
+
                     <Button
                       onClick={() => {
                         // Navigate to a test page with the widget
-                        const testUrl = `/api/widget/test?key=${widgetKey}&customer=${encodeURIComponent(JSON.stringify(customerData))}`;
+                        const testUrl = `/api/widget/test?key=${widgetKey}`;
                         window.open(testUrl, '_blank', 'width=1200,height=800');
                       }}
                       className="w-full h-16 text-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg"
@@ -356,7 +273,7 @@ export default function WidgetDemoPage() {
                       Open Widget Test Page
                       <ExternalLink className="h-4 w-4 ml-3" />
                     </Button>
-                    
+
                     <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
                       Opens in a new window with a live chat bubble for testing
                     </p>
@@ -408,17 +325,6 @@ export default function WidgetDemoPage() {
                   <div className="flex items-start gap-3">
                     <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center font-semibold mt-0.5">
                       2
-                    </div>
-                    <div>
-                      <p className="font-medium">Configure Customer Data</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Set up customer information for personalized support
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center font-semibold mt-0.5">
-                      3
                     </div>
                     <div>
                       <p className="font-medium">Copy Integration Code</p>

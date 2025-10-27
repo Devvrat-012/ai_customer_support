@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { 
   fetchKnowledgeBases,
@@ -36,6 +36,7 @@ export default function KnowledgeBaseManager() {
   const [websiteLoading, setWebsiteLoading] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingKB, setDeletingKB] = useState<string | null>(null);
+  const kbLoadedRef = useRef(false); // Track if we've attempted to load KB data
 
   // Form states
   const [uploadForm, setUploadForm] = useState({
@@ -50,16 +51,14 @@ export default function KnowledgeBaseManager() {
     websiteUrl: '',
   });
 
-  // Load knowledge bases using Redux - only if data is not already loaded
-  const loadData = useCallback(async () => {
-    if (knowledgeBases.length === 0 && loading === false && error === null) {
+  // Load knowledge bases using Redux - only attempt once
+  useEffect(() => {
+    // Only fetch if we haven't attempted yet AND status is idle (not loading)
+    if (!kbLoadedRef.current && loading === false && (knowledgeBases.length === 0 || error === null)) {
+      kbLoadedRef.current = true;
       dispatch(fetchKnowledgeBases());
     }
-  }, [knowledgeBases.length, loading, error, dispatch]);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  }, []);
 
   // Handle file upload
   const handleFileUpload = async (e: React.FormEvent) => {
@@ -101,7 +100,7 @@ export default function KnowledgeBaseManager() {
         setUploadForm({ name: '', description: '', file: null });
         
         // Reload data
-        loadData();
+        dispatch(fetchKnowledgeBases());
       } else {
         throw new Error(data.error || 'Upload failed');
       }
@@ -154,7 +153,7 @@ export default function KnowledgeBaseManager() {
         setWebsiteForm({ name: '', description: '', websiteUrl: '' });
         
         // Reload data
-        loadData();
+        dispatch(fetchKnowledgeBases());
       } else {
         throw new Error(data.error || 'Website extraction failed');
       }
@@ -185,7 +184,7 @@ export default function KnowledgeBaseManager() {
           title: 'Success',
           description: 'Knowledge base deleted successfully',
         });
-        loadData();
+        dispatch(fetchKnowledgeBases());
       } else {
         throw new Error(data.error || 'Delete failed');
       }
@@ -309,7 +308,7 @@ export default function KnowledgeBaseManager() {
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              className="text-red-600 hover:text-red-700"
+                              className="text-red-600 hover:text-red-700 cursor-pointer"
                               onClick={() => setDeletingKB(kb.id)}
                             >
                               Delete
@@ -323,7 +322,7 @@ export default function KnowledgeBaseManager() {
                               </DialogDescription>
                             </DialogHeader>
                             <DialogFooter>
-                              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} className="cursor-pointer">
                                 Cancel
                               </Button>
                               <Button
@@ -334,7 +333,7 @@ export default function KnowledgeBaseManager() {
                                     setDeletingKB(null);
                                   }
                                 }}
-                                className="bg-red-600 hover:bg-red-700"
+                                className="bg-red-600 hover:bg-red-700 cursor-pointer"
                               >
                                 Delete
                               </Button>
@@ -361,7 +360,7 @@ export default function KnowledgeBaseManager() {
                             href={kb.sourceUrl} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="ml-2 text-blue-600 hover:text-blue-700 underline break-all"
+                            className="ml-2 text-blue-600 hover:text-blue-700 underline break-all cursor-pointer"
                           >
                             {kb.sourceUrl}
                           </a>
@@ -432,7 +431,7 @@ export default function KnowledgeBaseManager() {
                   </p>
                 </div>
 
-                <Button type="submit" disabled={uploadLoading} className="w-full">
+                <Button type="submit" disabled={uploadLoading} className="w-full cursor-pointer">
                   {uploadLoading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
@@ -493,7 +492,7 @@ export default function KnowledgeBaseManager() {
                   </p>
                 </div>
 
-                <Button type="submit" disabled={websiteLoading} className="w-full">
+                <Button type="submit" disabled={websiteLoading} className="w-full cursor-pointer">
                   {websiteLoading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>

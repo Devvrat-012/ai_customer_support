@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
+import {
   ArrowLeft,
   MessageSquare,
   User,
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { 
+import {
   fetchConversations,
   fetchConversationMessages,
   updateConversationStatus,
@@ -30,10 +30,10 @@ interface ConversationsViewProps {
 
 export function ConversationsView({ customer, onBack }: ConversationsViewProps) {
   const dispatch = useAppDispatch();
-  const { 
-    conversations, 
+  const {
+    conversations,
     selectedConversation,
-    loading, 
+    loading,
     error
   } = useAppSelector((state) => state.customers);
 
@@ -41,7 +41,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
 
   useEffect(() => {
     if (customer) {
-      dispatch(fetchConversations({ 
+      dispatch(fetchConversations({
         customerId: customer.id,
         page: 1,
         limit: 50,
@@ -83,29 +83,29 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      ACTIVE: { 
-        variant: 'default' as const, 
-        label: 'Active', 
+      ACTIVE: {
+        variant: 'default' as const,
+        label: 'Active',
         icon: Clock,
         className: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
       },
-      RESOLVED: { 
-        variant: 'secondary' as const, 
-        label: 'Resolved', 
+      RESOLVED: {
+        variant: 'secondary' as const,
+        label: 'Resolved',
         icon: CheckCircle,
         className: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800'
       },
-      CLOSED: { 
-        variant: 'outline' as const, 
-        label: 'Closed', 
+      CLOSED: {
+        variant: 'outline' as const,
+        label: 'Closed',
         icon: XCircle,
         className: 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800/50 dark:text-gray-300 dark:border-gray-700'
       },
     };
-    
+
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.ACTIVE;
     const Icon = config.icon;
-    
+
     return (
       <Badge variant={config.variant} className={`flex items-center gap-1 ${config.className}`}>
         <Icon className="h-3 w-3" />
@@ -126,7 +126,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
 
   if (!customer) {
     return (
-  <Card className="p-8 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-800 shadow-lg">
+      <Card className="p-8 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-800 shadow-lg">
         <div className="text-center">
           <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
             <User className="h-8 w-8 text-purple-600 dark:text-purple-400" />
@@ -145,10 +145,10 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
   return (
     <div className="space-y-6">
       {/* Header */}
-  <Card className="p-6 bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-800 shadow-md">
+      <Card className="p-6 bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-800 shadow-md">
         <div className="flex items-center gap-4 mb-4">
           {onBack && (
-            <Button variant="outline" size="sm" onClick={onBack} className="hover:bg-muted/50">
+            <Button variant="outline" size="sm" onClick={onBack} className="hover:bg-muted/50 cursor-pointer">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           )}
@@ -163,7 +163,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
         </div>
 
         {/* Customer Info */}
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800/40 dark:to-gray-800/20 border border-gray-200 dark:border-gray-800 rounded-lg backdrop-blur-sm">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800/40 dark:to-gray-800/20 border border-gray-200 dark:border-gray-800 rounded-lg backdrop-blur-sm">
           <div>
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Name</div>
             <div className="text-gray-900 dark:text-gray-100">{customer.customerName || 'Not provided'}</div>
@@ -181,7 +181,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Conversations List */}
-  <Card className="p-6 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-800 shadow-lg">
+        <Card className="p-6 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-800 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 p-2 rounded-lg">
@@ -192,7 +192,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="p-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-md text-sm hover:border-blue-500 transition-colors"
+              className="p-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-md text-sm hover:border-blue-500 cursor-pointer transition-colors"
             >
               <option value="ALL">All Status</option>
               <option value="ACTIVE">Active</option>
@@ -206,14 +206,13 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-[600px] overflow-y-auto">
               {conversations.map((conversation) => (
                 <div
                   key={conversation.id}
-                  className={`p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md hover:bg-gradient-to-r hover:from-muted/30 hover:to-muted/50 ${
-                    selectedConversation?.id === conversation.id 
-                      ? 'ring-2 ring-primary bg-gradient-to-r from-primary/10 to-primary/5 shadow-md' 
-                      : 'hover:border-primary/30'
+                  className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md hover:bg-gradient-to-r hover:from-muted/30 hover:to-muted/50 ${selectedConversation?.id === conversation.id
+                      ? 'ring-2 ring-primary bg-gradient-to-r from-primary/10 to-primary/5 shadow-md border-primary'
+                      : 'border-gray-200 dark:border-blue-800 hover:border-primary/50'
                   }`}
                   onClick={() => handleConversationClick(conversation)}
                 >
@@ -226,7 +225,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                     </div>
                     {getStatusBadge(conversation.status)}
                   </div>
-                  
+
                   <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
                     <span className="flex items-center gap-1">
                       <span className="w-2 h-2 bg-primary/60 rounded-full"></span>
@@ -244,11 +243,11 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                           </div>
                         ) : (
                           <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 p-1 rounded-full">
-                            <Image 
-                              src="/Makora.png" 
-                              alt="Makora Logo" 
-                              width={12} 
-                              height={12} 
+                            <Image
+                              src="/Makora.png"
+                              alt="Makora Logo"
+                              width={12}
+                              height={12}
                               className="rounded-full"
                             />
                           </div>
@@ -270,7 +269,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                         <Button
                           size="sm"
                           variant="outline"
-                          className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/30"
+                          className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/30 cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleStatusUpdate(conversation.id, 'RESOLVED');
@@ -282,7 +281,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                         <Button
                           size="sm"
                           variant="outline"
-                          className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
+                          className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30 cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleStatusUpdate(conversation.id, 'CLOSED');
@@ -297,7 +296,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                       <Button
                         size="sm"
                         variant="outline"
-                        className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
+                        className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30 cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleStatusUpdate(conversation.id, 'CLOSED');
@@ -311,7 +310,7 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                       <Button
                         size="sm"
                         variant="outline"
-                        className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                        className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/30 cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleStatusUpdate(conversation.id, 'ACTIVE');
@@ -343,14 +342,14 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
         </Card>
 
         {/* Conversation Messages */}
-  <Card className="p-6 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-800 shadow-lg">
+        <Card className="p-6 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-800 shadow-lg">
           <div className="flex items-center gap-2 mb-4">
             <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 p-2 rounded-lg">
               <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-400" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Messages</h3>
           </div>
-          
+
           {selectedConversation ? (
             <div className="space-y-4">
               {loading.messages ? (
@@ -358,18 +357,17 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                 </div>
               ) : (
-                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
                   {selectedConversation.messages?.map((message) => (
                     <div
                       key={message.id}
                       className={`flex ${message.sender === 'CUSTOMER' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm ${
-                          message.sender === 'CUSTOMER'
+                        className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm ${message.sender === 'CUSTOMER'
                             ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
                             : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800/50 dark:to-gray-800/30 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-800'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-2 mb-2">
                           {message.sender === 'CUSTOMER' ? (
@@ -378,11 +376,11 @@ export function ConversationsView({ customer, onBack }: ConversationsViewProps) 
                             </div>
                           ) : (
                             <div className="bg-primary/20 p-1 rounded-full">
-                              <Image 
-                                src="/Makora.png" 
-                                alt="Makora Logo" 
-                                width={12} 
-                                height={12} 
+                              <Image
+                                src="/Makora.png"
+                                alt="Makora Logo"
+                                width={12}
+                                height={12}
                                 className="rounded-full"
                               />
                             </div>

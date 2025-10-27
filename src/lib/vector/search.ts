@@ -70,15 +70,15 @@ export async function searchKnowledgeBase(
         kc.id,
         kc.content,
         kc.metadata,
-        kc."chunkIndex",
+        kc."chunk_index",
         kb.id as "knowledgeBaseId",
         kb.name as "knowledgeBaseName",
-        kb."sourceType",
-        kb."sourceUrl",
-        kb."fileName",
+        kb."source_type",
+        kb."source_url",
+        kb."file_name",
         (1 - (kc.embedding <=> $${paramIndex}::vector)) as similarity
       FROM "knowledge_chunks" kc
-      JOIN "knowledge_bases" kb ON kc."knowledgeBaseId" = kb.id
+      JOIN "knowledge_bases" kb ON kc."knowledge_base_id" = kb.id
       WHERE ${whereClause}
         AND kc.embedding IS NOT NULL
         AND (1 - (kc.embedding <=> $${paramIndex}::vector)) >= $${paramIndex + 1}
