@@ -14,11 +14,14 @@ import {
   generateWidgetKey,
   selectProfileLoading,
   selectProfileError,
-  selectHasCompanyData,
   selectWidgetKey,
   selectShouldFetchProfile,
   clearError
 } from '@/lib/store/profileSlice';
+import {
+  selectKnowledgeBaseStats,
+  fetchKnowledgeBaseStats
+} from '@/lib/store/knowledgeBaseSlice';
 
 export function WidgetManager() {
   const [loading, setLoading] = useState(false);
@@ -32,15 +35,19 @@ export function WidgetManager() {
   // Redux selectors
   const profileLoading = useAppSelector(selectProfileLoading);
   const profileError = useAppSelector(selectProfileError);
-  const hasCompanyData = useAppSelector(selectHasCompanyData);
   const widgetKey = useAppSelector(selectWidgetKey);
+  const kbStats = useAppSelector(selectKnowledgeBaseStats);
   // const hasWidgetKey = useAppSelector(selectHasWidgetKey);
   const shouldFetchProfile = useAppSelector(selectShouldFetchProfile);
+
+  // Check if user has knowledge base data (required for widget key generation)
+  const hasKnowledgeBaseData = kbStats.totalKnowledgeBases > 0;
 
   // Load profile data when component mounts or user changes
   useEffect(() => {
     if (user && shouldFetchProfile) {
       dispatch(fetchProfile());
+      dispatch(fetchKnowledgeBaseStats());
     }
   }, [user, shouldFetchProfile, dispatch]);
 
@@ -367,11 +374,11 @@ export default MyApp;`
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className={`px-3 py-1 rounded-full text-xs font-medium ${hasCompanyData
+              <div className={`px-3 py-1 rounded-full text-xs font-medium ${hasKnowledgeBaseData
                   ? 'bg-green-100 text-green-700 border border-green-200'
                   : 'bg-amber-100 text-amber-700 border border-amber-200'
                 }`}>
-                {hasCompanyData ? '✓ Ready' : '⚠ Setup Required'}
+                {hasKnowledgeBaseData ? '✓ Ready' : '⚠ Setup Required'}
               </div>
             </div>
           </div>
@@ -455,7 +462,7 @@ export default MyApp;`
                 </p>
                 <Button
                   onClick={generateNewKey}
-                  disabled={loading || profileLoading || !hasCompanyData}
+                  disabled={loading || profileLoading || !hasKnowledgeBaseData}
                   size="lg"
                   className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg gap-2"
                 >
@@ -472,11 +479,11 @@ export default MyApp;`
                   )}
                 </Button>
 
-                {!hasCompanyData && (
+                {!hasKnowledgeBaseData && (
                   <div className="mt-4 p-3 rounded-lg bg-amber-50/50 border border-amber-200/50">
                     <p className="text-sm text-amber-700 dark:text-red-700 flex items-center gap-2">
                       <AlertTriangle className="h-4 w-4" />
-                      Please upload company data first to generate your widget key
+                      Please upload knowledge base content first to generate your widget key
                     </p>
                   </div>
                 )}

@@ -67,22 +67,22 @@ export default function DocumentationPage() {
           )}
         </Button>
       </div>
-      <pre className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-600 rounded-lg p-3 text-xs overflow-x-auto">
+      <pre className="bg-gradient-to-r from-gray-50 to-slate-100/50 dark:from-gray-800/50 dark:to-slate-900/50 border border-gray-200 dark:border-gray-600 rounded-lg p-4 text-sm overflow-x-auto font-mono shadow-inner">
         <code className="text-gray-900 dark:text-gray-100">{code}</code>
       </pre>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 text-gray-900 dark:text-gray-100">
       {/* Header */}
-      <div className="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 backdrop-blur-sm">
+      <div className="border-b border-gray-200 bg-gradient-to-r from-white via-blue-50/30 to-purple-50/30 dark:border-gray-700 dark:from-gray-800 dark:via-blue-900/10 dark:to-purple-900/10 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="space-y-1">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 flex items-center justify-center shadow-lg">
                     <BookOpen className="h-5 w-5 text-white" />
                   </div>
                   AI Support Widget Documentation
@@ -93,12 +93,12 @@ export default function DocumentationPage() {
               </div>
             </div>
             {user ? (
-              <Badge variant="secondary" className="gap-1">
+              <Badge variant="secondary" className="gap-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-md">
                 <Heart className="h-3 w-3 text-red-500" />
                 v1.0
               </Badge>
             ) : (
-              <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+              <Button asChild className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                 <Link href="/auth/signup">
                   <Rocket className="h-4 w-4 mr-2" />
                   Generate Widget Key
@@ -113,7 +113,7 @@ export default function DocumentationPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Table of Contents */}
           <div className="lg:col-span-1">
-            <Card className="bg-white dark:bg-gray-800 border sticky top-18">
+            <Card className="bg-white dark:bg-gray-800 border shadow-lg hover:shadow-xl transition-shadow duration-300 sticky top-18">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg text-gray-900 dark:text-gray-100 flex items-center gap-2">
                   <FileText className="h-5 w-5" />
@@ -149,7 +149,7 @@ export default function DocumentationPage() {
           <div className="lg:col-span-3 space-y-8">
             {/* Quick Start */}
             <section id="quick-start">
-              <Card className="bg-white dark:bg-gray-800 border">
+              <Card className="bg-white dark:bg-gray-800 border shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50/20 dark:from-gray-800 dark:to-blue-900/10">
                 <CardHeader>
                   <CardTitle className="text-2xl text-gray-900 dark:text-gray-100 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
@@ -165,28 +165,28 @@ export default function DocumentationPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Card className="bg-gray-50 dark:bg-gray-800/30 border-dashed">
                       <CardContent className="p-4 text-center">
-                        <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center mx-auto mb-2 text-sm font-bold">1</div>
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white flex items-center justify-center mx-auto mb-2 text-sm font-bold shadow-md">1</div>
                         <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-1">Generate Widget Key</h4>
                         <p className="text-xs text-gray-600 dark:text-gray-400">Create your unique widget identifier in the dashboard</p>
                       </CardContent>
                     </Card>
                     <Card className="bg-gray-50 dark:bg-gray-800/30 border-dashed">
                       <CardContent className="p-4 text-center">
-                        <div className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center mx-auto mb-2 text-sm font-bold">2</div>
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 text-white flex items-center justify-center mx-auto mb-2 text-sm font-bold shadow-md">2</div>
                         <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-1">Choose Platform</h4>
                         <p className="text-xs text-gray-600 dark:text-gray-400">Select your website platform from the dropdown</p>
                       </CardContent>
                     </Card>
                     <Card className="bg-gray-50 dark:bg-gray-800/30 border-dashed">
                       <CardContent className="p-4 text-center">
-                        <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center mx-auto mb-2 text-sm font-bold">3</div>
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-green-600 text-white flex items-center justify-center mx-auto mb-2 text-sm font-bold shadow-md">3</div>
                         <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-1">Add Code</h4>
                         <p className="text-xs text-gray-600 dark:text-gray-400">Copy and paste the integration code to your site</p>
                       </CardContent>
                     </Card>
                   </div>
                   
-                  <div className="p-4 rounded-lg bg-blue-50/50 border border-blue-200/50 dark:bg-blue-900/20 dark:border-blue-800">
+                  <div className="p-4 rounded-lg bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border border-blue-200/50 dark:from-blue-900/20 dark:to-indigo-900/20 dark:border-blue-800">
                     <h4 className="font-medium text-blue-900 dark:text-blue-300 mb-2 flex items-center gap-2">
                       <Zap className="h-4 w-4" />
                       Basic HTML Integration
@@ -220,7 +220,7 @@ export default function DocumentationPage() {
                     />
                   </div>
                   
-                  <div className="p-4 rounded-lg bg-green-50/50 border border-green-200/50 dark:bg-green-900/20 dark:border-green-800 mt-4">
+                  <div className="p-4 rounded-lg bg-gradient-to-r from-green-50/50 to-emerald-50/50 border border-green-200/50 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800 mt-4">
                     <h4 className="font-medium text-green-900 dark:text-green-300 mb-2 flex items-center gap-2">
                       <Shield className="h-4 w-4" />
                       Dynamic Customer Data
@@ -261,7 +261,7 @@ function clearCustomerData() {
 
             {/* Platform Integrations */}
             <section id="platforms">
-              <Card className="bg-white dark:bg-gray-800 border">
+              <Card className="bg-white dark:bg-gray-800 border shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-purple-50/20 dark:from-gray-800 dark:to-purple-900/10">
                 <CardHeader>
                   <CardTitle className="text-2xl text-gray-900 dark:text-gray-100 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
@@ -275,7 +275,7 @@ function clearCustomerData() {
                 </CardHeader>
                 <CardContent>
                   <Tabs defaultValue="react" className="w-full">
-                    <TabsList className="grid w-full grid-cols-5 mb-6">
+                    <TabsList className="grid w-full grid-cols-5 mb-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-1">
                       <TabsTrigger value="react">React</TabsTrigger>
                       <TabsTrigger value="wordpress">WordPress</TabsTrigger>
                       <TabsTrigger value="shopify">Shopify</TabsTrigger>
@@ -292,8 +292,8 @@ function clearCustomerData() {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline">TypeScript Ready</Badge>
-                          <Badge variant="outline">Hooks Compatible</Badge>
+                          <Badge variant="outline" className="border-blue-300 text-blue-700 dark:border-blue-600 dark:text-blue-300">TypeScript Ready</Badge>
+                          <Badge variant="outline" className="border-purple-300 text-purple-700 dark:border-purple-600 dark:text-purple-300">Hooks Compatible</Badge>
                         </div>
                       </div>
                       
@@ -1044,7 +1044,7 @@ export default {
 
             {/* Customization */}
             <section id="customization">
-              <Card className="bg-white dark:bg-gray-800 border">
+              <Card className="bg-white dark:bg-gray-800 border shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-orange-50/20 dark:from-gray-800 dark:to-orange-900/10">
                 <CardHeader>
                   <CardTitle className="text-2xl text-gray-900 dark:text-gray-100 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
@@ -1061,7 +1061,7 @@ export default {
                     <Card className="bg-gray-100 dark:bg-gray-800/30 border">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-lg flex items-center gap-2">
-                          <Palette className="h-4 w-4" />
+                          <Palette className="h-4 w-4 text-blue-600" />
                           Theme & Styling
                         </CardTitle>
                       </CardHeader>
@@ -1084,7 +1084,7 @@ export default {
                     <Card className="bg-gray-100 dark:bg-gray-800/30 border">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-lg flex items-center gap-2">
-                          <Monitor className="h-4 w-4" />
+                          <Monitor className="h-4 w-4 text-purple-600" />
                           Position & Layout
                         </CardTitle>
                       </CardHeader>
@@ -1107,7 +1107,7 @@ export default {
                     <Card className="bg-gray-100 dark:bg-gray-800/30 border">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-lg flex items-center gap-2">
-                          <Settings className="h-4 w-4" />
+                          <Settings className="h-4 w-4 text-green-600" />
                           Behavior Settings
                         </CardTitle>
                       </CardHeader>
@@ -1130,7 +1130,7 @@ export default {
                     <Card className="bg-gray-100 dark:bg-gray-800/30 border">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-lg flex items-center gap-2">
-                          <Smartphone className="h-4 w-4" />
+                          <Smartphone className="h-4 w-4 text-pink-600" />
                           Mobile Options
                         </CardTitle>
                       </CardHeader>
@@ -1203,7 +1203,7 @@ export default {
 
             {/* API Reference */}
             <section id="api">
-              <Card className="bg-white dark:bg-gray-800 border">
+              <Card className="bg-white dark:bg-gray-800 border shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50/20 dark:from-gray-800 dark:to-blue-900/10">
                 <CardHeader>
                   <CardTitle className="text-2xl text-gray-900 dark:text-gray-100 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
@@ -1220,20 +1220,20 @@ export default {
                     <div className="space-y-4">
                       <h4 className="font-semibold text-gray-900 dark:text-gray-100">Widget Methods</h4>
                       <div className="space-y-3">
-                        <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800/30">
-                          <code className="text-sm font-mono text-gray-900 dark:text-gray-100">window.AiSupport.open()</code>
+                        <div className="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200/50 dark:border-blue-700">
+                          <code className="text-sm font-mono text-blue-900 dark:text-blue-300">window.AiSupport.open()</code>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Open the chat widget</p>
                         </div>
-                        <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800/30">
-                          <code className="text-sm font-mono text-gray-900 dark:text-gray-100">window.AiSupport.close()</code>
+                        <div className="p-3 rounded-lg bg-gradient-to-r from-red-50 to-red-100/50 dark:from-red-900/20 dark:to-red-800/20 border border-red-200/50 dark:border-red-700">
+                          <code className="text-sm font-mono text-red-900 dark:text-red-300">window.AiSupport.close()</code>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Close the chat widget</p>
                         </div>
-                        <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800/30">
-                          <code className="text-sm font-mono text-gray-900 dark:text-gray-100">window.AiSupport.toggle()</code>
+                        <div className="p-3 rounded-lg bg-gradient-to-r from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-800/20 border border-purple-200/50 dark:border-purple-700">
+                          <code className="text-sm font-mono text-purple-900 dark:text-purple-300">window.AiSupport.toggle()</code>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Toggle widget open/close</p>
                         </div>
-                        <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800/30">
-                          <code className="text-sm font-mono text-gray-900 dark:text-gray-100">window.AiSupport.sendMessage(text)</code>
+                        <div className="p-3 rounded-lg bg-gradient-to-r from-green-50 to-green-100/50 dark:from-green-900/20 dark:to-green-800/20 border border-green-200/50 dark:border-green-700">
+                          <code className="text-sm font-mono text-green-900 dark:text-green-300">window.AiSupport.sendMessage(text)</code>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Send a message programmatically</p>
                         </div>
                       </div>
@@ -1242,8 +1242,8 @@ export default {
                     <div className="space-y-4">
                       <h4 className="font-semibold text-gray-900 dark:text-gray-100">Events</h4>
                       <div className="space-y-3">
-                        <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800/30">
-                          <code className="text-sm font-mono text-gray-900 dark:text-gray-100">ai-widget-ready</code>
+                        <div className="p-3 rounded-lg bg-gradient-to-r from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-800/20 border border-emerald-200/50 dark:border-emerald-700">
+                          <code className="text-sm font-mono text-emerald-900 dark:text-emerald-300">ai-widget-ready</code>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Widget loaded and ready</p>
                         </div>
                         <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800/30">
@@ -1444,7 +1444,7 @@ function onUserLogout() {
 
             {/* Troubleshooting */}
             <section id="troubleshooting">
-              <Card className="bg-white dark:bg-gray-800 border">
+              <Card className="bg-white dark:bg-gray-800 border shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-red-50/20 dark:from-gray-800 dark:to-red-900/10">
                 <CardHeader>
                   <CardTitle className="text-2xl text-gray-900 dark:text-gray-100 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
@@ -1543,7 +1543,7 @@ if (!window.aiSupportConfig || !window.aiSupportConfig.widgetKey) {
 
             {/* Support & FAQ */}
             <section id="support">
-              <Card className="bg-gradient-to-r from-card to-card/50 border">
+              <Card className="bg-gradient-to-br from-green-50/50 via-white to-emerald-50/50 dark:from-green-900/10 dark:via-gray-800 dark:to-emerald-900/10 border shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardHeader>
                   <CardTitle className="text-2xl text-gray-900 dark:text-gray-100 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
-      throw new AuthenticationError('Invalid email or password');
+      throw new AuthenticationError('User not found');
     }
 
     // Verify password

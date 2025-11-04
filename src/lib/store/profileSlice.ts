@@ -84,7 +84,7 @@ export const generateWidgetKey = createAsyncThunk(
       const kbResponse = await fetch('/api/knowledge-base/search?action=stats');
       const kbResult = await kbResponse.json();
       
-      if (!kbResult.success || !kbResult.data?.totalKnowledgeBases || kbResult.data.totalKnowledgeBases === 0) {
+      if (!kbResult.success || !kbResult.data?.stats?.totalKnowledgeBases || kbResult.data.stats.totalKnowledgeBases === 0) {
         return rejectWithValue('At least one knowledge base is required before generating a widget key. Please upload knowledge base content first.');
       }
       

@@ -54,13 +54,13 @@ export default function DashboardPage() {
   // Show loading during hydration
   if (!mounted || isLoading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center relative">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 flex items-center justify-center relative">
         <div className="text-center space-y-4">
           <div className="relative">
-            <div className="w-16 h-16 bg-violet-100 dark:bg-violet-900/30 rounded-2xl flex items-center justify-center mx-auto">
-              <Loader2 className="h-8 w-8 animate-spin text-violet-600 dark:text-violet-400" />
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-100 via-purple-100 to-indigo-100 dark:from-blue-900/30 dark:via-purple-900/30 dark:to-indigo-900/30 rounded-2xl flex items-center justify-center mx-auto">
+              <Loader2 className="h-8 w-8 animate-spin text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text" />
             </div>
-            <div className="absolute inset-0 bg-violet-50 dark:bg-violet-900/20 rounded-2xl animate-pulse"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-indigo-50/50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-indigo-900/20 rounded-2xl animate-pulse"></div>
           </div>
           <div className="space-y-2">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Loading Dashboard</h3>
@@ -76,17 +76,17 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-900 dark:via-blue-900/10 dark:to-indigo-900/20">
       {/* Auto-migrate component - runs silently in background */}
       <AutoMigrate user={user} hasCompanyData={hasCompanyData} />
 
       {/* Header Section */}
-      <div className="border-b border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+      <div className="border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-white/80 via-blue-50/40 to-indigo-50/40 dark:from-gray-800/80 dark:via-blue-900/20 dark:to-indigo-900/20 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-8">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 to-violet-700 flex items-center justify-center">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 flex items-center justify-center shadow-lg">
                   <Sparkles className="h-5 w-5 text-white" />
                 </div>
                 Welcome back, {user.firstName}!
@@ -99,7 +99,7 @@ export default function DashboardPage() {
               <Button
                 variant="outline"
                 onClick={() => window.open('/documentation', '_blank')}
-                className="w-full gap-2 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors cursor-pointer"
+                className="w-full gap-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-blue-700 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 dark:hover:text-blue-300 transition-all duration-300 cursor-pointer border-blue-200 dark:border-blue-700"
               >
                 <BookOpen className="h-4 w-4" />
                 Start Integration
@@ -118,8 +118,8 @@ export default function DashboardPage() {
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* AI Replies Card */}
-          <Card className="border relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5"></div>
+          <Card className="border relative overflow-hidden group hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 bg-gradient-to-br from-white to-blue-50/20 dark:from-gray-800 dark:to-blue-900/10">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-cyan-500/5 to-blue-600/5"></div>
             <CardContent className="p-6 relative">
               <div className="flex items-center justify-between">
                 <div className="space-y-2">
@@ -138,8 +138,8 @@ export default function DashboardPage() {
           </Card>
 
           {/* Knowledge Base Stats Card */}
-          <Card className="border relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-green-500/5"></div>
+          <Card className="border relative overflow-hidden group hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 bg-gradient-to-br from-white to-emerald-50/20 dark:from-gray-800 dark:to-emerald-900/10">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-green-500/5 to-emerald-600/5"></div>
             <CardContent className="p-6 relative">
               <div className="flex items-center justify-between">
                 <div className="space-y-2">
@@ -160,8 +160,8 @@ export default function DashboardPage() {
           </Card>
 
           {/* Account Info Card */}
-          <Card className="border relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5"></div>
+          <Card className="border relative overflow-hidden group hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300 bg-gradient-to-br from-white to-purple-50/20 dark:from-gray-800 dark:to-purple-900/10">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-pink-500/5 to-purple-600/5"></div>
             <CardContent className="p-6 relative">
               <div className="flex items-center justify-between">
                 <div className="space-y-2">
@@ -182,8 +182,8 @@ export default function DashboardPage() {
           </Card>
 
           {/* Quick Action Card */}
-          <Card className="border relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5"></div>
+          <Card className="border relative overflow-hidden group hover:shadow-xl hover:shadow-orange-500/10 transition-all duration-300 bg-gradient-to-br from-white to-orange-50/20 dark:from-gray-800 dark:to-orange-900/10">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-red-500/5 to-orange-600/5"></div>
             <CardContent className="p-6 relative">
               <div className="flex items-center justify-between">
                 <div className="space-y-2">
@@ -207,7 +207,7 @@ export default function DashboardPage() {
           {/* Left Column - Profile & Knowledge Base */}
           <div className="space-y-6">
             {/* Profile Information */}
-            <Card className="border">
+            <Card className="border shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-violet-50/20 dark:from-gray-800 dark:to-violet-900/10">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
@@ -238,7 +238,7 @@ export default function DashboardPage() {
                 </div>
                 <Button
                   variant="outline"
-                  className="w-full gap-2 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors cursor-pointer"
+                  className="w-full gap-2 hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 hover:text-violet-700 dark:hover:from-violet-900/20 dark:hover:to-purple-900/20 dark:hover:text-violet-300 transition-all duration-300 cursor-pointer border-violet-200 dark:border-violet-700"
                   onClick={() => setProfileDialogOpen(true)}
                 >
                   <Settings className="h-4 w-4" />
@@ -248,7 +248,7 @@ export default function DashboardPage() {
             </Card>
 
             {/* Widget Integration Quick Actions */}
-            <Card className="border">
+            <Card className="border shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50/20 dark:from-gray-800 dark:to-blue-900/10">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
@@ -278,28 +278,28 @@ export default function DashboardPage() {
                       }
                       router.push('/widget-demo');
                     }}
-                    className="w-full gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg cursor-pointer"
+                    className="w-full gap-2 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 hover:from-blue-600 hover:via-purple-600 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
                   >
                     <Play className="h-4 w-4" />
                     Get Your Widget Key
                   </Button>
 
                   {/* Error message for no knowledge base */}
-                  <div id="demo-error" style={{ display: 'none' }} className="text-xs text-red-600 dark:text-red-400 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
+                  <div id="demo-error" style={{ display: 'none' }} className="text-xs text-red-700 dark:text-red-300 p-3 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-800 rounded-lg shadow-sm">
                     ⚠️ Please upload at least one knowledge base before trying the widget demo.
                   </div>
 
                   <Button
                     variant="outline"
                     onClick={() => window.open('/documentation', '_blank')}
-                    className="w-full gap-2 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors cursor-pointer"
+                    className="w-full gap-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-blue-700 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 dark:hover:text-blue-300 transition-all duration-300 cursor-pointer border-blue-200 dark:border-blue-700"
                   >
                     <BookOpen className="h-4 w-4" />
                     Start Integration
                     <ExternalLink className="h-3 w-3" />
                   </Button>
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 text-center pt-2 border-t border-gray-200 dark:border-gray-600">
+                <div className="text-xs text-blue-600 dark:text-blue-400 text-center pt-2 border-t border-blue-200 dark:border-blue-700">
                   Set up your knowledge base first, then integrate the widget
                 </div>
               </CardContent>
@@ -308,7 +308,7 @@ export default function DashboardPage() {
 
           {/* Right Column - Knowledge Base (Expanded) */}
           <div className="space-y-6">
-            <Card className="border">
+            <Card className="border shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-violet-50/20 dark:from-gray-800 dark:to-violet-900/10">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">

@@ -58,6 +58,7 @@ export default function KnowledgeBaseManager() {
       kbLoadedRef.current = true;
       dispatch(fetchKnowledgeBases());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle file upload

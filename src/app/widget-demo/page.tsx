@@ -62,7 +62,7 @@ export default function WidgetDemoPage() {
       console.error('Failed to generate widget key:', error);
       toast({
         title: "Error",
-        description: "Failed to generate widget key. Please ensure you have company data configured.",
+        description: error instanceof Error ? error.message : "Failed to generate widget key. Please ensure you have knowledge base content uploaded.",
         variant: "destructive",
       });
     }
