@@ -43,7 +43,7 @@ export async function searchKnowledgeBase(
     const vectorString = `[${queryEmbedding.join(',')}]`;
 
     // Build filters
-    const filters: string[] = [`kb."userId" = $1`];
+    const filters: string[] = [`kb."user_id" = $1`];
     const params: any[] = [userId];
     let paramIndex = 2;
 
