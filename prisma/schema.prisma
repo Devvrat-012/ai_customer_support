@@ -106,6 +106,7 @@ model KnowledgeBase {
   userId      String              @map("user_id")
   name        String
   description String?
+  content     String?             // Full original content for viewing
   sourceType  KnowledgeSourceType @map("source_type")
   sourceUrl   String?             @map("source_url")
   fileName    String?             @map("file_name")

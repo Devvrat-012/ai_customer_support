@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
+import { Eye, Trash2 } from 'lucide-react';
 
 export default function KnowledgeBaseManager() {
   const dispatch = useAppDispatch();
@@ -36,6 +37,10 @@ export default function KnowledgeBaseManager() {
   const [websiteLoading, setWebsiteLoading] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingKB, setDeletingKB] = useState<string | null>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewingKB, setViewingKB] = useState<any>(null);
+  const [viewContent, setViewContent] = useState('');
+  const [viewLoading, setViewLoading] = useState(false);
   const kbLoadedRef = useRef(false); // Track if we've attempted to load KB data
 
   // Form states
@@ -200,6 +205,33 @@ export default function KnowledgeBaseManager() {
     }
   };
 
+  const handleViewContent = async (kb: any) => {
+    setViewingKB(kb);
+    setViewLoading(true);
+    setViewDialogOpen(true);
+
+    try {
+      const response = await fetch(`/api/knowledge-base/${kb.id}/content`);
+      const data = await response.json();
+
+      if (data.success) {
+        setViewContent(data.data.content);
+      } else {
+        throw new Error(data.error || 'Failed to load content');
+      }
+    } catch (error) {
+      console.error('View content error:', error);
+      toast({
+        title: 'View Failed',
+        description: error instanceof Error ? error.message : 'Failed to load knowledge base content',
+        variant: 'destructive',
+      });
+      setViewDialogOpen(false);
+    } finally {
+      setViewLoading(false);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'READY': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100';
@@ -304,6 +336,15 @@ export default function KnowledgeBaseManager() {
                         <Badge className={getStatusColor(kb.status)}>
                           {kb.status}
                         </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewContent(kb)}
+                          className="cursor-pointer"
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
                         <Dialog open={deleteDialogOpen && deletingKB === kb.id} onOpenChange={setDeleteDialogOpen}>
                           <DialogTrigger asChild>
                             <Button 
@@ -312,6 +353,7 @@ export default function KnowledgeBaseManager() {
                               className="text-red-600 hover:text-red-700 cursor-pointer"
                               onClick={() => setDeletingKB(kb.id)}
                             >
+                              <Trash2 className="h-4 w-4 mr-1" />
                               Delete
                             </Button>
                           </DialogTrigger>
@@ -508,6 +550,38 @@ export default function KnowledgeBaseManager() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* View Content Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5" />
+              {viewingKB?.name || 'Knowledge Base Content'}
+            </DialogTitle>
+            <DialogDescription>
+              {viewingKB?.description && `${viewingKB.description} • `}
+              {viewingKB?.sourceType} • {viewingKB?.chunkCount || 0} chunks
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-auto">
+            {viewLoading ? (
+              <div className="flex items-center justify-center p-8">
+                <div className="text-center">
+                  <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-gray-600 dark:text-gray-400">Loading content...</p>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border max-h-96 overflow-auto">
+                <pre className="whitespace-pre-wrap text-sm text-gray-900 dark:text-gray-100 font-mono leading-relaxed">
+                  {viewContent || 'No content available'}
+                </pre>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

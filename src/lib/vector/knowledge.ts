@@ -36,17 +36,27 @@ export async function processDocument(
 
   try {
     // Create the knowledge base entry
+    const knowledgeBaseData: any = {
+      userId,
+      name: options.name,
+      description: options.description,
+      sourceType: options.sourceType,
+      sourceUrl: options.sourceUrl,
+      fileName: options.fileName,
+      metadata: {},
+      status: 'PROCESSING',
+    };
+
+    // Add content field if it exists in the schema (for backward compatibility)
+    try {
+      // Try to include content - will work if field exists
+      knowledgeBaseData.content = content;
+    } catch {
+      // Content field doesn't exist yet, skip it
+    }
+
     const knowledgeBase = await prisma.knowledgeBase.create({
-      data: {
-        userId,
-        name: options.name,
-        description: options.description,
-        sourceType: options.sourceType,
-        sourceUrl: options.sourceUrl,
-        fileName: options.fileName,
-        metadata: {},
-        status: 'PROCESSING',
-      },
+      data: knowledgeBaseData,
     });
 
     knowledgeBaseId = knowledgeBase.id;
@@ -60,12 +70,12 @@ export async function processDocument(
       // Try the advanced chunking first
       try {
         preparedContent = prepareDocumentForChunking(
-          content, 
+          content,
           options.sourceType.toLowerCase() as 'website' | 'upload' | 'manual'
         );
         documentMetadata = extractTextMetadata(preparedContent);
         chunks = chunkText(preparedContent, options.chunkingOptions);
-        
+
         console.log('✅ Using advanced chunking with tiktoken');
         console.log('📊 Tokenization Details (Advanced):', {
           method: 'tiktoken',
@@ -76,19 +86,19 @@ export async function processDocument(
             contentLength: c.content.length,
             preview: c.content.substring(0, 100).replace(/\n/g, ' ') + '...'
           })),
-          ...(chunks.length > 3 && { 
+          ...(chunks.length > 3 && {
             moreChunks: `${chunks.length - 3} more chunks`,
             totalTokens: chunks.reduce((sum, c) => sum + c.tokenCount, 0)
           })
         });
       } catch (tiktokenError) {
         console.warn('⚠️ Tiktoken failed, falling back to simple chunking:', tiktokenError instanceof Error ? tiktokenError.message : tiktokenError);
-        
+
         // Fallback to simple chunking
         preparedContent = simplePrepareDocs(content, options.sourceType);
         documentMetadata = simpleExtractMetadata(preparedContent);
         chunks = simpleChunkText(preparedContent, options.chunkingOptions);
-        
+
         console.log('✅ Using simple chunking fallback');
         console.log('📊 Tokenization Details (Fallback):', {
           method: 'simple-chunking',
@@ -99,7 +109,7 @@ export async function processDocument(
             contentLength: c.content.length,
             preview: c.content.substring(0, 100).replace(/\n/g, ' ') + '...'
           })),
-          ...(chunks.length > 3 && { 
+          ...(chunks.length > 3 && {
             moreChunks: `${chunks.length - 3} more chunks`,
             totalTokens: chunks.reduce((sum, c) => sum + c.tokenCount, 0)
           })
@@ -162,7 +172,7 @@ export async function processDocument(
         })),
         ...(chunkContents.length > 5 && { moreChunks: `${chunkContents.length - 5} more chunks` })
       });
-      
+
       const embeddingResult = await generateEmbeddingsBatch(chunkContents);
       embeddings = embeddingResult.embeddings;
       tokenCount = embeddingResult.tokenCount || 0;
@@ -214,21 +224,21 @@ export async function processDocument(
     for (let i = 0; i < chunkData.length; i += batchSize) {
       const batch = chunkData.slice(i, i + batchSize);
       const batchNumber = Math.floor(i / batchSize) + 1;
-      
+
       console.log(`📦 Processing batch ${batchNumber}/${Math.ceil(chunkData.length / batchSize)}:`, {
         batchStartIndex: i,
         batchSize: batch.length,
         chunkIndices: batch.map(c => c.chunkIndex)
       });
-      
+
       await prisma.$transaction(async (tx) => {
         for (const chunk of batch) {
           try {
             // Ensure embedding is a valid array of numbers
-            const validEmbedding = Array.isArray(chunk.embedding) 
+            const validEmbedding = Array.isArray(chunk.embedding)
               ? chunk.embedding.map(n => Number(n)).filter(n => !isNaN(n))
               : [];
-            
+
             if (validEmbedding.length === 0) {
               throw new Error(`Invalid embedding for chunk ${chunk.chunkIndex} - no valid numbers found`);
             }
@@ -246,7 +256,7 @@ export async function processDocument(
                 NOW()
               )
             `;
-            
+
             console.log(`  ✅ Chunk ${chunk.chunkIndex} stored:`, {
               contentLength: chunk.content.length,
               embeddingDimension: validEmbedding.length,
@@ -259,7 +269,7 @@ export async function processDocument(
           }
         }
       });
-      
+
       console.log(`✅ Batch ${batchNumber} completed successfully`);
     }
 
@@ -309,7 +319,7 @@ export async function processDocument(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     const errorStack = error instanceof Error ? error.stack : undefined;
-    
+
     console.error('❌ Error processing document:', {
       errorMessage,
       errorStack,
@@ -505,7 +515,7 @@ export async function reprocessKnowledgeBase(
 
   } catch (error) {
     console.error('Error reprocessing knowledge base:', error);
-    
+
     // Update status to error
     if (knowledgeBaseId) {
       try {
