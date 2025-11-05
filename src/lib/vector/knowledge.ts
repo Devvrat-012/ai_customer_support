@@ -214,12 +214,63 @@ export async function processDocument(
     }));
 
     // Insert chunks in batches to avoid query size limits
-    const batchSize = 50;
+    // Reduce batch size in production to avoid transaction timeouts
+    const isProduction = process.env.NODE_ENV === 'production';
+    const batchSize = isProduction ? 10 : 50; // Smaller batches for production
     console.log('💾 Starting chunk insertion into database:', {
       totalChunks: chunkData.length,
       batchSize: batchSize,
       totalBatches: Math.ceil(chunkData.length / batchSize)
     });
+
+    // Helper function to insert a chunk with retry logic
+    const insertChunkWithRetry = async (tx: any, chunk: any, batchNumber: number, maxRetries = 3) => {
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          // Ensure embedding is a valid array of numbers
+          const validEmbedding = Array.isArray(chunk.embedding)
+            ? chunk.embedding.map((n: any) => Number(n)).filter((n: number) => !isNaN(n))
+            : [];
+
+          if (validEmbedding.length === 0) {
+            throw new Error(`Invalid embedding for chunk ${chunk.chunkIndex} - no valid numbers found`);
+          }
+
+          await tx.$executeRaw`
+            INSERT INTO "knowledge_chunks" (
+              id, "knowledge_base_id", content, "chunk_index", metadata, embedding, "created_at"
+            ) VALUES (
+              gen_random_uuid()::text,
+              ${chunk.knowledgeBaseId},
+              ${chunk.content},
+              ${chunk.chunkIndex},
+              ${JSON.stringify(chunk.metadata)}::jsonb,
+              ${JSON.stringify(validEmbedding)}::vector,
+              NOW()
+            )
+          `;
+
+          console.log(`  ✅ Chunk ${chunk.chunkIndex} stored (attempt ${attempt}):`, {
+            contentLength: chunk.content.length,
+            embeddingDimension: validEmbedding.length,
+            tokenCount: chunk.metadata?.tokenCount,
+            embeddingPreview: validEmbedding.slice(0, 3).map((v: number) => v.toFixed(6))
+          });
+
+          return; // Success, exit retry loop
+
+        } catch (error) {
+          console.error(`  ❌ Error inserting chunk ${chunk.chunkIndex} (attempt ${attempt}/${maxRetries}):`, error);
+
+          if (attempt === maxRetries) {
+            throw new Error(`Failed to store chunk ${chunk.chunkIndex} after ${maxRetries} attempts: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          }
+
+          // Wait before retry (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+        }
+      }
+    };
 
     for (let i = 0; i < chunkData.length; i += batchSize) {
       const batch = chunkData.slice(i, i + batchSize);
@@ -233,41 +284,10 @@ export async function processDocument(
 
       await prisma.$transaction(async (tx) => {
         for (const chunk of batch) {
-          try {
-            // Ensure embedding is a valid array of numbers
-            const validEmbedding = Array.isArray(chunk.embedding)
-              ? chunk.embedding.map(n => Number(n)).filter(n => !isNaN(n))
-              : [];
-
-            if (validEmbedding.length === 0) {
-              throw new Error(`Invalid embedding for chunk ${chunk.chunkIndex} - no valid numbers found`);
-            }
-
-            await tx.$executeRaw`
-              INSERT INTO "knowledge_chunks" (
-                id, "knowledge_base_id", content, "chunk_index", metadata, embedding, "created_at"
-              ) VALUES (
-                gen_random_uuid()::text,
-                ${chunk.knowledgeBaseId},
-                ${chunk.content},
-                ${chunk.chunkIndex},
-                ${JSON.stringify(chunk.metadata)}::jsonb,
-                ${JSON.stringify(validEmbedding)}::vector,
-                NOW()
-              )
-            `;
-
-            console.log(`  ✅ Chunk ${chunk.chunkIndex} stored:`, {
-              contentLength: chunk.content.length,
-              embeddingDimension: validEmbedding.length,
-              tokenCount: chunk.metadata?.tokenCount,
-              embeddingPreview: validEmbedding.slice(0, 3).map(v => v.toFixed(6))
-            });
-          } catch (error) {
-            console.error(`  ❌ Error inserting chunk ${chunk.chunkIndex}:`, error);
-            throw new Error(`Failed to store chunk ${chunk.chunkIndex}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-          }
+          await insertChunkWithRetry(tx, chunk, batchNumber);
         }
+      }, {
+        timeout: 30000, // 30 second timeout for production
       });
 
       console.log(`✅ Batch ${batchNumber} completed successfully`);
