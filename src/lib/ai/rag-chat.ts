@@ -28,7 +28,7 @@ export interface RAGChatResponse {
 
 const DEFAULT_RAG_OPTIONS: Required<RAGChatOptions> = {
   maxContextChunks: 5,
-  minSimilarity: 0.7,
+  minSimilarity: 0.3, // Lowered from 0.7 to 0.3 for better matching
   includeKnowledgeInfo: true,
   searchType: 'vector',
   fallbackToRegular: true,
@@ -54,6 +54,17 @@ export async function generateRAGResponse(
     const knowledgeResults = await searchKnowledgeBase(userId, userMessage, {
       limit: config.maxContextChunks,
       minSimilarity: config.minSimilarity,
+    });
+
+    console.log('🔍 Knowledge search results:', {
+      query: userMessage,
+      resultsFound: knowledgeResults.length,
+      minSimilarity: config.minSimilarity,
+      results: knowledgeResults.map(r => ({
+        similarity: r.similarity,
+        contentPreview: r.content.substring(0, 100) + '...',
+        knowledgeBaseName: r.knowledgeBaseName
+      }))
     });
 
     const knowledgeUsed = knowledgeResults.length > 0;

@@ -350,7 +350,7 @@ async function generateAIResponse(message: string, user: UserData): Promise<stri
     
     try {
       // Use the knowledge base search function directly
-      const searchResult = await searchKnowledgeBase(message, user.id, {
+      const searchResult = await searchKnowledgeBase(user.id, message, {
         limit: 3,
         minSimilarity: 0.6 // Slightly lower threshold for widget responses
       });

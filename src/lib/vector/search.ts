@@ -36,6 +36,29 @@ export async function searchKnowledgeBase(
   const config = { ...DEFAULT_SEARCH_OPTIONS, ...options };
 
   try {
+    // Debug: Check what knowledge bases exist for this user
+    const userKnowledgeBases = await prisma.knowledgeBase.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        sourceType: true,
+        _count: { select: { chunks: true } }
+      }
+    });
+
+    console.log('📚 User knowledge bases:', {
+      userId,
+      total: userKnowledgeBases.length,
+      knowledgeBases: userKnowledgeBases.map(kb => ({
+        id: kb.id,
+        name: kb.name,
+        status: kb.status,
+        chunks: kb._count.chunks
+      }))
+    });
+
     // Generate embedding for the query
     const { embedding: queryEmbedding } = await generateEmbedding(query);
 
@@ -89,6 +112,18 @@ export async function searchKnowledgeBase(
     params.push(vectorString, config.minSimilarity, config.limit);
 
     const results = await prisma.$queryRawUnsafe(query_sql, ...params) as any[];
+
+    console.log('🔍 Raw search results:', {
+      query: query,
+      totalResults: results.length,
+      results: results.slice(0, 3).map(r => ({
+        id: r.id,
+        knowledgeBaseId: r.knowledgeBaseId,
+        knowledgeBaseName: r.knowledgeBaseName,
+        similarity: r.similarity,
+        contentPreview: r.content?.substring(0, 100) + '...'
+      }))
+    });
 
     return results.map(row => ({
       id: row.id,
